@@ -1,0 +1,119 @@
+package de.thingweb.repository.coap;
+
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.io.Reader;
+import java.io.StringReader;
+import java.io.UnsupportedEncodingException;
+import java.net.URI;
+import java.net.URLDecoder;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.eclipse.californium.core.CoapResource;
+import org.eclipse.californium.core.coap.CoAP.ResponseCode;
+import org.eclipse.californium.core.coap.OptionSet;
+import org.eclipse.californium.core.coap.Response;
+import org.eclipse.californium.core.server.resources.CoapExchange;
+import org.eclipse.californium.core.server.resources.Resource;
+
+import de.thingweb.repository.Repository;
+import de.thingweb.repository.rest.BadRequestException;
+import de.thingweb.repository.rest.RESTException;
+import de.thingweb.repository.rest.RESTHandler;
+import de.thingweb.repository.rest.RESTResource;
+
+public class CoAPRESTResource extends CoapResource {
+
+	protected RESTHandler handler;
+	
+	public CoAPRESTResource(RESTHandler handler) {
+		super(handler.name());
+		this.handler = handler;
+	}
+	
+	@Override
+	public void handleGET(CoapExchange exchange) {
+		try {
+			RESTResource res = handler.get(uri(), params(exchange));
+			// TODO 50 -> application/json, not ld+json
+			exchange.respond(ResponseCode.VALID, res.content, 50);
+		} catch (BadRequestException e) {
+			exchange.respond(ResponseCode.BAD_REQUEST);
+		} catch (RESTException e) {
+			exchange.respond(ResponseCode.INTERNAL_SERVER_ERROR);
+		}
+	}
+	
+	public void handlePOST(CoapExchange exchange) {
+		try {
+			RESTResource resource = handler.post(uri(), params(exchange), payload(exchange));
+			Response response = new Response(ResponseCode.CREATED);
+			response.setOptions(new OptionSet().addLocationPath(trim(resource.path)));
+			exchange.respond(response);
+		} catch (BadRequestException e) {
+			exchange.respond(ResponseCode.BAD_REQUEST);
+		} catch (RESTException e) {
+			exchange.respond(ResponseCode.INTERNAL_SERVER_ERROR);
+		}
+	}
+	
+	@Override
+	public void handlePUT(CoapExchange exchange) {
+		try {
+			handler.put(uri(), params(exchange), payload(exchange));
+			exchange.respond(ResponseCode.CHANGED);
+		} catch (BadRequestException e) {
+			exchange.respond(ResponseCode.BAD_REQUEST);
+		} catch (RESTException e) {
+			exchange.respond(ResponseCode.INTERNAL_SERVER_ERROR);
+		}
+	}
+
+	@Override
+	public void handleDELETE(CoapExchange exchange) {
+		try {
+			handler.delete(uri(), params(exchange), payload(exchange));
+			exchange.respond(ResponseCode.DELETED);
+		} catch (BadRequestException e) {
+			exchange.respond(ResponseCode.BAD_REQUEST);
+		} catch (RESTException e) {
+			exchange.respond(ResponseCode.INTERNAL_SERVER_ERROR);
+		}
+	}
+	
+	protected URI uri() {
+		return URI.create(Repository.get().baseURI + getURI());
+	}
+	
+	protected Map<String, String> params(CoapExchange exchange) {
+		Map<String, String> params = new HashMap<>();
+	  try
+    {
+	    for (String pair : exchange.getRequestOptions().getUriQuery()) {
+        pair = URLDecoder.decode(pair, "UTF-8");
+        if (pair.contains("=")) {
+          String[] p = pair.split("=");
+          params.put(p[0], p[1]);
+        }
+	    }
+    }
+    catch (UnsupportedEncodingException e)
+    {
+      System.err.println("UTF-8 encoding not supported!");
+    }
+		return params;
+	}
+	
+	protected InputStream payload(CoapExchange exchange) {
+	  return new ByteArrayInputStream(exchange.getRequestPayload());
+	}
+	
+	protected String trim(String path) {
+	  if (path.charAt(0) == '/') {
+	    return path.substring(1);
+	  }
+	  return path;
+	}
+
+}
