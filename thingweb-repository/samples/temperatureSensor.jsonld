@@ -1,0 +1,40 @@
+{
+  "@context": "http://w3c.github.io/wot/w3c-wot-td-context.jsonld",
+  "metadata": {
+    "name": "TemperatureSensor2",
+    "protocols" : {
+      "CoAP" : {
+        "uri" : "coap://www.example.com:5683/TemperatureSensor",
+        "priority" : 1
+		  }
+	  },
+    "encodings": [
+      "JSON"
+    ]
+  },
+  "interactions": [
+    {
+      "@type": "Property",
+      "name": "temperature",
+      "outputData": "xsd:float",
+      "writable": false
+    }, {
+      "@type": "Property",
+      "name": "threshold",
+      "outputData": "xsd:float",
+      "writable": true
+    }, {
+      "@type": "Event",
+      "outputData": "xsd:float",
+      "name": "temperatureChanged"
+    }, {
+      "@type": "Event",
+      "outputData": "xsd:float",
+      "name": "highTemperature"
+    },{
+      "@type": "Event",
+      "outputData": "xsd:float",
+      "name": "lowTemperature"
+    }
+  ]
+}

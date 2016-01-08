@@ -35,7 +35,7 @@ public class ThingDescriptionCollectionHandler extends RESTHandler {
 	
 	@Override
 	public RESTResource get(URI uri, Map<String, String> parameters) throws RESTException {
-	  if (!parameters.containsKey("query")) {
+	  if (!parameters.containsKey("query") || parameters.get("query").isEmpty()) {
 	    // TODO also check query's validity
 	    throw new BadRequestException();
 	  }

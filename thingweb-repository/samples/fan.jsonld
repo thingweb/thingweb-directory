@@ -1,0 +1,40 @@
+{
+  "@context": "http://w3c.github.io/wot/w3c-wot-td-context.jsonld",
+  "metadata": {
+    "name": "Fan",
+    "protocols" : {
+      "CoAP" : {
+        "uri" : "coap://www.example.com:5683/Fan",
+        "priority" : 1
+		  },
+      "HTTP" : {
+        "uri" : "http://www.example.com:80/Fan",
+        "priority" : 2
+      }
+	  },
+    "encodings": [
+      "JSON"
+    ]
+  },
+  "interactions": [
+    {
+      "@type": "Property",
+      "name": "speedOfFan",
+      "outputData": "xsd:float",
+      "writable": false
+    }, {
+      "@type": "Action",
+      "name": "fanOnOff",
+      "inputData": "xsd:boolean",
+      "outputData": ""
+    }, {
+      "@type": "Event",
+      "outputData": "xsd:float",
+      "name": "fanTurnedOn"
+    }, {
+      "@type": "Event",
+      "outputData": "",
+      "name": "fanTurnedOff"
+    }
+  ]
+}

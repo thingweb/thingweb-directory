@@ -94,7 +94,14 @@ public class CoAPRESTResource extends CoapResource {
         pair = URLDecoder.decode(pair, "UTF-8");
         if (pair.contains("=")) {
           String[] p = pair.split("=");
-          params.put(p[0], p[1]);
+          if (p.length > 1)
+          {
+        	  params.put(p[0], p[1]);  
+          }
+          else
+          {
+        	  params.put(p[0], "");
+          }
         }
 	    }
     }
