@@ -50,16 +50,32 @@ Failure: 400 Bad Request
 Failure: 500 Internal Server Error
 ```
 
-###### Returns all TDs from the `/td` collection (e.g., a client retrieves the content of the repository).
-
+###### Returns a list of TDs based on a SPARQL query pattern (e.g., a client queries the repository for a TD with a specific Thing URI).
 ```sh
 Method: GET
-URI Template: /td?query
+URI Template: /td
+Request Parameters:
+  query := SPARQL query encoded as URI 
 Content-Type: application/ld+json
-Payload: 
 Success: 200 OK
 Failure: 400 Bad Request
 Failure: 500 Internal Server Error
+```
+
+Examples:
+
+- SPARQL query pattern to return a TD with `coap://192.168.1.104/Fan` associated as its URI: 
+```sh
+?Y <http://www.w3c.org/wot/td#hasMetadata> ?X . ?Z <http://www.w3c.org/wot/td#associatedUri> "coap://192.168.1.104/Fan"^^xsd:anyURI .
+```
+HTTP request with the SPARQL query encoded as URI:
+```sh
+http://localhost:8080/td?query=%3FY+<http%3A%2F%2Fwww.w3c.org%2Fwot%2Ftd%23hasMetadata>+%3FX+.%3FZ+<http%3A%2F%2Fwww.w3c.org%2Fwot%2Ftd%23associatedUri>++"coap%3A%2F%2F192.168.1.104%2FFan"^^xsd%3AanyURI+.
+```
+
+- SPARQL query pattern to return all TDs (not recommended if their is a large amount of TDs in the repository)
+```sh
+?X ?Y ?Z .
 ```
 
 ###### Returns a TD based on its `{id}` (e.g., a client queries the repository for a specific TD).
@@ -80,29 +96,6 @@ Example:
 http://localhost:8080/td/0d134768-1f7b-49f1-9ff0-39ede133c9e2
 ```
 
-###### Returns a TD based on a SPARQL query (e.g., a client queries the repository for a TD with a specific Thing URI).
-```sh
-Method: GET
-URI Template: /td/{id}?{sparql}
-URI Template Parameters: 
-  {id} := ID of a TD to fetch
-  {sparql} := SPARQL query encoded as URI 
-Content-Type: application/ld+json
-Success: 200 OK
-Failure: 400 Bad Request
-Failure: 500 Internal Server Error
-```
-
-Example:
-
-SPARQL query returns a TD with `coap://192.168.1.104/Fan` associated as its URI: 
-```sh
-?Y <http://www.w3c.org/wot/td#hasMetadata> ?X . ?Z <http://www.w3c.org/wot/td#associatedUri> "coap://192.168.1.104/Fan"^^xsd:anyURI .
-```
-HTTP request with the SPARQL query encoded as URI:
-```sh
-http://localhost:8080/td/ff27eec1-50ef-490f-a8af-675812be997e?%3FY+<http%3A%2F%2Fwww.w3c.org%2Fwot%2Ftd%23hasMetadata>+%3FX+.%3FZ+<http%3A%2F%2Fwww.w3c.org%2Fwot%2Ftd%23associatedUri>++"coap%3A%2F%2F192.168.1.104%2FFan"^^xsd%3AanyURI+.
-```
 
 ###### Updates an existing TD.
 ```sh
@@ -131,6 +124,4 @@ Failure: 500 Internal Server Error
 
 ## Swagger Specification of Thingweb-Repository API
 
-## ToDos
-
- - Move Thingweb-Repository code from [the current location](https://github.com/thingweb/thingweb/tree/master/thingweb-discovery) here.
+## TODOs
