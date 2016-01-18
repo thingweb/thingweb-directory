@@ -46,12 +46,12 @@ public class ThingDescriptionCollectionHandler extends RESTHandler {
 		
 		List<String> tds = ThingDescriptionUtils.listThingDescriptions(parameters.get("query"));
     for (int i = 0; i < tds.size(); i++) {
-      String td = tds.get(i);
+      URI td = URI.create(tds.get(i));
       try
       {
-        RESTResource res = new ThingDescriptionHandler(td, instances).get(URI.create(td), new HashMap<String, String>());
+        RESTResource res = new ThingDescriptionHandler(td.toString(), instances).get(td, new HashMap<String, String>());
         // TODO check TD's content type
-        resource.content += "\"" + td + "\": " + res.content;
+        resource.content += "\"" + td.getPath() + "\": " + res.content;
         if (i < tds.size() - 1) {
           resource.content += ",";
         }
@@ -59,7 +59,7 @@ public class ThingDescriptionCollectionHandler extends RESTHandler {
       catch (Exception e)
       {
         e.printStackTrace();
-        System.err.println("Unable to retrieve Thing Description " + td);
+        System.err.println("Unable to retrieve Thing Description " + td.getPath());
       }
     }
 
@@ -71,8 +71,8 @@ public class ThingDescriptionCollectionHandler extends RESTHandler {
 	public RESTResource post(URI uri, Map<String, String> parameters, InputStream payload) throws RESTException {
 		// to add new thing description to the collection
 		
-			UUID uuid = UUID.randomUUID();
-			URI resourceUri = URI.create(normalize(uri) + "/" + uuid);
+			String id = generateID();
+			URI resourceUri = URI.create(normalize(uri) + "/" + id);
 			Dataset dataset = Repository.get().dataset;
 			dataset.begin(ReadWrite.WRITE);
 			try {
@@ -81,10 +81,10 @@ public class ThingDescriptionCollectionHandler extends RESTHandler {
 				// TODO check TD validity
 				tdb.commit();
 				tdb.close();
-				addToAll("/td/" + uuid, new ThingDescriptionHandler(uuid.toString(), instances));
+				addToAll("/td/" + id, new ThingDescriptionHandler(id, instances));
 				dataset.commit();
 				// TODO remove useless return
-				RESTResource resource = new RESTResource("/td/" + uuid, new ThingDescriptionHandler(uuid.toString(), instances));
+				RESTResource resource = new RESTResource("/td/" + id, new ThingDescriptionHandler(id, instances));
 				return resource;
 			} catch (Exception e) {
 				throw new BadRequestException();
@@ -106,6 +106,12 @@ public class ThingDescriptionCollectionHandler extends RESTHandler {
 			return path.substring(uri.getPath().lastIndexOf("/") + 1);
 		}
 		return path;
+	}
+	
+	private String generateID() {
+	  // TODO better way?
+	  String id = UUID.randomUUID().toString();
+	  return id.substring(0, id.indexOf('-'));
 	}
 
 }

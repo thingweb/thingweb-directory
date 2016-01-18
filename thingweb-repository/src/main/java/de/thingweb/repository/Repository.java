@@ -51,16 +51,26 @@ public class Repository {
 	}
 	
 	public static void main(String[] args) throws Exception {
+	  int portCoAP = 5683;
+	  int portHTTP = 8080;
     String loc = "db";
+    
     if (args.length >= 1) {
       loc = args[0];
     }
+    if (args.length >= 2) {
+      portCoAP = Integer.parseInt(args[1]);
+    }
+    if (args.length >= 3) {
+      portHTTP = Integer.parseInt(args[2]);
+    }
+    
     // TODO get http URI
     Repository.get().init(loc, "http://www.example.com");
     
     List<RESTServerInstance> servers = new ArrayList<>();
-    servers.add(new CoAPServer(5683));
-    servers.add(new HTTPServer(8080));
+    servers.add(new CoAPServer(portCoAP));
+    servers.add(new HTTPServer(portHTTP));
 
     for (RESTServerInstance i : servers) {
       i.add("/td", new ThingDescriptionCollectionHandler(servers));
