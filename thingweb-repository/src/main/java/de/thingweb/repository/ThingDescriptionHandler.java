@@ -49,7 +49,7 @@ public class ThingDescriptionHandler extends RESTHandler {
   			resource.contentType = "application/ld+json";
   			StringWriter wr = new StringWriter();
   			td.write(wr, "JSON-LD");
-  			resource.content = DescriptionParser.reshape(wr.toString());
+  			resource.content = DescriptionParser.reshape(wr.toString().getBytes());
   			return resource;
     }
     catch (JsonProcessingException e)
