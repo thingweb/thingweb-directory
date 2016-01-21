@@ -50,7 +50,10 @@ Failure: 400 Bad Request
 Failure: 500 Internal Server Error
 ```
 
+If the response code is `201 Created`, the URI path of the created sub-resource is defined in the header field `Location` (for HTTP) or `Location-Path` (for CoAP). The path is relative to the root resource and follows the pattern `/td/{id}`, where `id` is an ID assigned by the repository for the uploaded Thing Description.
+
 ###### Returns a list of TDs based on a SPARQL query pattern (e.g., a client queries the repository for a TD with a specific Thing URI).
+
 ```sh
 Method: GET
 URI Template: /td
@@ -78,6 +81,15 @@ http://localhost:8080/td?query=%3FY+<http%3A%2F%2Fwww.w3c.org%2Fwot%2Ftd%23hasMe
 ?X ?Y ?Z .
 ```
 
+The response is a JSON object (_but no valid JSON-LD document_). This JSON object should have the following form:
+```sh
+{
+  "/td/{id}": {... Thing Description ...},
+  "/td/{id}": {... Thing Description ...},
+  ...
+}
+```
+
 ###### Returns a TD based on its `{id}` (e.g., a client queries the repository for a specific TD).
 
 ```sh
@@ -93,7 +105,7 @@ Failure: 500 Internal Server Error
 
 Example:
 ```sh
-http://localhost:8080/td/0d134768-1f7b-49f1-9ff0-39ede133c9e2
+http://localhost:8080/td/0d134768
 ```
 
 
