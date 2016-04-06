@@ -1,9 +1,6 @@
 package de.thingweb.repository;
 
-import java.io.IOException;
 import java.io.InputStream;
-import java.io.Reader;
-import java.io.StringWriter;
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
@@ -14,12 +11,8 @@ import org.apache.jena.query.QueryExecutionFactory;
 import org.apache.jena.query.ReadWrite;
 import org.apache.jena.query.ResultSet;
 import org.apache.jena.rdf.model.Model;
-import org.apache.jena.tdb.TDBFactory;
 import org.apache.jena.vocabulary.DC;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-
-import de.thingweb.desc.ThingDescriptionParser;
 import de.thingweb.repository.rest.BadRequestException;
 import de.thingweb.repository.rest.RESTException;
 import de.thingweb.repository.rest.RESTHandler;
