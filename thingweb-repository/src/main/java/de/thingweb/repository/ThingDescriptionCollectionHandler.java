@@ -1,6 +1,10 @@
 package de.thingweb.repository;
 
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringWriter;
 import java.net.URI;
@@ -20,6 +24,7 @@ import org.apache.jena.query.ResultSet;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.tdb.TDBFactory;
+import org.apache.jena.vocabulary.DC;
 
 import de.thingweb.repository.rest.BadRequestException;
 import de.thingweb.repository.rest.RESTException;
@@ -70,27 +75,37 @@ public class ThingDescriptionCollectionHandler extends RESTHandler {
 	@Override
 	public RESTResource post(URI uri, Map<String, String> parameters, InputStream payload) throws RESTException {
 		// to add new thing description to the collection
+		String id = generateID();
+		URI resourceUri = URI.create(normalize(uri) + "/" + id);
+		Dataset dataset = Repository.get().dataset;
+		dataset.begin(ReadWrite.WRITE);
 		
-			String id = generateID();
-			URI resourceUri = URI.create(normalize(uri) + "/" + id);
-			Dataset dataset = Repository.get().dataset;
-			dataset.begin(ReadWrite.WRITE);
-			try {
-				Model tdb = dataset.getNamedModel(resourceUri.toString());
-				tdb.read(payload, "", "JSON-LD");
-				// TODO check TD validity
-				tdb.commit();
-				tdb.close();
-				addToAll("/td/" + id, new ThingDescriptionHandler(id, instances));
-				dataset.commit();
-				// TODO remove useless return
-				RESTResource resource = new RESTResource("/td/" + id, new ThingDescriptionHandler(id, instances));
-				return resource;
-			} catch (Exception e) {
-				throw new BadRequestException();
-			} finally {
-				dataset.end();
-			}
+		try {
+		  String data = streamToString(payload);
+		  
+			Model tdb = dataset.getNamedModel(resourceUri.toString());
+			tdb.read(new ByteArrayInputStream(data.getBytes()), "", "JSON-LD");
+			// TODO check TD validity
+			tdb.commit();
+			tdb.close();
+
+      tdb = dataset.getDefaultModel();
+      tdb.createResource(resourceUri.toString()).addProperty(DC.source, data);
+      tdb.commit();
+      tdb.close();
+      
+			addToAll("/td/" + id, new ThingDescriptionHandler(id, instances));
+			dataset.commit();
+			// TODO remove useless return
+			RESTResource resource = new RESTResource("/td/" + id, new ThingDescriptionHandler(id, instances));
+			return resource;
+		} catch (IOException e) {
+		  throw new BadRequestException();
+		} catch (Exception e) {
+			throw new RESTException();
+		} finally {
+			dataset.end();
+		}
 	}
 
 	private String normalize(URI uri) {
@@ -112,6 +127,20 @@ public class ThingDescriptionCollectionHandler extends RESTHandler {
 	  // TODO better way?
 	  String id = UUID.randomUUID().toString();
 	  return id.substring(0, id.indexOf('-'));
+	}
+	
+	private String streamToString(InputStream s) throws IOException {
+	  StringWriter w = new StringWriter();
+	  InputStreamReader r = new InputStreamReader(s, "UTF-8");
+	  char[] buf = new char [512];
+	  int len;
+	  
+	  while ((len = r.read(buf)) > 0) {
+	    w.write(buf, 0, len);
+	  }
+	  s.close();
+	  
+	  return w.toString();
 	}
 
 }

@@ -1,19 +1,14 @@
 package de.thingweb.repository;
 
-import de.thingweb.repository.RepositoryClient;
+import static org.junit.Assert.*;
+
+import org.junit.Test;
 
 public class test_discovery_server {
 
-	
-	public static void main(String args[]) {
-		
-		RepositoryClient tdr = new RepositoryClient("localhost", 3030);
-		
-		try {
-			tdr.tdSearch("Lamp");
-		} catch (Exception e) {
-
-			e.printStackTrace();
-		}
-	}
+	@Test
+  public void testRepository() throws Exception
+  {
+    // TODO
+  }
 }

@@ -26,12 +26,14 @@
 
 repositories {
 	maven { url "https://jitpack.io" }
+	maven { url "http://dl.bintray.com/thingweb/maven" }
 	mavenCentral()
 	jcenter()
 }
 
 dependencies {
-    compile "com.github.thingweb.thingweb:thingweb-parser:master-SNAPSHOT"
+    //compile "com.github.thingweb.thingweb:thingweb-parser:master-SNAPSHOT"
+    compile "de.thingweb:thingweb-parser:v0.2.0+"
     
 	compile 'org.eclipse.californium:californium-core:1.0.0-M3'
 	compile 'org.apache.jena:apache-jena-libs:3.0.0'

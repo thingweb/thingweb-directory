@@ -12,12 +12,14 @@ import org.apache.jena.query.Dataset;
 import org.apache.jena.query.QueryExecution;
 import org.apache.jena.query.QueryExecutionFactory;
 import org.apache.jena.query.ReadWrite;
+import org.apache.jena.query.ResultSet;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.tdb.TDBFactory;
+import org.apache.jena.vocabulary.DC;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 
-import de.thingweb.desc.DescriptionParser;
+import de.thingweb.desc.ThingDescriptionParser;
 import de.thingweb.repository.rest.BadRequestException;
 import de.thingweb.repository.rest.RESTException;
 import de.thingweb.repository.rest.RESTHandler;
@@ -35,33 +37,23 @@ public class ThingDescriptionHandler extends RESTHandler {
 		RESTResource resource = new RESTResource(uri.toString(),this);
     Dataset dataset = Repository.get().dataset;
     dataset.begin(ReadWrite.READ);
+    
     try {
-  		Model td = null;
-  			String query = new String();
-  			query = "CONSTRUCT {?s ?p ?o} FROM <" + uri + "> WHERE {?s ?p ?o}";
-  
-  			try (QueryExecution qexec = QueryExecutionFactory.create(query, dataset)) {
-  
-  				td = qexec.execConstruct();
-  
-  			}
-  			
-  			resource.contentType = "application/ld+json";
-  			StringWriter wr = new StringWriter();
-  			td.write(wr, "JSON-LD");
-  			resource.content = DescriptionParser.reshape(wr.toString().getBytes());
-  			return resource;
-    }
-    catch (JsonProcessingException e)
-    {
-      throw new BadRequestException();
-    }
-    catch (IOException e)
-    {
-      throw new RESTException();
+      String q = "SELECT ?str WHERE { <" + uri + "> <" + DC.source + "> ?str }";
+      QueryExecution qexec = QueryExecutionFactory.create(q, dataset);
+      ResultSet result = qexec.execSelect();
+      
+      if (result.hasNext()) {
+        resource.contentType = "application/ld+json";
+        resource.content = result.next().get("str").asLiteral().getLexicalForm();
+      } else {
+        throw new RESTException();
+      }
     } finally {
       dataset.end();
     }
+    
+		return resource;
 	}
 	
 	@Override

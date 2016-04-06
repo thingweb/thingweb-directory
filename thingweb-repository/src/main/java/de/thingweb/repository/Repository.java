@@ -19,12 +19,12 @@ import de.thingweb.repository.rest.RESTHandler;
 import de.thingweb.repository.rest.RESTServerInstance;
 
 public class Repository {
-
+  
 	// TODO make it private
 	public Dataset dataset;
 	public String baseURI;
 	
-	public static Repository singleton;
+	private static Repository singleton;
 	
 	public static Repository get() {
 		if (singleton == null) {
