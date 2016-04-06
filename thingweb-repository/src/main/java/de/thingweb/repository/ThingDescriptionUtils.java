@@ -1,5 +1,9 @@
 package de.thingweb.repository;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,6 +35,20 @@ public class ThingDescriptionUtils
     }
 
     return tds;
+  }
+  
+  public static String streamToString(InputStream s) throws IOException {
+    StringWriter w = new StringWriter();
+    InputStreamReader r = new InputStreamReader(s, "UTF-8");
+    char[] buf = new char [512];
+    int len;
+    
+    while ((len = r.read(buf)) > 0) {
+      w.write(buf, 0, len);
+    }
+    s.close();
+    
+    return w.toString();
   }
 
 }

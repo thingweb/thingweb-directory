@@ -81,18 +81,14 @@ public class ThingDescriptionCollectionHandler extends RESTHandler {
 		dataset.begin(ReadWrite.WRITE);
 		
 		try {
-		  String data = streamToString(payload);
+		  String data = ThingDescriptionUtils.streamToString(payload);
 		  
 			Model tdb = dataset.getNamedModel(resourceUri.toString());
 			tdb.read(new ByteArrayInputStream(data.getBytes()), "", "JSON-LD");
 			// TODO check TD validity
-			tdb.commit();
-			tdb.close();
 
       tdb = dataset.getDefaultModel();
       tdb.createResource(resourceUri.toString()).addProperty(DC.source, data);
-      tdb.commit();
-      tdb.close();
       
 			addToAll("/td/" + id, new ThingDescriptionHandler(id, instances));
 			dataset.commit();
@@ -127,20 +123,6 @@ public class ThingDescriptionCollectionHandler extends RESTHandler {
 	  // TODO better way?
 	  String id = UUID.randomUUID().toString();
 	  return id.substring(0, id.indexOf('-'));
-	}
-	
-	private String streamToString(InputStream s) throws IOException {
-	  StringWriter w = new StringWriter();
-	  InputStreamReader r = new InputStreamReader(s, "UTF-8");
-	  char[] buf = new char [512];
-	  int len;
-	  
-	  while ((len = r.read(buf)) > 0) {
-	    w.write(buf, 0, len);
-	  }
-	  s.close();
-	  
-	  return w.toString();
 	}
 
 }
