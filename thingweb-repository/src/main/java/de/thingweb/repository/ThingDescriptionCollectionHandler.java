@@ -7,7 +7,9 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -49,7 +51,14 @@ public class ThingDescriptionCollectionHandler extends RESTHandler {
 		resource.contentType = "application/ld+json";
 		resource.content = "{";
 		
-		List<String> tds = ThingDescriptionUtils.listThingDescriptions(parameters.get("query"));
+		List<String> tds = new ArrayList<String>();
+    try
+    {
+      tds = ThingDescriptionUtils.listThingDescriptions(parameters.get("query"));
+    } catch (Exception e) {
+      throw new BadRequestException();
+    }
+    
     for (int i = 0; i < tds.size(); i++) {
       URI td = URI.create(tds.get(i));
       try

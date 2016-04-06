@@ -30,6 +30,9 @@ public class ThingDescriptionUtils
           tds.add(result.next().get("g").asResource().getURI());
         }
       }
+    catch (Exception e) {
+      throw e;
+    }
     } finally {
       dataset.end();
     }
