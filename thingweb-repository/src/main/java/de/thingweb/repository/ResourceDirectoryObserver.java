@@ -26,10 +26,15 @@ import org.eclipse.californium.core.CoapResponse;
  *  that register to it. When a thing is registered in the Resourse Directory, 
  *  an observation event occures that sends the URI of that new thing to the 
  *  observers. This class uses that URI to GET the thing description.
- *
+ * 
+ * In the same way, when a thing is no longer registered in the Resource
+ * Directory, an observation event occurs and the thing description is 
+ * deleted from the database. A deregistered thing is identified because its
+ * URI would not be found in the ResourceDirectory response.
  */
 public class ResourceDirectoryObserver {
   private String rd_uri;
+  private String td_uri;
   private CoapObserveRelation relation;
   private CoapClient client;
   private HashMap<String, Boolean> things_map;
@@ -40,10 +45,18 @@ public class ResourceDirectoryObserver {
 
   public ResourceDirectoryObserver(String uri, List<RESTServerInstance> srvs) {
     rd_uri = uri;
+    td_uri = "http://www.example.com";
 
     servers = srvs;
     client = new CoapClient(rd_uri + "/rd");
     things_map = new HashMap<String, Boolean>();
+    things_uris = new HashMap<String, String>();
+
+    // load thing_uris with the URIs stored in the repository's database
+    for (String td_uri: ThingDescriptionUtils.listThingDescriptionsUri()) {
+      System.out.println(td_uri);
+      this.things_uris.put(td_uri, td_uri);
+    }
 
     // observing
     relation = client.observe(
@@ -54,13 +67,16 @@ public class ResourceDirectoryObserver {
 
             // Extract the url's
             Matcher m = Pattern.compile(url_re).matcher(content);
+            things_map.clear();
 
             while (m.find()) {
-              if (!things_map.containsKey(m.group())) {
-                String thing_url = m.group();
-
-                things_map.put(thing_url, true);
-
+              
+              String thing_url = m.group();
+              things_map.put(thing_url, true);
+              
+              // Check if a new resource registers
+              if (!things_uris.containsKey(thing_url)) {
+                
                 // Get TD
                 System.out.println(thing_url);
                 CoapClient cli = new CoapClient(thing_url);
@@ -69,11 +85,12 @@ public class ResourceDirectoryObserver {
                   @Override public void onLoad(CoapResponse response) {
                     String content = response.getResponseText();
                     System.out.println(content);
-		
-                    // add the thing description
+    
+                    // Add TD
                     ThingDescriptionCollectionHandler tdch = new ThingDescriptionCollectionHandler(servers);
                     try {
-                      tdch.post(new URI("coap://localhost:5683/td"), null, new ByteArrayInputStream(response.getPayload()));
+                      tdch.post(new URI(td_uri + "/td"), null, new ByteArrayInputStream(response.getPayload()));
+                      
                     } catch (Exception e) {
                       System.err.println(e.getMessage());
                     }
@@ -83,9 +100,14 @@ public class ResourceDirectoryObserver {
                     System.err.println("Failed");
                   }
                 });
-
+        
               }
+              
             }
+            
+            // Check if a known resource has deregistered, if so remove TD
+            removeDeregisteredThingDescriptions();
+            
           }
 
           @Override public void onError() {
@@ -94,4 +116,45 @@ public class ResourceDirectoryObserver {
     });
     //relation.proactiveCancel();
   }
+
+
+  /**
+   * @brief Removes deregistered thing descriptions from the repository's database.
+   * 
+   * First, checks if a resource has deregistered from the Resource Directory.
+   * If deregistered, then deletes it from the database.
+   */
+  private void removeDeregisteredThingDescriptions() {
+    
+    for (String uri : this.things_uris.keySet()) {
+        
+        if (!this.things_map.containsKey(uri)) {
+          
+          String source_id = "";
+          try {
+              source_id = ThingDescriptionUtils.getThingDescriptionIdFromUri(uri);
+              
+              System.out.println("Removing description with id " + source_id);
+            
+              // delete the thing description
+              ThingDescriptionHandler tdh = new ThingDescriptionHandler(source_id, servers);
+              try {
+                  
+              tdh.delete(new URI(source_id), null, null);
+              this.things_uris.remove(uri);
+              System.out.println("Successfully removed description of URI " + uri);
+                  
+                } catch (Exception e) {
+                  System.err.println(e.getMessage());
+                }
+              
+            } catch (Exception e) {
+              System.err.println(e.getMessage());
+            }
+              
+        }
+      }
+    
+  }
+  
 }
