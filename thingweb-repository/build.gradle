@@ -38,6 +38,14 @@ dependencies {
 	compile 'org.eclipse.californium:californium-core:1.0.0-M3'
 	compile 'org.apache.jena:apache-jena-libs:3.0.0'
 	compile 'org.eclipse.jetty:jetty-maven-plugin:9.3.6.v20151106'
+
+	// dependencies for jena-text
+	compile group: 'commons-codec', name: 'commons-codec', version: '1.9'
+	compile group: 'org.apache.lucene', name: 'lucene-core', version: '4.9.1'
+	compile group: 'org.apache.lucene', name: 'lucene-analyzers-common', version: '4.9.1'
+	compile group: 'org.apache.lucene', name: 'lucene-queryparser', version: '4.9.1'
+	compile group: 'org.apache.solr', name: 'solr-solrj', version: '4.9.1'
+	compile group: 'org.apache.jena', name: 'jena-text', version: '3.0.0', ext: "jar"
 	
     testCompile group: 'junit', name: 'junit', version: '4.8'
 
