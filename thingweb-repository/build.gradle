@@ -51,8 +51,27 @@ dependencies {
 
 }
 jar {
-from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+	doFirst {
+        def serviceDir = file("$buildDir/META-INF/services")
+        serviceDir.deleteDir()
+        serviceDir.mkdirs()
+
+        // copy all service files from deps to buildDir
+        for(file in configurations.runtime) {
+            zipTree(file).matching{ include 'META-INF/services/*' }.each { f ->
+                new File(serviceDir, f.name) << f.getText("UTF-8")
+            }
+        }
+    }
+	
+	from ( configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } ) {
+		exclude 'META-INF/**' // Don't let Gradle merge service files
+	}
+	
     manifest {
         attributes 'Main-Class': 'de.thingweb.repository.Repository'
     }
+    
+    // include service files from the buildDir
+    from fileTree(buildDir).matching{ include 'META-INF/services/*' }
 }
