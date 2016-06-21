@@ -96,13 +96,13 @@ public class ThingDescriptionCollectionHandler extends RESTHandler {
 			tdb.read(new ByteArrayInputStream(data.getBytes()), "", "JSON-LD");
 			// TODO check TD validity
 
-      tdb = dataset.getDefaultModel();
-      tdb.createResource(resourceUri.toString()).addProperty(DC.source, data);
+      		tdb = dataset.getDefaultModel();
+      		tdb.createResource(resourceUri.toString()).addProperty(DC.source, data);
       
 			addToAll("/td/" + id, new ThingDescriptionHandler(id, instances));
 			dataset.commit();
 			// TODO remove useless return
-			RESTResource resource = new RESTResource("/td/" + id, new ThingDescriptionHandler(id, instances));
+			RESTResource resource = new RESTResource(resourceUri.toString(), new ThingDescriptionHandler(id, instances));
 			return resource;
 		} catch (IOException e) {
 		  throw new BadRequestException();
