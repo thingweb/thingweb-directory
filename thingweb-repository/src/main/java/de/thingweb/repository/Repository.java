@@ -7,15 +7,10 @@ import java.util.Map;
 
 import org.apache.jena.query.Dataset;
 import org.apache.jena.tdb.TDBFactory;
-import org.eclipse.jetty.servlet.ServletHandler;
-import org.eclipse.jetty.servlet.ServletHolder;
-import org.eclipse.californium.core.server.resources.Resource;
+import org.apache.jena.query.DatasetFactory;
 
-import de.thingweb.repository.coap.CoAPRESTResource;
 import de.thingweb.repository.coap.CoAPServer;
-import de.thingweb.repository.http.HTTPRESTResource;
 import de.thingweb.repository.http.HTTPServer;
-import de.thingweb.repository.rest.RESTHandler;
 import de.thingweb.repository.rest.RESTServerInstance;
 
 public class Repository {
@@ -34,7 +29,10 @@ public class Repository {
 	}
 	
 	private void init(String db, String uri) {
-	  dataset = TDBFactory.createDataset(db);
+       //dataset = TDBFactory.createDataset(db);
+	  // Use the assembler file
+	  dataset = DatasetFactory.assemble("jena-config.ttl", "http://localhost/jena_example/#text_dataset");
+	  baseURI = uri;
 	  baseURI = uri;
 	}
 	
@@ -51,9 +49,9 @@ public class Repository {
 	}
 	
 	public static void main(String[] args) throws Exception {
-	  int portCoAP = 5683;
+	  int portCoAP = 5685;
 	  int portHTTP = 8080;
-    String loc = "db";
+    String loc = "database";
     
     if (args.length >= 1) {
       loc = args[0];
