@@ -133,7 +133,7 @@ public class ThingDescriptionUtils
   }
 
 
-  // FOR JENA-TEXT
+  // *********** FOR JENA-TEXT ************
 
   /**
   * Extracts the key words from the model's statements.
@@ -216,6 +216,110 @@ public class ThingDescriptionUtils
     }
     
     return tds;
+  }
+
+
+  // *********** FOR RESOURCE DIRECTORY ************
+
+  /**
+   * Returns a list of registered end points
+   * @return
+   */
+  public static List<String> listEndpoints() {
+    
+    List<String> eps = new ArrayList<>();
+    
+    Dataset dataset = Repository.get().dataset;
+    dataset.begin(ReadWrite.READ);
+    
+    String prefix = "PREFIX rdf-schema: <http://www.w3.org/2000/01/rdf-schema#>";
+
+    try {
+      String q = prefix + " SELECT ?endpoint WHERE { ?s rdf-schema:isDefinedBy ?endpoint . }";
+      try (QueryExecution qexec = QueryExecutionFactory.create(q, dataset)) {
+        ResultSet result = qexec.execSelect();
+        while (result.hasNext()) { 
+        eps.add(result.next().get("endpoint").toString());
+        }
+      }
+    catch (Exception e) {
+      throw e;
+    }
+    } finally {
+      dataset.end();
+    }
+    
+    return eps;
+  }
+
+  /**
+   * Checks if lifetime is still valid (at least 10 seconds)
+   * @param uri Uri of the resource to check its lifetime
+   * @return true if time > 10 seconds, false otherwise
+   */
+  public static Boolean checkLifeTime(URI uri) {
+  
+    List<String> dates = new ArrayList<String>();
+    Boolean hasTime = true;
+    
+    Dataset dataset = Repository.get().dataset;
+    dataset.begin(ReadWrite.READ);
+    
+    String prefix = "PREFIX purl: <http://purl.org/dc/terms/> ";
+    String query = "SELECT ?modified ?lifetime WHERE { " +
+            " <" + uri.toString() + "> purl:modified ?modified. " +
+            " <" + uri.toString() + "> purl:dateAccepted ?lifetime. }";
+    
+    String dateMod = "";
+    String dateLife = "";
+    
+    try {
+      
+      try (QueryExecution qexec = QueryExecutionFactory.create(prefix + query, dataset)) {
+        ResultSet result = qexec.execSelect();
+        QuerySolution sol;
+          while (result.hasNext()) {
+            sol = result.next();
+            dateMod = sol.get("modified").toString();
+            dateLife = sol.get("lifetime").toString();
+          }
+      }
+      
+    } catch (Exception e) {
+      throw e;
+    } finally {
+      dataset.end();
+    }
+    
+    if ( dateMod != null && !dateMod.isEmpty() && dateLife != null && !dateLife.isEmpty() ) {
+      DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+      Calendar modCal = Calendar.getInstance();
+      Calendar lifeCal = Calendar.getInstance();
+      long diff;
+      try {
+        //modCal.setTime(dateFormat.parse(dateMod));
+        lifeCal.setTime(dateFormat.parse(dateLife));
+        diff =  lifeCal.getTimeInMillis() - modCal.getTimeInMillis();
+        System.out.println("Remaining time " + Long.toString(diff));
+        if (diff <= 10 * 1000) {
+          hasTime = false;
+        }
+          
+      } catch (ParseException e) {
+        e.printStackTrace();
+      }
+    }
+    
+    return hasTime;
+  }
+  
+  
+  public String getCurrentDateTime(int plusTime) {
+    
+    DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+    Calendar cal = Calendar.getInstance();
+    cal.add(Calendar.SECOND, plusTime); // for the life time, else adds 0 sec
+    return dateFormat.format(cal.getTime());
   }
 
 }

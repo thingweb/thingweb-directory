@@ -26,6 +26,9 @@ import de.thingweb.repository.rest.RESTResource;
 import de.thingweb.repository.rest.RESTServerInstance;
 
 public class ThingDescriptionHandler extends RESTHandler {
+
+  // for Resource Directory
+  public static final String LIFE_TIME = "lt";
 	
 	public ThingDescriptionHandler(String id, List<RESTServerInstance> instances) {
 		super(id, instances);
@@ -34,6 +37,16 @@ public class ThingDescriptionHandler extends RESTHandler {
 	@Override
 	public RESTResource get(URI uri, Map<String, String> parameters) throws RESTException {
 		RESTResource resource = new RESTResource(uri.toString(),this);
+
+    // Check if life time is invalid
+    if (!ThingDescriptionUtils.checkLifeTime(uri)) {
+      try {
+      delete(uri, null, null);
+      } finally {
+        throw new RESTException();
+      }
+    }
+
     Dataset dataset = Repository.get().dataset;
     dataset.begin(ReadWrite.READ);
     
@@ -70,11 +83,30 @@ public class ThingDescriptionHandler extends RESTHandler {
   			throw new BadRequestException();
   		}
 
+      // Save properties of td's creation (kept on the default graph)
       ThingDescriptionUtils utils = new ThingDescriptionUtils();
       Model tdb = dataset.getDefaultModel();
+      String created, modified, lifetime, lt, endpointName;
+      created = tdb.getResource(uri.toString()).getProperty(DCTerms.created).getString();
+      modified = utils.getCurrentDateTime(0);
+      lifetime = tdb.getResource(uri.toString()).getProperty(DCTerms.dateAccepted).getString();
+      endpointName = tdb.getResource(uri.toString()).getProperty(RDFS.isDefinedBy).getString();
+      
+      // Check if life time value is given
+      if (parameters.containsKey(LIFE_TIME) && !parameters.get(LIFE_TIME).isEmpty()) {
+        lt = parameters.get(LIFE_TIME);
+        lifetime = new ThingDescriptionUtils().getCurrentDateTime(Integer.parseInt(lt));
+        // TODO enforce a minimal lifetime
+      }
 
-      dataset.getDefaultModel().createResource(uri.toString()).removeProperties().addLiteral(DC.source, data);
+      tdb.createResource(uri.toString()).removeProperties().addLiteral(DC.source, data);
       dataset.replaceNamedModel(uri.toString(), td);
+
+      // Store properties. Update modified date and lifetime (if given)
+      tdb.getResource(uri.toString()).addProperty(DCTerms.created, created);
+      tdb.getResource(uri.toString()).addProperty(DCTerms.modified, modified);
+      tdb.getResource(uri.toString()).addProperty(DCTerms.dateAccepted, lifetime);
+      tdb.getResource(uri.toString()).addProperty(RDFS.isDefinedBy, endpointName);
 
       // Get key words of new content and store it
       Model newThing = dataset.getNamedModel(uri.toString());

@@ -26,6 +26,10 @@ import de.thingweb.repository.rest.RESTResource;
 import de.thingweb.repository.rest.RESTServerInstance;
 
 public class ThingDescriptionCollectionHandler extends RESTHandler {
+
+	// for Resource Directory
+	public static final String LIFE_TIME = "lt";
+	public static final String END_POINT = "ep";
 	
 	public ThingDescriptionCollectionHandler(List<RESTServerInstance> instances) {
 		super("td", instances);
@@ -105,6 +109,21 @@ public class ThingDescriptionCollectionHandler extends RESTHandler {
 
 	@Override
 	public RESTResource post(URI uri, Map<String, String> parameters, InputStream payload) throws RESTException {
+
+		// to register a resource following the standard
+		String endpointName = "http://example.org/"; // this is temporary
+		String lifeTime = "86400"; // 24 hours by default in seconds
+
+		// TODO make it mandatory. The rest are optional
+		if (parameters.containsKey(END_POINT) && !parameters.get(END_POINT).isEmpty()) {
+			endpointName = parameters.get(END_POINT);	
+		}
+		
+		if (parameters.containsKey(LIFE_TIME) && !parameters.get(LIFE_TIME).isEmpty()) {
+			lifeTime = parameters.get(LIFE_TIME);
+			// TODO enforce a minimal lifetime
+		}
+
 		// to add new thing description to the collection
 		String id = generateID();
 		URI resourceUri = URI.create(normalize(uri) + "/" + id);
@@ -113,7 +132,7 @@ public class ThingDescriptionCollectionHandler extends RESTHandler {
 
 		dataset.begin(ReadWrite.WRITE);
 		try {
-		  String data = ThingDescriptionUtils.streamToString(payload);
+		  	String data = ThingDescriptionUtils.streamToString(payload);
 		  
 			Model tdb = dataset.getNamedModel(resourceUri.toString());
 			tdb.read(new ByteArrayInputStream(data.getBytes()), "", "JSON-LD");
@@ -129,12 +148,21 @@ public class ThingDescriptionCollectionHandler extends RESTHandler {
 
 			// Store key words as triple: ?g_id rdfs:comment "keyWordOrWords"
 			tdb.getResource(resourceUri.toString()).addProperty(RDFS.comment, StrUtils.strjoin(" ", keyWords));
+
+			// Store END_POINT and LIFE_TIME as triples
+			String currentDate = utils.getCurrentDateTime(0);
+			String lifetimeDate = utils.getCurrentDateTime(Integer.parseInt(lifeTime));
+			tdb.getResource(resourceUri.toString()).addProperty(RDFS.isDefinedBy, endpointName);
+			tdb.getResource(resourceUri.toString()).addProperty(DCTerms.created, currentDate);
+			tdb.getResource(resourceUri.toString()).addProperty(DCTerms.modified, currentDate);
+			tdb.getResource(resourceUri.toString()).addProperty(DCTerms.dateAccepted, lifetimeDate);
       
 			addToAll("/td/" + id, new ThingDescriptionHandler(id, instances));
 			dataset.commit();
 			// TODO remove useless return
 			RESTResource resource = new RESTResource(resourceUri.toString(), new ThingDescriptionHandler(id, instances));
 			return resource;
+
 		} catch (IOException e) {
 		  throw new BadRequestException();
 		} catch (Exception e) {
