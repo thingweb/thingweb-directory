@@ -36,8 +36,7 @@ public class CoAPRESTResource extends CoapResource {
 	public void handleGET(CoapExchange exchange) {
 		try {
 			RESTResource res = handler.get(uri(), params(exchange));
-			// TODO 50 -> application/json, not ld+json
-			exchange.respond(ResponseCode.VALID, res.content, 50);
+			exchange.respond(ResponseCode.VALID, res.content, toContentFormatCode(res.contentType));
 		} catch (BadRequestException e) {
 			exchange.respond(ResponseCode.BAD_REQUEST);
 		} catch (RESTException e) {
@@ -121,6 +120,14 @@ public class CoAPRESTResource extends CoapResource {
 	    return path.substring(1);
 	  }
 	  return path;
+	}
+	
+	protected int toContentFormatCode(String contentType) {
+	  switch (contentType) {
+      // TODO 50 -> application/json, not ld+json
+	    case "application/ld+json": return 50;
+	    default: return 0;
+	  }
 	}
 
 }
