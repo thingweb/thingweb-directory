@@ -33,7 +33,6 @@ public class Repository {
 	  // Use the assembler file
 	  dataset = DatasetFactory.assemble("jena-config.ttl", "http://localhost/jena_example/#text_dataset");
 	  baseURI = uri;
-	  baseURI = uri;
 	}
 	
 	private void terminate() {
@@ -71,10 +70,13 @@ public class Repository {
     servers.add(new HTTPServer(portHTTP));
 
     for (RESTServerInstance i : servers) {
-      i.add("/td", new ThingDescriptionCollectionHandler(servers));
-      for (String td : listThingDescriptions()) {
-        i.add("/td/" + td, new ThingDescriptionHandler(td, servers));
-      }
+    	i.add("/td-lookup", new TDLookUpHandler(servers));
+      	i.add("/td-lookup/ep", new TDLookUpEPHandler(servers));
+      	i.add("/td-lookup/sparql", new TDLookUpSparqlHandler(servers));
+      	i.add("/td", new ThingDescriptionCollectionHandler(servers));
+      	for (String td : listThingDescriptions()) {
+        	i.add("/td/" + td, new ThingDescriptionHandler(td, servers));
+     	}
       
       i.start();
     }
