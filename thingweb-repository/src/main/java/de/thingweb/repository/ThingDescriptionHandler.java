@@ -7,14 +7,17 @@ import java.net.URI;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.jena.atlas.lib.StrUtils;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.QueryExecution;
 import org.apache.jena.query.QueryExecutionFactory;
 import org.apache.jena.query.ReadWrite;
 import org.apache.jena.query.ResultSet;
 import org.apache.jena.rdf.model.Model;
-import org.apache.jena.rdf.model.Resource;
+import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.vocabulary.DC;
+import org.apache.jena.vocabulary.DCTerms;
+import org.apache.jena.vocabulary.RDFS;
 
 import de.thingweb.repository.rest.BadRequestException;
 import de.thingweb.repository.rest.RESTException;
@@ -59,16 +62,25 @@ public class ThingDescriptionHandler extends RESTHandler {
 
     try {
       String data = ThingDescriptionUtils.streamToString(payload);
-  		Model td = dataset.getDefaultModel();
+  		Model td = ModelFactory.createDefaultModel();
   		// TODO find a way to know the base IRI in the document...
   		td.read(new ByteArrayInputStream(data.getBytes()), "", "JSON-LD");
   
   		if (td.isEmpty()) {
   			throw new BadRequestException();
   		}
-  		
-  		dataset.getDefaultModel().createResource(uri.toString()).removeProperties().addLiteral(DC.source, data);
-			dataset.replaceNamedModel(uri.toString(), td);
+
+      ThingDescriptionUtils utils = new ThingDescriptionUtils();
+      Model tdb = dataset.getDefaultModel();
+
+      dataset.getDefaultModel().createResource(uri.toString()).removeProperties().addLiteral(DC.source, data);
+      dataset.replaceNamedModel(uri.toString(), td);
+
+      // Get key words of new content and store it
+      Model newThing = dataset.getNamedModel(uri.toString());
+      List<String> keyWords = utils.getModelKeyWords(newThing);
+      tdb.getResource(uri.toString()).addProperty(RDFS.comment, StrUtils.strjoin(" ", keyWords));
+
 			dataset.commit();
     } catch (IOException e) {
       throw new BadRequestException();
