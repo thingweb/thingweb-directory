@@ -37,7 +37,7 @@ text:TextIndexSolr    rdfs:subClassOf   text:TextIndex .
 
 # A TDB datset used for RDF storage
 <#dataset> rdf:type      tdb:DatasetTDB ;
-    tdb:location "/C:/my_db_path/" ;
+    tdb:location "./database" ;
     ##tdb:unionDefaultGraph true ; # Optional
     .
 
@@ -59,12 +59,14 @@ text:TextIndexSolr    rdfs:subClassOf   text:TextIndex .
     text:uidField         "uid" ; # use to synchronize triple deletions
     text:langField        "lang" ; 
     text:map (
-         # td:name        
-         [ text:field "text" ; text:predicate td:name]
-         # qu:unitKind
-         [ text:field "quUnit" ; text:predicate qu:unitKind]
-         # geo:location
-         [ text:field "geo" ; text:predicate geo:location]
-         # unit
-         [ text:field "unit" ; text:predicate qu:unit]
+        # rdfs:comment
+        [ text:field "text" ; text:predicate rdfs:comment]
+        # td:name        
+        [ text:field "name" ; text:predicate td:name]
+        # qu:unitKind
+        [ text:field "quUnit" ; text:predicate qu:unitKind]
+        # geo:location
+        [ text:field "geo" ; text:predicate geo:location]
+        # unit
+        [ text:field "unit" ; text:predicate qu:unit]
     ) .
