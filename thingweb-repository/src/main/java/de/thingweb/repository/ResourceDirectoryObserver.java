@@ -23,21 +23,23 @@ import org.eclipse.californium.core.CoapResponse;
  *
  *  This class sets a CoAP client that will observe the specified 
  *  ResourceDirectory URI in order to import Thing Descriptions of those things 
- *  that register to it. When a thing is registered in the Resourse Directory, 
- *  an observation event occures that sends the URI of that new thing to the 
+ *  that register to it. When a thing is registered in the Resource Directory, 
+ *  an observation event occurs that sends the URI of that new thing to the 
  *  observers. This class uses that URI to GET the thing description.
- * 
- * In the same way, when a thing is no longer registered in the Resource
- * Directory, an observation event occurs and the thing description is 
- * deleted from the database. A deregistered thing is identified because its
- * URI would not be found in the ResourceDirectory response.
+ *  
+ *  In the same way, when a thing is no longer registered in the Resource
+ *  Directory, an observation event occurs and the thing description is 
+ *  deleted from the database. A deregistered thing is identified because its
+ *  URI would not be found in the ResourceDirectory response.
+ *
  */
 public class ResourceDirectoryObserver {
   private String rd_uri;
   private String td_uri;
   private CoapObserveRelation relation;
   private CoapClient client;
-  private HashMap<String, Boolean> things_map;
+  private HashMap<String, Boolean> things_map; // keeps track of the updates in the RD
+  private HashMap<String, String> things_uris; // keeps track of the registered things
 
   private final String url_re = "(coap?|http)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]";
 
@@ -45,18 +47,19 @@ public class ResourceDirectoryObserver {
 
   public ResourceDirectoryObserver(String uri, List<RESTServerInstance> srvs) {
     rd_uri = uri;
+    //td_uri = "coap://localhost:5683/";
     td_uri = "http://www.example.com";
 
     servers = srvs;
     client = new CoapClient(rd_uri + "/rd");
     things_map = new HashMap<String, Boolean>();
     things_uris = new HashMap<String, String>();
-
+    
     // load thing_uris with the URIs stored in the repository's database
     for (String td_uri: ThingDescriptionUtils.listThingDescriptionsUri()) {
       System.out.println(td_uri);
       this.things_uris.put(td_uri, td_uri);
-    }
+  }
 
     // observing
     relation = client.observe(
@@ -116,8 +119,9 @@ public class ResourceDirectoryObserver {
     });
     //relation.proactiveCancel();
   }
-
-
+  
+ 
+  
   /**
    * @brief Removes deregistered thing descriptions from the repository's database.
    * 
