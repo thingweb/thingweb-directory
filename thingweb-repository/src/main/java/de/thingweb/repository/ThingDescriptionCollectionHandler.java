@@ -109,8 +109,9 @@ public class ThingDescriptionCollectionHandler extends RESTHandler {
 		String id = generateID();
 		URI resourceUri = URI.create(normalize(uri) + "/" + id);
 		Dataset dataset = Repository.get().dataset;
+		List<String> keyWords;
+
 		dataset.begin(ReadWrite.WRITE);
-		
 		try {
 		  String data = ThingDescriptionUtils.streamToString(payload);
 		  
