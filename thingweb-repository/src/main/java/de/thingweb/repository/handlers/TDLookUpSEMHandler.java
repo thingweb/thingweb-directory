@@ -9,15 +9,16 @@ import java.util.Map;
 import de.thingweb.repository.ThingDescriptionHandler;
 import de.thingweb.repository.ThingDescriptionUtils;
 import de.thingweb.repository.rest.BadRequestException;
+import de.thingweb.repository.rest.NotFoundException;
 import de.thingweb.repository.rest.RESTException;
 import de.thingweb.repository.rest.RESTHandler;
 import de.thingweb.repository.rest.RESTResource;
 import de.thingweb.repository.rest.RESTServerInstance;
 
-public class TDLookUpSparqlHandler extends RESTHandler {
+public class TDLookUpSEMHandler extends RESTHandler {
 
-	public TDLookUpSparqlHandler(List<RESTServerInstance> instances) {
-		super("sparql", instances);
+	public TDLookUpSEMHandler(List<RESTServerInstance> instances) {
+		super("sem", instances);
 	}
 
 	@Override
@@ -40,17 +41,10 @@ public class TDLookUpSparqlHandler extends RESTHandler {
 				throw new BadRequestException();
 			}
 			
-		} else if (parameters.containsKey("query-text") && !parameters.get("query-text").isEmpty()) { // Full text search query
+		} else if (parameters.containsKey("text") && !parameters.get("text").isEmpty()) { // Full text search query
 			
-			query = parameters.get("query-text");
-			
-			/*
-			// Check if the match must be over all fields or at least one (UNION)
-			Boolean isUnion = false;
-			if (parameters.containsKey("match-type") && parameters.get("match-type").equals("u")) {
-				isUnion = true;
-			}
-			*/
+			query = parameters.get("text");
+
 			try {
 				tds = ThingDescriptionUtils.listThingDescriptionsFromTextSearch(query);
 			} catch (Exception e) {
@@ -61,7 +55,7 @@ public class TDLookUpSparqlHandler extends RESTHandler {
 			
 		} else {
 			// TODO also check query's validity
-		    throw new BadRequestException();
+			throw new BadRequestException();
 		}
 		
 		// Retrieve Thing Description(s)
@@ -73,10 +67,17 @@ public class TDLookUpSparqlHandler extends RESTHandler {
 				RESTResource res = h.get(td, new HashMap<String, String>());
 				// TODO check TD's content type
 				
-		        resource.content += "\"" + td.getPath() + "\": " + res.content;
-		        if (i < tds.size() - 1) {
-		        	resource.content += ",";
-		        }
+				resource.content += "\"" + td.getPath() + "\": " + res.content;
+				if (i < tds.size() - 1) {
+					resource.content += ",";
+				}
+				
+			} catch (NotFoundException e) {
+				// remove ","
+				if (resource.content.endsWith(",")) {
+					resource.content = resource.content.substring(0, resource.content.length() -1);
+				}
+				continue; // Life time is invalid and TD was removed
 				
 			} catch (RESTException e) {
 				// remove ","

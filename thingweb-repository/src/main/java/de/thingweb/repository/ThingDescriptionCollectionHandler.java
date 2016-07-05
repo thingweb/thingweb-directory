@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import org.apache.jena.atlas.json.JsonParseException;
 import org.apache.jena.atlas.lib.StrUtils;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.ReadWrite;
@@ -20,6 +21,7 @@ import org.apache.jena.vocabulary.DCTerms;
 import org.apache.jena.vocabulary.RDFS;
 
 import de.thingweb.repository.rest.BadRequestException;
+import de.thingweb.repository.rest.NotFoundException;
 import de.thingweb.repository.rest.RESTException;
 import de.thingweb.repository.rest.RESTHandler;
 import de.thingweb.repository.rest.RESTResource;
@@ -37,13 +39,6 @@ public class ThingDescriptionCollectionHandler extends RESTHandler {
 	
 	@Override
 	public RESTResource get(URI uri, Map<String, String> parameters) throws RESTException {
-
-		/*
-		if (!parameters.containsKey("query") || parameters.get("query").isEmpty()) {
-			// TODO also check query's validity
-	    	throw new BadRequestException();
-	    }
-	    */
 	  
 		RESTResource resource = new RESTResource(name(uri), this);
 		resource.contentType = "application/ld+json";
@@ -62,9 +57,9 @@ public class ThingDescriptionCollectionHandler extends RESTHandler {
 				throw new BadRequestException();
 			}
 			
-		} else if (parameters.containsKey("query-text") && !parameters.get("query-text").isEmpty()) { // Full text search query
+		} else if (parameters.containsKey("text") && !parameters.get("text").isEmpty()) { // Full text search query
 			
-			query = parameters.get("query-text");
+			query = parameters.get("text");
 			try {
 				tds = ThingDescriptionUtils.listThingDescriptionsFromTextSearch(query);
 			} catch (Exception e) {
@@ -73,7 +68,7 @@ public class ThingDescriptionCollectionHandler extends RESTHandler {
 			
 		} else {
 			// TODO also check query's validity
-		    throw new BadRequestException();
+			throw new BadRequestException();
 		}
 		
 		// Retrieve Thing Description(s)
@@ -85,17 +80,17 @@ public class ThingDescriptionCollectionHandler extends RESTHandler {
 				RESTResource res = h.get(td, new HashMap<String, String>());
 				// TODO check TD's content type
 				
-		        resource.content += "\"" + td.getPath() + "\": " + res.content;
-		        if (i < tds.size() - 1) {
-		        	resource.content += ",";
-		        }
+				resource.content += "\"" + td.getPath() + "\": " + res.content;
+				if (i < tds.size() - 1) {
+					resource.content += ",";
+				}
 				
-			} catch (RESTException e) { // Life time is invalid and TD was removed
+			}  catch (NotFoundException e) {
 				// remove ","
 				if (resource.content.endsWith(",")) {
 					resource.content = resource.content.substring(0, resource.content.length() -1);
 				}
-				continue;
+				continue; // Life time is invalid and TD was removed
 				
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -132,16 +127,16 @@ public class ThingDescriptionCollectionHandler extends RESTHandler {
 
 		dataset.begin(ReadWrite.WRITE);
 		try {
-		  	String data = ThingDescriptionUtils.streamToString(payload);
+			String data = ThingDescriptionUtils.streamToString(payload);
 		  
 			Model tdb = dataset.getNamedModel(resourceUri.toString());
 			tdb.read(new ByteArrayInputStream(data.getBytes()), "", "JSON-LD");
 			// TODO check TD validity
 
-      		tdb = dataset.getDefaultModel();
-      		tdb.createResource(resourceUri.toString()).addProperty(DC.source, data);
+			tdb = dataset.getDefaultModel();
+			tdb.createResource(resourceUri.toString()).addProperty(DC.source, data);
 
-      		// Get key words from statements
+			// Get key words from statements
 			ThingDescriptionUtils utils = new ThingDescriptionUtils();
 			Model newThing = dataset.getNamedModel(resourceUri.toString());
 			keyWords = utils.getModelKeyWords(newThing);
@@ -156,11 +151,11 @@ public class ThingDescriptionCollectionHandler extends RESTHandler {
 			tdb.getResource(resourceUri.toString()).addProperty(DCTerms.created, currentDate);
 			tdb.getResource(resourceUri.toString()).addProperty(DCTerms.modified, currentDate);
 			tdb.getResource(resourceUri.toString()).addProperty(DCTerms.dateAccepted, lifetimeDate);
-      
+	  
 			addToAll("/td/" + id, new ThingDescriptionHandler(id, instances));
 			dataset.commit();
 			// TODO remove useless return
-			RESTResource resource = new RESTResource(resourceUri.toString(), new ThingDescriptionHandler(id, instances));
+			RESTResource resource = new RESTResource("/td/" + id, new ThingDescriptionHandler(id, instances));
 			return resource;
 
 		} catch (IOException e) {
@@ -188,9 +183,9 @@ public class ThingDescriptionCollectionHandler extends RESTHandler {
 	}
 	
 	private String generateID() {
-	  // TODO better way?
-	  String id = UUID.randomUUID().toString();
-	  return id.substring(0, id.indexOf('-'));
+		// TODO better way?
+		String id = UUID.randomUUID().toString();
+		return id.substring(0, id.indexOf('-'));
 	}
 
 }
