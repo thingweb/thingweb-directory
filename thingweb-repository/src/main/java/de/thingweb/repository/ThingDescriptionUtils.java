@@ -297,10 +297,9 @@ public class ThingDescriptionUtils
 	  Calendar lifeCal = Calendar.getInstance();
 	  long diff;
 	  try {
-		//modCal.setTime(dateFormat.parse(dateMod));
 		lifeCal.setTime(dateFormat.parse(dateLife));
 		diff =  lifeCal.getTimeInMillis() - modCal.getTimeInMillis();
-		System.out.println("Remaining time " + Long.toString(diff));
+		//System.out.println("Remaining time " + Long.toString(diff));
 		if (diff <= 0) {
 		  hasTime = false;
 		}

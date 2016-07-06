@@ -19,6 +19,7 @@ import de.thingweb.repository.handlers.TDLookUpEPHandler;
 import de.thingweb.repository.handlers.TDLookUpHandler;
 import de.thingweb.repository.handlers.TDLookUpSEMHandler;
 import de.thingweb.repository.http.HTTPServer;
+import de.thingweb.repository.rest.RESTHandler;
 import de.thingweb.repository.rest.RESTServerInstance;
 
 public class Repository {
