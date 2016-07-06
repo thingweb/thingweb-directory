@@ -1,14 +1,14 @@
 {
 	"@context": ["https://w3c.github.io/wot/w3c-wot-td-context.jsonld",
-	            "https://w3c.github.io/wot/w3c-wot-common-context.jsonld"],
+				"https://w3c.github.io/wot/w3c-wot-common-context.jsonld"],
 	"@type": "Lamp",
 	"name": "myLED",
 	"uris" : ["coap://www.example.com:5683/led",
-	        "http://www.example.com:80/led"],
+			"http://www.example.com:80/led"],
 	"encodings": ["JSON"],
 	"properties": [
 		{
-	    	"@type": "RGBColor",
+			"@type": "RGBColor",
 			"name": "myColor",
 			"valueType": { "type": "integer" },
 			"writable": true,
