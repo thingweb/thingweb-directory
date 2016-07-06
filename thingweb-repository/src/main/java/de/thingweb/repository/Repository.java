@@ -49,7 +49,7 @@ public class Repository {
     }
     
     public static void main(String[] args) throws Exception {
-        int portCoAP = 5685;
+        int portCoAP = 5683;
         int portHTTP = 8080;
         String loc = "jena-config.ttl";
 

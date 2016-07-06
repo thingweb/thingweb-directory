@@ -1,0 +1,38 @@
+{
+	"@context": ["https://w3c.github.io/wot/w3c-wot-td-context.jsonld",
+	             "https://w3c.github.io/wot/w3c-wot-common-context.jsonld"],
+	"@type": "Sensor",
+	"name": "myTempSensor",
+	"uris" : ["coap:///www.example.com:5683/temp"],
+	"encodings": ["JSON"],
+	"properties": [
+		{
+	    	"@type": "Temperature",
+	    	"unit": "celsius",
+	    	"reference": "threshold",
+	    	"name": "myTemp",
+	    	"valueType": "number",
+	    	"writable": false,
+	    	"hrefs": ["val"]
+		}, {
+	    	"@type": "Temperature",
+	    	"unit": "celsius",
+	    	"name": "myThreshold",
+	    	"valueType": "number",
+	    	"writable": true,
+	    	"hrefs": ["threshold"]
+		}
+	],
+	"events": [
+		{
+	    	"valueType": "number",
+	    	"name": "myChange",
+	    	"property": "temp",
+	    	"hrefs": ["val/changed"]
+		}, {
+			"valueType": "number",
+	    	"name": "myWarning",
+	    	"hrefs": ["val/high"]
+		}
+	]
+}
