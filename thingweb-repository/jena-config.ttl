@@ -1,0 +1,72 @@
+@prefix :        <http://localhost/jena_example/#> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix tdb:     <http://jena.hpl.hp.com/2008/tdb#> .
+@prefix ja:      <http://jena.hpl.hp.com/2005/11/Assembler#> .
+@prefix text:    <http://jena.apache.org/text#> .
+@prefix td:      <http://www.w3c.org/wot/td#> .
+@prefix qu:      <http://purl.oclc.org/NET/ssnx/qu/qu#> .
+@prefix unit:    <http://purl.oclc.org/NET/ssnx/qu/unit#> .
+@prefix geo:     <http://www.w3.org/2003/01/geo/wgs84_pos#> .
+
+## Example of a TDB dataset and text index
+## Initialize TDB
+[] ja:loadClass "org.apache.jena.tdb.TDB" .
+tdb:DatasetTDB  rdfs:subClassOf  ja:RDFDataset .
+tdb:GraphTDB    rdfs:subClassOf  ja:Model .
+
+## Initialize text query
+[] ja:loadClass       "org.apache.jena.query.text.TextQuery" .
+# A TextDataset is a regular dataset with a text index.
+text:TextDataset      rdfs:subClassOf   ja:RDFDataset .
+# Lucene index
+text:TextIndexLucene  rdfs:subClassOf   text:TextIndex .
+# Solr index
+text:TextIndexSolr    rdfs:subClassOf   text:TextIndex .
+
+## ---------------------------------------------------------------
+## This URI must be fixed - it's used to assemble the text dataset.
+
+:text_dataset rdf:type     text:TextDataset ;
+    text:dataset   <#dataset> ;
+    text:index     <#indexLucene> ;
+    text:analyzer [
+        a text:StandardAnalyzer
+    ]
+    .
+
+# A TDB datset used for RDF storage
+<#dataset> rdf:type      tdb:DatasetTDB ;
+    tdb:location "./database" ;
+    ##tdb:unionDefaultGraph true ; # Optional
+    .
+
+# Text index description
+<#indexLucene> a text:TextIndexLucene ;
+    text:directory <file:Lucene> ;
+    ##text:directory "mem" ;
+    text:entityMap <#entMap> ;
+    text:storeValues true ; # for indexing literals
+    .
+
+# Mapping in the index
+# URI stored in field "uri"
+# rdfs:label is mapped to field "text"
+<#entMap> a text:EntityMap ;
+    text:entityField      "uri" ;
+    text:defaultField     "text" ;
+    text:defaultPredicate td:name;
+    text:uidField         "uid" ; # use to synchronize triple deletions
+    text:langField        "lang" ; 
+    text:map (
+        # rdfs:comment
+        [ text:field "text" ; text:predicate rdfs:comment]
+        # td:name        
+        [ text:field "name" ; text:predicate td:name]
+        # qu:unitKind
+        [ text:field "quUnit" ; text:predicate qu:unitKind]
+        # geo:location
+        [ text:field "geo" ; text:predicate geo:location]
+        # unit
+        [ text:field "unit" ; text:predicate qu:unit]
+    ) .
