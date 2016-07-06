@@ -22,7 +22,14 @@
  * THE SOFTWARE.
  */
  
- apply plugin: 'java-library-distribution'
+plugins {
+    id "com.jfrog.bintray" version "1.7"
+}
+
+apply plugin: 'java'
+apply plugin: 'java-library-distribution'
+apply plugin: 'maven'
+apply plugin:'maven-publish'
 
 repositories {
 	maven { url "https://jitpack.io" }
@@ -42,9 +49,35 @@ dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.8'
 
 }
+
+version = '0.2'
+group = 'de.thingweb'
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+        }
+    }
+}
+
 jar {
-from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
     manifest {
         attributes 'Main-Class': 'de.thingweb.repository.Repository'
+    }
+}
+
+bintray {
+    user = System.getenv('BINTRAY_USER')
+    key = System.getenv('BINTRAY_KEY')
+    publications  = ['mavenJava']
+    publish = true
+    pkg {
+    	version { name = '0.2' }
+        repo = 'maven'
+        name = 'thingweb-repository'
+        licenses = ['MIT']
+        vcsUrl = 'https://github.com/thingweb/thingweb-repository.git'
     }
 }

@@ -7,8 +7,12 @@ import java.util.Map;
 
 import org.apache.jena.query.Dataset;
 import org.apache.jena.tdb.TDBFactory;
+import org.apache.jena.vocabulary.DC;
+import org.apache.jena.vocabulary.DCTerms;
+import org.apache.jena.vocabulary.SKOS;
 import org.eclipse.jetty.servlet.ServletHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
+import org.eclipse.californium.core.coap.OptionNumberRegistry.optionFormats;
 import org.eclipse.californium.core.server.resources.Resource;
 
 import de.thingweb.repository.coap.CoAPRESTResource;
@@ -69,8 +73,9 @@ public class Repository {
     Repository.get().init(loc, "http://www.example.com");
     
     List<RESTServerInstance> servers = new ArrayList<>();
-    servers.add(new CoAPServer(portCoAP));
-    servers.add(new HTTPServer(portHTTP));
+    RESTHandler root = new WelcomePageHandler(servers); // FIXME circular reference here...
+    servers.add(new CoAPServer(portCoAP, root));
+    servers.add(new HTTPServer(portHTTP, root));
 
     for (RESTServerInstance i : servers) {
       i.add("/td", new ThingDescriptionCollectionHandler(servers));
