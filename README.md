@@ -43,6 +43,8 @@ or over CoAP from:
 ```sh
 Method: POST
 URI Template: /td 
+Request Parameters:
+  lt := Lifetime (optional). Lifetime of the registration in seconds. If not specified, a default value of 86400 (24 hours) is assumed.
 Content-Type: application/ld+json
 Payload: content of a TD.jsonld file
 Success: 201 Created
@@ -58,7 +60,8 @@ If the response code is `201 Created`, the URI path of the created sub-resource 
 Method: GET
 URI Template: /td
 Request Parameters:
-  query := SPARQL query encoded as URI 
+  query := SPARQL query encoded as URI.
+  text := Boolean text search query.
 Content-Type: application/ld+json
 Success: 200 OK
 Failure: 400 Bad Request
@@ -81,6 +84,13 @@ http://localhost:8080/td?query=%3FY+<http%3A%2F%2Fwww.w3c.org%2Fwot%2Ftd%23hasMe
 ?X ?Y ?Z .
 ```
 
+- Boolean text search query to return a TD with `location` in `room_4`:
+```sh
+"location AND room_4"
+```
+
+Other possible combinations: "word", "word1 AND word2", "word1 OR word2", etc.
+
 The response is a JSON object (_but no valid JSON-LD document_). This JSON object should have the following form:
 ```sh
 {
@@ -96,9 +106,10 @@ The response is a JSON object (_but no valid JSON-LD document_). This JSON objec
 Method: GET
 URI Template: /td/{id}
 URI Template Parameter:   
-  {id} := ID of a TD to fetch
+  {id} := ID of a TD to fetch.
 Content-Type: application/ld+json
 Success: 200 OK
+Failure: 404 Not Found
 Failure: 400 Bad Request
 Failure: 500 Internal Server Error
 ```
@@ -114,7 +125,8 @@ http://localhost:8080/td/0d134768
 Method: PUT
 URI Template: /td/{id}
 URI Template Parameter:   
-  {id} := ID of a TD to be updated
+  {id} := ID of a TD to be updated.
+  lt := Lifetime of the registration in seconds. If not specified, a default value of 86400 (24 hours) is assumed. 
 Payload: content of a TD.jsonld file
 Content-Type: application/ld+json
 Success: 200 OK
@@ -128,6 +140,21 @@ Method: DELETE
 URI Template: /td/{id}
 URI Template Parameter:   
   {id} := ID of a TD to be deleted
+Content-Type: application/ld+json
+Success: 200 OK
+Failure: 400 Bad Request
+Failure: 500 Internal Server Error
+```
+
+###### Discovers a TD based on different type of lookups
+```sh
+Method: GET
+URI Template: /td-lookup/{ep,sem}
+URI Template Parameter:   
+  lookup-type := {ep, sem} (Mandatory). Used to select the kind of lookup to perform (endpoint or semantic). The first type is used to lookup TD’s by endpoint. The second type is used to lookup based on SPARQL query or a full text search query.
+  ep := Endpoint name (Optional). Use for endpoint lookups. If not specified all TDs are listed, otherwise it is used as a filter.
+  query := SPARQL query encoded as URI. Used for semantic lookups.
+  text := Full text search query. Used for semantic lookups.
 Content-Type: application/ld+json
 Success: 200 OK
 Failure: 400 Bad Request
