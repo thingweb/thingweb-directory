@@ -59,7 +59,6 @@ dependencies {
 }
 
 version = '0.4'
-version = '0.3'
 group = 'de.thingweb'
 
 publishing {
@@ -102,7 +101,7 @@ bintray {
     publications  = ['mavenJava']
     publish = true
     pkg {
-    	version { name = '0.4' }
+    	version { name = version }
         repo = 'maven'
         name = 'thingweb-repository'
         licenses = ['MIT']
