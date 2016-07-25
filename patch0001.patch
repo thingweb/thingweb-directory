@@ -1,0 +1,60 @@
+commit 4cd5add832b7e994497721cfdf349c10b5f7ce28
+Author: kdorofeev <dorofeev@fortiss.org>
+Date:   Fri Jul 22 12:53:21 2016 +0200
+
+    Added an option to build repository for Eclipse, documentation update
+    
+    Signed-off-by: kdorofeev <dorofeev@fortiss.org>
+
+diff --git a/README.md b/README.md
+index 2d9a60d..73ecbb3 100644
+--- a/README.md
++++ b/README.md
+@@ -63,7 +63,7 @@ Request Parameters:
+   query := SPARQL query encoded as URI.
+   text := Boolean text search query.
+ Content-Type: application/ld+json
+-Success: 200 OK
++Success: 203 Valid
+ Failure: 400 Bad Request
+ Failure: 500 Internal Server Error
+ ```
+@@ -108,7 +108,7 @@ URI Template: /td/{id}
+ URI Template Parameter:   
+   {id} := ID of a TD to fetch.
+ Content-Type: application/ld+json
+-Success: 200 OK
++Success: 203 Valid
+ Failure: 404 Not Found
+ Failure: 400 Bad Request
+ Failure: 500 Internal Server Error
+@@ -129,7 +129,7 @@ URI Template Parameter:
+   lt := Lifetime of the registration in seconds. If not specified, a default value of 86400 (24 hours) is assumed. 
+ Payload: content of a TD.jsonld file
+ Content-Type: application/ld+json
+-Success: 200 OK
++Success: 204 Changed
+ Failure: 400 Bad Request
+ Failure: 500 Internal Server Error
+ ```
+@@ -141,7 +141,7 @@ URI Template: /td/{id}
+ URI Template Parameter:   
+   {id} := ID of a TD to be deleted
+ Content-Type: application/ld+json
+-Success: 200 OK
++Success: 202 Deleted
+ Failure: 400 Bad Request
+ Failure: 500 Internal Server Error
+ ```
+diff --git a/thingweb-repository/build.gradle b/thingweb-repository/build.gradle
+index 8c994bf..cd624cb 100644
+--- a/thingweb-repository/build.gradle
++++ b/thingweb-repository/build.gradle
+@@ -30,6 +30,7 @@ apply plugin: 'java'
+ apply plugin: 'java-library-distribution'
+ apply plugin: 'maven'
+ apply plugin:'maven-publish'
++apply plugin: 'eclipse'
+ 
+ repositories {
+ 	maven { url "https://jitpack.io" }
