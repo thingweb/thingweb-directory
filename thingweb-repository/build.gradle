@@ -30,6 +30,7 @@ apply plugin: 'java'
 apply plugin: 'java-library-distribution'
 apply plugin: 'maven'
 apply plugin:'maven-publish'
+apply plugin: 'eclipse'
 
 repositories {
 	maven { url "https://jitpack.io" }
