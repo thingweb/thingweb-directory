@@ -29,6 +29,7 @@ import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.rdf.model.StmtIterator;
+import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.sparql.util.QueryExecUtils;
 
 public class ThingDescriptionUtils
@@ -130,6 +131,41 @@ public class ThingDescriptionUtils
 	}
 	
 	return tds;
+  }
+  
+  /**
+   * Loads an ontology to the triple store, in the
+   * default graph.
+   * @param fileName File name with the ontology context.
+   */
+  public static void loadOntology(String fileName) {
+	  
+	  Dataset dataset = Repository.get().dataset;
+	  boolean exists = false;
+	  
+	  // Check if ontology is there
+	  dataset.begin(ReadWrite.READ);
+	  try {
+		  exists = true;
+	  } finally {
+		  dataset.end();
+	  }
+	  
+	  if (exists) {
+		  return;
+	  }
+	  
+	  // Load ontology if not already there
+	  dataset = Repository.get().dataset;
+	  dataset.begin(ReadWrite.WRITE);
+	  try {
+		  Model m = dataset.getDefaultModel();
+		  RDFDataMgr.read(m, fileName);
+		  dataset.commit();
+		  
+	  } finally {
+		  dataset.end();
+	  }
   }
 
 
