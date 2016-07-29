@@ -134,6 +134,53 @@ public class ThingDescriptionUtils
   }
   
   /**
+   * Returns a list of type values for the given property.
+   * @param propertyURI Complete URI of the property (baseUri + propertyName).
+   * @return List of values for the given property.
+   */
+  public static List<String> listRDFTypeValues(String propertyURI) {
+	  
+	  List<String> vals = new ArrayList<>();
+	  Dataset dataset = Repository.get().dataset;
+	  String prefix = StrUtils.strjoinNL
+			  ( "PREFIX td: <http://www.w3c.org/wot/td#>"
+			  , "PREFIX qu: <http://purl.oclc.org/NET/ssnx/qu/qu#>"
+			  , "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>"
+			  , "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>"
+			  , "PREFIX owl: <http://www.w3.org/2002/07/owl#>"
+			  , "PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>"
+			  , "PREFIX dim: <http://purl.oclc.org/NET/ssnx/qu/dim#>"
+			  , "PREFIX quantity: <http://purl.oclc.org/NET/ssnx/qu/quantity#>");
+	  String query = prefix + "SELECT ?unit WHERE { "
+			  + "GRAPH { "
+			  + " ?td td:hasProperty ?property . "
+			  + "?property a ?propertytype . "
+			  + "} "
+			  + "?propertytype a ?class . "
+			  + "?class rdfs:subClassOf ?s . "
+			  + "?s owl:onProperty qu:unitKind ; "
+			  + "owl:allValuesFrom ?unitKind . "
+			  + "?unit rdf:type ?unitKind . "
+			  + "FILTER (?property = <" + propertyURI + ">)"
+			  + "}";
+	  
+	  dataset.begin(ReadWrite.READ);
+	  try {
+		  try (QueryExecution qexec = QueryExecutionFactory.create(query, dataset)) {
+			  ResultSet result = qexec.execSelect();
+			  while (result.hasNext()) {
+				  vals.add(result.next().get("unit").toString());
+			  }
+		  }
+		  
+	  } finally {
+		  dataset.end();
+	  }
+	  
+	  return vals;
+  }
+  
+  /**
    * Loads an ontology to the triple store, in the
    * default graph.
    * @param fileName File name with the ontology context.
