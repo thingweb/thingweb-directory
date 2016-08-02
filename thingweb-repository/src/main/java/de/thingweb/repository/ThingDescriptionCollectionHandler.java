@@ -66,6 +66,26 @@ public class ThingDescriptionCollectionHandler extends RESTHandler {
 				throw new BadRequestException();
 			}
 			
+		} else if (parameters.containsKey("rdf") && !parameters.get("rdf").isEmpty()) { // RDF type/value type query
+			
+			query = parameters.get("rdf");
+			try {
+				tds = ThingDescriptionUtils.listRDFTypeValues(query);
+			} catch (Exception e) {
+				throw new BadRequestException();
+			}
+			
+			// Retrieve type values
+			for (int i = 0; i < tds.size(); i++) {
+				resource.content += "\"unit\": " + tds.get(i);
+				if (i < tds.size() - 1) {
+					resource.content += ",\n";
+				}
+			}
+			
+			resource.content += "}";
+			return resource;
+			
 		} else {
 			// TODO also check query's validity
 			throw new BadRequestException();
@@ -130,7 +150,7 @@ public class ThingDescriptionCollectionHandler extends RESTHandler {
 			String data = ThingDescriptionUtils.streamToString(payload);
 		  
 			Model tdb = dataset.getNamedModel(resourceUri.toString());
-			tdb.read(new ByteArrayInputStream(data.getBytes()), "", "JSON-LD");
+			tdb.read(new ByteArrayInputStream(data.getBytes()), endpointName, "JSON-LD");
 			// TODO check TD validity
 
 			tdb = dataset.getDefaultModel();
@@ -154,13 +174,21 @@ public class ThingDescriptionCollectionHandler extends RESTHandler {
 	  
 			addToAll("/td/" + id, new ThingDescriptionHandler(id, instances));
 			dataset.commit();
+			
+			// Add to priority queue
+			ThingDescription td = new ThingDescription(id, lifetimeDate);
+			Repository.get().tdQueue.add(td);
+			Repository.get().setTimer();
+			
 			// TODO remove useless return
 			RESTResource resource = new RESTResource("/td/" + id, new ThingDescriptionHandler(id, instances));
 			return resource;
 
 		} catch (IOException e) {
+			e.printStackTrace();
 		  throw new BadRequestException();
 		} catch (Exception e) {
+			e.printStackTrace();
 			throw new RESTException();
 		} finally {
 			dataset.end();
