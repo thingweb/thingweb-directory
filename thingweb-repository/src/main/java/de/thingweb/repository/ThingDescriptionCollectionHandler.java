@@ -72,6 +72,7 @@ public class ThingDescriptionCollectionHandler extends RESTHandler {
 			try {
 				tds = ThingDescriptionUtils.listRDFTypeValues(query);
 			} catch (Exception e) {
+				e.printStackTrace();
 				throw new BadRequestException();
 			}
 			
@@ -176,7 +177,7 @@ public class ThingDescriptionCollectionHandler extends RESTHandler {
 			dataset.commit();
 			
 			// Add to priority queue
-			ThingDescription td = new ThingDescription(id, lifetimeDate);
+			ThingDescription td = new ThingDescription(resourceUri.toString(), lifetimeDate);
 			Repository.get().tdQueue.add(td);
 			Repository.get().setTimer();
 			

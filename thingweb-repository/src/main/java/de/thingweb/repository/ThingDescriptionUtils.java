@@ -155,7 +155,7 @@ public class ThingDescriptionUtils
 			  , "PREFIX dim: <http://purl.oclc.org/NET/ssnx/qu/dim#>"
 			  , "PREFIX quantity: <http://purl.oclc.org/NET/ssnx/qu/quantity#>");
 	  String query = prefix + "SELECT ?unit WHERE { "
-			  + "GRAPH { "
+			  + "GRAPH ?g { "
 			  + " ?td td:hasProperty ?property . "
 			  + "?property a ?propertytype . "
 			  + "} "
@@ -190,31 +190,39 @@ public class ThingDescriptionUtils
    */
   public static void loadOntology(String fileName) {
 	  
-	  Dataset dataset = Repository.get().dataset;
-	  boolean exists = false;
+List<String> ont = new ArrayList<>();
 	  
-	  // Check if ontology is there
+	  // Check if the ontology is already there
+	  Dataset dataset = Repository.get().dataset;
 	  dataset.begin(ReadWrite.READ);
 	  try {
-		  exists = true;
-	  } finally {
-		  dataset.end();
-	  }
-	  
-	  if (exists) {
-		  return;
-	  }
-	  
-	  // Load ontology if not already there
-	  dataset = Repository.get().dataset;
-	  dataset.begin(ReadWrite.WRITE);
-	  try {
-		  Model m = dataset.getDefaultModel();
-		  RDFDataMgr.read(m, fileName);
-		  dataset.commit();
+		  String prefix = StrUtils.strjoinNL
+				  ( "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>"
+				  , "PREFIX owl: <http://www.w3.org/2002/07/owl#>");
+		  String query = prefix + "SELECT ?s WHERE {?s rdf:type owl:Ontology}";
+		  
+		  try (QueryExecution qexec = QueryExecutionFactory.create(query, dataset)) {
+			  ResultSet result = qexec.execSelect();
+			  while (result.hasNext()) {
+				  ont.add(result.next().get("s").toString());
+			  }
+		  }
 		  
 	  } finally {
 		  dataset.end();
+	  }
+	  
+	  // Load QUDT ontology
+	  if (ont.isEmpty()) {
+		  dataset = Repository.get().dataset;
+	      dataset.begin( ReadWrite.WRITE );
+	      try {
+	    	  Model m = dataset.getDefaultModel();
+	    	  RDFDataMgr.read(m, fileName);
+	    	  dataset.commit();
+	      } finally {
+	    	  dataset.end();
+	      }
 	  }
   }
 

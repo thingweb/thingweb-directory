@@ -93,7 +93,6 @@ public class Repository {
     		tdQueue.add(td);
     	}
     	setTimer();
-    	ThingDescriptionUtils.printTDQueue();
     }
     
     /**
@@ -190,7 +189,7 @@ public class Repository {
         }
         
         // Load ontology if it is not already there
-        String fileName = "/samples/qu-rec20.ttl";
+        String fileName = "./samples/qu-rec20.ttl";
         ThingDescriptionUtils.loadOntology(fileName);
     
         for (RESTServerInstance i : servers) {
