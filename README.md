@@ -106,7 +106,11 @@ The response is a JSON object (_but no valid JSON-LD document_). This JSON objec
 ```sh
 http://example.org/lightBrightness
 ```
-which is constructed by putting together the base URI (http://example.org/) with the name of the property (lightBrightness).
+which is constructed by putting together the base URI (http://example.org/) with the name of the property (lightBrightness). The response is in the payload as:
+```sh
+{“unit: ” http://purl.oclc.org/NET/ssnx/qu/unit#lumenSecond}
+```
+
 
 
 ###### Returns a TD based on its `{id}` (e.g., a client queries the repository for a specific TD).
