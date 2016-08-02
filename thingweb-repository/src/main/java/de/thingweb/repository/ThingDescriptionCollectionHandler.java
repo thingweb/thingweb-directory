@@ -174,13 +174,21 @@ public class ThingDescriptionCollectionHandler extends RESTHandler {
 	  
 			addToAll("/td/" + id, new ThingDescriptionHandler(id, instances));
 			dataset.commit();
+			
+			// Add to priority queue
+			ThingDescription td = new ThingDescription(id, lifetimeDate);
+			Repository.get().tdQueue.add(td);
+			Repository.get().setTimer();
+			
 			// TODO remove useless return
 			RESTResource resource = new RESTResource("/td/" + id, new ThingDescriptionHandler(id, instances));
 			return resource;
 
 		} catch (IOException e) {
+			e.printStackTrace();
 		  throw new BadRequestException();
 		} catch (Exception e) {
+			e.printStackTrace();
 			throw new RESTException();
 		} finally {
 			dataset.end();

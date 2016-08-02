@@ -10,7 +10,10 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Iterator;
 import java.util.List;
+import java.util.AbstractMap.SimpleEntry;
+import java.util.Map.Entry;
 
 import org.apache.jena.atlas.lib.StrUtils;
 import org.apache.jena.query.Dataset;
@@ -403,6 +406,44 @@ public class ThingDescriptionUtils
 	Calendar cal = Calendar.getInstance();
 	cal.add(Calendar.SECOND, plusTime); // for the life time, else adds 0 sec
 	return dateFormat.format(cal.getTime());
+  }
+  
+  
+  public static void printTDQueue() {
+	  
+	  Iterator<ThingDescription> iter = Repository.get().tdQueue.iterator();
+	  while (iter.hasNext()) {
+		  System.out.println(iter.next().getId());
+	  }
+  }
+  
+  
+  public static List<Entry<String,String>> listThingDescriptionsLifetime() {
+	  
+	  List<Entry<String, String>> tds = new ArrayList<>();
+	  Dataset dataset = Repository.get().dataset;
+	  
+	  String prefix = "PREFIX purl: <http://purl.org/dc/terms/> ";
+	  String query = prefix + "SELECT ?id ?lifetime WHERE {?id purl:dateAccepted ?lifetime.}";
+	  
+	  dataset.begin(ReadWrite.READ);
+	  try {
+		  try (QueryExecution qexec = QueryExecutionFactory.create(query, dataset)) {
+			ResultSet result = qexec.execSelect();
+			QuerySolution sol;
+			while (result.hasNext()) {
+				sol = result.next();
+				tds.add( new SimpleEntry<String,String>(sol.get("id").toString(), sol.get("lifetime").toString()) );
+			}
+		  } catch (Exception e) {
+			  throw e;
+		  }
+		  
+	  } finally {
+		  dataset.end();
+	  }
+	  
+	  return tds;
   }
 
 }
