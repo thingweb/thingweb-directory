@@ -74,8 +74,12 @@ public class TDLookUpSEMHandler extends RESTHandler {
 			return resource;
 			
 		} else {
-			// TODO also check query's validity
-			throw new BadRequestException();
+			// Return all TDs
+			try {
+				tds = ThingDescriptionUtils.listThingDescriptions("?s ?p ?o");
+			} catch (Exception e) {
+				throw new BadRequestException();
+			}
 		}
 		
 		// Retrieve Thing Description(s)
