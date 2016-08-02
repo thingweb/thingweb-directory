@@ -44,6 +44,7 @@ or over CoAP from:
 Method: POST
 URI Template: /td 
 Request Parameters:
+  ep := Endpoint name (optional). Name of the endpoint that registered the TD. It is used as the base URI for registration.
   lt := Lifetime (optional). Lifetime of the registration in seconds. If not specified, a default value of 86400 (24 hours) is assumed.
 Content-Type: application/ld+json
 Payload: content of a TD.jsonld file
