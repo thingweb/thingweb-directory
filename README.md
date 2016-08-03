@@ -44,6 +44,7 @@ or over CoAP from:
 Method: POST
 URI Template: /td 
 Request Parameters:
+  ep := Endpoint name (optional). Name of the endpoint that registered the TD. It is used as the base URI for registration.
   lt := Lifetime (optional). Lifetime of the registration in seconds. If not specified, a default value of 86400 (24 hours) is assumed.
 Content-Type: application/ld+json
 Payload: content of a TD.jsonld file
@@ -54,7 +55,7 @@ Failure: 500 Internal Server Error
 
 If the response code is `201 Created`, the URI path of the created sub-resource is defined in the header field `Location` (for HTTP) or `Location-Path` (for CoAP). The path is relative to the root resource and follows the pattern `/td/{id}`, where `id` is an ID assigned by the repository for the uploaded Thing Description.
 
-###### Returns a list of TDs based on a SPARQL query pattern (e.g., a client queries the repository for a TD with a specific Thing URI).
+###### There are two options: query TDs or units of RDF types. For the first option, the method returns a list of TDs based on a SPARQL query pattern (e.g., a client queries the repository for a TD with a specific Thing URI). For the second option, the method returns a list of units for the RDF property of interest.
 
 ```sh
 Method: GET
@@ -62,6 +63,7 @@ URI Template: /td
 Request Parameters:
   query := SPARQL query encoded as URI.
   text := Boolean text search query.
+  rdf := Complete URI of the property of interest.
 Content-Type: application/ld+json
 Success: 200 OK
 Failure: 400 Bad Request
@@ -99,6 +101,17 @@ The response is a JSON object (_but no valid JSON-LD document_). This JSON objec
   ...
 }
 ```
+
+- Return the unit values of the RDF property "lightBrightness":
+```sh
+http://example.org/lightBrightness
+```
+which is constructed by putting together the base URI (http://example.org/) with the name of the property (lightBrightness). The response is in the payload as:
+```sh
+{“unit: ” http://purl.oclc.org/NET/ssnx/qu/unit#lumenSecond}
+```
+
+
 
 ###### Returns a TD based on its `{id}` (e.g., a client queries the repository for a specific TD).
 
@@ -139,7 +152,7 @@ Failure: 500 Internal Server Error
 Method: DELETE
 URI Template: /td/{id}
 URI Template Parameter:   
-  {id} := ID of a TD to be deleted
+  {id} := ID of a TD to be deleted.
 Content-Type: application/ld+json
 Success: 200 OK
 Failure: 400 Bad Request
@@ -151,10 +164,12 @@ Failure: 500 Internal Server Error
 Method: GET
 URI Template: /td-lookup/{ep,sem}
 URI Template Parameter:   
-  lookup-type := {ep, sem} (Mandatory). Used to select the kind of lookup to perform (endpoint or semantic). The first type is used to lookup TD’s by endpoint. The second type is used to lookup based on SPARQL query or a full text search query.
-  ep := Endpoint name (Optional). Use for endpoint lookups. If not specified all TDs are listed, otherwise it is used as a filter.
+  lookup-type := {ep, sem, rdf} (Mandatory). Used to select the kind of lookup to perform (endpoint or semantic). The first type is used to lookup TD’s by endpoint. The second type is used to lookup based on SPARQL query or a full text search query. The third type is used to lookup the unit values of a given RDF property.
+  ep := Endpoint name (Optional). Use for endpoint lookups. It is the name given to the TD on registration, and returned in the response content. If not specified all TDs are listed, otherwise it is used as a filter.
   query := SPARQL query encoded as URI. Used for semantic lookups.
   text := Full text search query. Used for semantic lookups.
+  rdf := Complete URI of the property of interest. Ex.: http://example.org/lightBrightness, which is constructed by putting together the base URI (http://example.org/) with the name of the property (lightBrightness).
+Payload: {“unit: ” unitValue}. Only valid for the rdf parameter. Ex.: {“unit: ” http://purl.oclc.org/NET/ssnx/qu/unit#lumenSecond}
 Content-Type: application/ld+json
 Success: 200 OK
 Failure: 400 Bad Request
