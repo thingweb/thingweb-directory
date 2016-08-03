@@ -39,6 +39,12 @@ public class ThingDescriptionHandler extends RESTHandler {
 	public RESTResource get(URI uri, Map<String, String> parameters) throws RESTException {
 		RESTResource resource = new RESTResource(uri.toString(),this);
 
+		// Check if life time is invalid
+		if (!ThingDescriptionUtils.checkLifeTime(uri)) {
+			delete(uri, null, null);
+			throw new NotFoundException();
+		}
+
 		Dataset dataset = Repository.get().dataset;
 		dataset.begin(ReadWrite.READ);
 		
@@ -121,12 +127,6 @@ public class ThingDescriptionHandler extends RESTHandler {
 				dataset.replaceNamedModel(uri.toString(), td);
 			}
 			
-			// Update priority queue
-			ThingDescription t = new ThingDescription(uri.toString(), lifetime);
-			Repository.get().tdQueue.remove(t);
-			Repository.get().tdQueue.add(t);
-			Repository.get().setTimer();
-			
 			dataset.commit();
 			
 		} catch (IOException e) {
@@ -150,12 +150,6 @@ public class ThingDescriptionHandler extends RESTHandler {
 			dataset.removeNamedModel(uri.toString());
 			deleteToAll(uri.getPath());
 			dataset.commit();
-			
-			// Remove from priority queue
-			ThingDescription td = new ThingDescription(uri.toString());
-			Repository.get().tdQueue.remove(td);
-			Repository.get().setTimer();
-						
 		} catch (Exception e) {
 			// TODO distinguish between client and server errors
 			throw new RESTException();
