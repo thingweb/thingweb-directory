@@ -1,6 +1,9 @@
-bin
+bin/
 *.class
 .gradle
 .settings
 .classpath
 .project
+build/
+db/
+Lucene/
