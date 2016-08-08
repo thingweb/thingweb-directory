@@ -151,14 +151,35 @@ Failure: 500 Internal Server Error
 Method: GET
 URI Template: /td-lookup/{ep,sem}
 URI Template Parameter:   
-  lookup-type := {ep, sem} (Mandatory). Used to select the kind of lookup to perform (endpoint or semantic). The first type is used to lookup TD’s by endpoint. The second type is used to lookup based on SPARQL query or a full text search query.
-  ep := Endpoint name (Optional). Use for endpoint lookups. If not specified all TDs are listed, otherwise it is used as a filter.
+  lookup-type := {ep, sem, rdf} (Mandatory). Used to select the kind of lookup to perform (endpoint or semantic). The first type is used to lookup TD’s by endpoint. The second type is used to lookup based on SPARQL query or a full text search query. The third type is used to lookup the unit values of a given RDF property.
+  ep := Endpoint name (Optional). Use for endpoint lookups. It is the name given to the TD on registration (see POST method), and returned in the response content. If not specified all TDs are listed, otherwise it is used as a filter. Ex.: /td/1a23bc.
   query := SPARQL query encoded as URI. Used for semantic lookups.
   text := Full text search query. Used for semantic lookups.
 Content-Type: application/ld+json
 Success: 200 OK
 Failure: 400 Bad Request
 Failure: 500 Internal Server Error
+```
+
+Examples:
+- Lookup by endpoint name:
+```sh
+coap://localhost:8080/td-lookup/ep?ep=/td/1a23bc
+```
+
+- Lookup by SPARQL query (same value as in GET method):
+```sh
+coap://localhost:8080/td-lookup/sem?query=?X ?Y ?Z .
+```
+
+- Lookup by text query (same value as in GET method):
+```sh
+coap://localhost:8080/td-lookup/sem?text="word1 AND word2"
+```
+
+- Lookup by RDF property:
+```sh
+coap://localhost:8080/td-lookup/sem?rdf=http://example.org/lightBrightness
 ```
 
 ## Swagger Specification of Thingweb-Repository API
