@@ -10,7 +10,10 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Iterator;
 import java.util.List;
+import java.util.AbstractMap.SimpleEntry;
+import java.util.Map.Entry;
 
 import org.apache.jena.atlas.lib.StrUtils;
 import org.apache.jena.query.Dataset;
@@ -29,6 +32,7 @@ import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.rdf.model.StmtIterator;
+import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.sparql.util.QueryExecUtils;
 
 public class ThingDescriptionUtils
@@ -130,6 +134,96 @@ public class ThingDescriptionUtils
 	}
 	
 	return tds;
+  }
+  
+  /**
+   * Returns a list of type values for the given property.
+   * @param propertyURI Complete URI of the property (baseUri + propertyName).
+   * @return List of values for the given property.
+   */
+  public static List<String> listRDFTypeValues(String propertyURI) {
+	  
+	  List<String> vals = new ArrayList<>();
+	  Dataset dataset = Repository.get().dataset;
+	  String prefix = StrUtils.strjoinNL
+			  ( "PREFIX td: <http://www.w3c.org/wot/td#>"
+			  , "PREFIX qu: <http://purl.oclc.org/NET/ssnx/qu/qu#>"
+			  , "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>"
+			  , "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>"
+			  , "PREFIX owl: <http://www.w3.org/2002/07/owl#>"
+			  , "PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>"
+			  , "PREFIX dim: <http://purl.oclc.org/NET/ssnx/qu/dim#>"
+			  , "PREFIX quantity: <http://purl.oclc.org/NET/ssnx/qu/quantity#>");
+	  String query = prefix + "SELECT ?unit WHERE { "
+			  + "GRAPH ?g { "
+			  + " ?td td:hasProperty ?property . "
+			  + "?property a ?propertytype . "
+			  + "} "
+			  + "?propertytype a ?class . "
+			  + "?class rdfs:subClassOf ?s . "
+			  + "?s owl:onProperty qu:unitKind ; "
+			  + "owl:allValuesFrom ?unitKind . "
+			  + "?unit rdf:type ?unitKind . "
+			  + "FILTER (?property = <" + propertyURI + ">)"
+			  + "}";
+	  
+	  dataset.begin(ReadWrite.READ);
+	  try {
+		  try (QueryExecution qexec = QueryExecutionFactory.create(query, dataset)) {
+			  ResultSet result = qexec.execSelect();
+			  while (result.hasNext()) {
+				  vals.add(result.next().get("unit").toString());
+			  }
+		  }
+		  
+	  } finally {
+		  dataset.end();
+	  }
+	  
+	  return vals;
+  }
+  
+  /**
+   * Loads an ontology to the triple store, in the
+   * default graph.
+   * @param fileName File name with the ontology context.
+   */
+  public static void loadOntology(String fileName) {
+	  
+List<String> ont = new ArrayList<>();
+	  
+	  // Check if the ontology is already there
+	  Dataset dataset = Repository.get().dataset;
+	  dataset.begin(ReadWrite.READ);
+	  try {
+		  String prefix = StrUtils.strjoinNL
+				  ( "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>"
+				  , "PREFIX owl: <http://www.w3.org/2002/07/owl#>");
+		  String query = prefix + "SELECT ?s WHERE {?s rdf:type owl:Ontology}";
+		  
+		  try (QueryExecution qexec = QueryExecutionFactory.create(query, dataset)) {
+			  ResultSet result = qexec.execSelect();
+			  while (result.hasNext()) {
+				  ont.add(result.next().get("s").toString());
+			  }
+		  }
+		  
+	  } finally {
+		  dataset.end();
+	  }
+	  
+	  // Load QUDT ontology
+	  if (ont.isEmpty()) {
+		  dataset = Repository.get().dataset;
+	      dataset.begin( ReadWrite.WRITE );
+	      try {
+	    	  Model m = dataset.getDefaultModel();
+	    	  RDFDataMgr.read(m, fileName);
+	    	  dataset.commit();
+	      } finally {
+	    	  dataset.end();
+	      }
+	  }
   }
 
 
@@ -319,6 +413,44 @@ public class ThingDescriptionUtils
 	Calendar cal = Calendar.getInstance();
 	cal.add(Calendar.SECOND, plusTime); // for the life time, else adds 0 sec
 	return dateFormat.format(cal.getTime());
+  }
+  
+  
+  public static void printTDQueue() {
+	  
+	  Iterator<ThingDescription> iter = Repository.get().tdQueue.iterator();
+	  while (iter.hasNext()) {
+		  System.out.println(iter.next().getId());
+	  }
+  }
+  
+  
+  public static List<Entry<String,String>> listThingDescriptionsLifetime() {
+	  
+	  List<Entry<String, String>> tds = new ArrayList<>();
+	  Dataset dataset = Repository.get().dataset;
+	  
+	  String prefix = "PREFIX purl: <http://purl.org/dc/terms/> ";
+	  String query = prefix + "SELECT ?id ?lifetime WHERE {?id purl:dateAccepted ?lifetime.}";
+	  
+	  dataset.begin(ReadWrite.READ);
+	  try {
+		  try (QueryExecution qexec = QueryExecutionFactory.create(query, dataset)) {
+			ResultSet result = qexec.execSelect();
+			QuerySolution sol;
+			while (result.hasNext()) {
+				sol = result.next();
+				tds.add( new SimpleEntry<String,String>(sol.get("id").toString(), sol.get("lifetime").toString()) );
+			}
+		  } catch (Exception e) {
+			  throw e;
+		  }
+		  
+	  } finally {
+		  dataset.end();
+	  }
+	  
+	  return tds;
   }
 
 }
