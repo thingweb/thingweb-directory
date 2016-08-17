@@ -57,6 +57,8 @@ public class Repository {
         try {
             Directory luceneDir = FSDirectory.open(new File(lucene));
             EntityDefinition entDef = new EntityDefinition("comment", "text", RDFS.comment);
+            // Set uid in order to remove index entries automatically
+            entDef.setUidField("uid");
             StandardAnalyzer stAn = new StandardAnalyzer(Version.LUCENE_4_9);
             dataset = TextDatasetFactory.createLucene(ds, luceneDir, entDef, stAn);
             
