@@ -190,7 +190,7 @@ public class ThingDescriptionUtils
    */
   public static void loadOntology(String fileName) {
 	  
-List<String> ont = new ArrayList<>();
+	  List<String> ont = new ArrayList<>();
 	  
 	  // Check if the ontology is already there
 	  Dataset dataset = Repository.get().dataset;

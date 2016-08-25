@@ -153,7 +153,7 @@ public class ThingDescriptionCollectionHandler extends RESTHandler {
 		dataset.begin(ReadWrite.WRITE);
 		try {
 			String data = ThingDescriptionUtils.streamToString(payload);
-		  
+			
 			Model tdb = dataset.getNamedModel(resourceUri.toString());
 			tdb.read(new ByteArrayInputStream(data.getBytes()), endpointName, "JSON-LD");
 			// TODO check TD validity

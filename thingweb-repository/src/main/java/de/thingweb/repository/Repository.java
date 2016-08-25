@@ -49,7 +49,7 @@ public class Repository {
         return singleton;
     }
     
-    private void init(String db, String uri, String lucene) {
+    public void init(String db, String uri, String lucene) {
 
     	Dataset ds = TDBFactory.createDataset(db);
         
@@ -192,7 +192,7 @@ public class Repository {
         
         // Load ontology if it is not already there
         String fileName = "./samples/qu-rec20.ttl";
-        ThingDescriptionUtils.loadOntology(fileName);
+        //ThingDescriptionUtils.loadOntology(fileName);
     
         for (RESTServerInstance i : servers) {
             i.join();
