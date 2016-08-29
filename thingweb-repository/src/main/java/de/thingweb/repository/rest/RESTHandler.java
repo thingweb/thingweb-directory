@@ -36,6 +36,10 @@ public abstract class RESTHandler {
 		throw new MethodNotAllowedException();
 	}
 	
+	public RESTResource observe(URI uri, Map<String, String> parameters) throws RESTException {
+		throw new MethodNotAllowedException();
+	}
+	
 	protected void addToAll(String path, RESTHandler handler) {
 	  new AddWorker(path, handler).start();
 	}

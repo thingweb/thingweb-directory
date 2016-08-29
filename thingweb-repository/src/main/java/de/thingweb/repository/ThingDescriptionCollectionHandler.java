@@ -199,7 +199,15 @@ public class ThingDescriptionCollectionHandler extends RESTHandler {
 			dataset.end();
 		}
 	}
+	
+	
+	@Override
+	public RESTResource observe(URI uri, Map<String, String> parameters) throws RESTException {
+		
+		return get(uri, null);
+	}
 
+	
 	private String normalize(URI uri) {
 		if (!uri.getScheme().equals("http")) {
 			return uri.toString().replace(uri.getScheme(), "http");
