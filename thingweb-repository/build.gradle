@@ -59,7 +59,7 @@ dependencies {
 
 }
 
-version = '0.4'
+version = '0.5'
 group = 'de.thingweb'
 
 publishing {
