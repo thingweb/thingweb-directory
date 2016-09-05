@@ -1,53 +1,32 @@
 package de.thingweb.repository;
 
-import static org.junit.Assert.*;
-
 import java.io.ByteArrayInputStream;
-import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.PriorityQueue;
 import java.util.Set;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.Map.Entry;
 
 import org.apache.jena.atlas.json.JSON;
 import org.apache.jena.atlas.json.JsonObject;
 import org.apache.jena.atlas.json.JsonValue;
 import org.apache.jena.query.Dataset;
-import org.apache.jena.query.ReadWrite;
-import org.apache.jena.query.text.EntityDefinition;
-import org.apache.jena.query.text.TextDatasetFactory;
-import org.apache.jena.tdb.TDBFactory;
-import org.apache.jena.vocabulary.RDFS;
-import org.apache.lucene.analysis.standard.StandardAnalyzer;
-import org.apache.lucene.store.Directory;
-import org.apache.lucene.store.FSDirectory;
-import org.apache.lucene.util.Version;
 
 import de.thingweb.repository.coap.CoAPServer;
 import de.thingweb.repository.handlers.TDLookUpEPHandler;
 import de.thingweb.repository.handlers.TDLookUpHandler;
 import de.thingweb.repository.handlers.TDLookUpSEMHandler;
 import de.thingweb.repository.http.HTTPServer;
-import de.thingweb.repository.rest.RESTException;
 import de.thingweb.repository.rest.RESTHandler;
 import de.thingweb.repository.rest.RESTResource;
 import de.thingweb.repository.rest.RESTServerInstance;
 
-import org.junit.After;
 import org.junit.AfterClass;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.Assert;
@@ -60,7 +39,7 @@ public class ThingWebRepoTest {
 	private final static int portHttp = 8080;
 	private final static String dbPath  = "db";
 	private final static String idxPath = "Lucene";
-	private final static String baseUri = "http://www.example.com";
+	private static String baseUri = "http://www.example.com";
 
 	@BeforeClass
 	public static void oneTimeSetUp() {
@@ -96,6 +75,7 @@ public class ThingWebRepoTest {
 		ds.close();
 	}
 
+	
 	@Test
 	public void testREST() throws IOException, URISyntaxException {
 		
@@ -184,6 +164,7 @@ public class ThingWebRepoTest {
 		Assert.assertEquals("TD temperatureSensor not deleted", "NOT FOUND", td);
 		
 	}
+	
 	
 	
 	// ***** EXTRAS *****

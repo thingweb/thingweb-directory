@@ -1,7 +1,6 @@
 package de.thingweb.repository.http;
 
 import java.io.IOException;
-import java.io.StringWriter;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
@@ -11,10 +10,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import org.eclipse.jetty.servlet.ServletHandler;
-import org.eclipse.jetty.servlet.ServletHolder;
-import org.eclipse.jetty.servlet.ServletMapping;
 
 import de.thingweb.repository.Repository;
 import de.thingweb.repository.rest.BadRequestException;
@@ -101,5 +96,7 @@ public class HTTPRESTResource extends HttpServlet {
   protected URI uri(String path) {
     return URI.create(Repository.get().baseURI + path);
   }
+  
+  
   
 }
