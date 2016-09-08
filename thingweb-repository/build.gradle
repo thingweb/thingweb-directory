@@ -32,6 +32,14 @@ apply plugin: 'maven'
 apply plugin:'maven-publish'
 apply plugin: 'eclipse'
 
+sourceSets {
+    main {
+        resources {
+            srcDirs = ["src/main/resources"]
+        }
+    }
+}
+
 repositories {
 	maven { url "https://jitpack.io" }
 	maven { url "http://dl.bintray.com/thingweb/maven" }
