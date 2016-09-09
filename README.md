@@ -54,6 +54,8 @@ Failure: 500 Internal Server Error
 
 If the response code is `201 Created`, the URI path of the created sub-resource is defined in the header field `Location` (for HTTP) or `Location-Path` (for CoAP). The path is relative to the root resource and follows the pattern `/td/{id}`, where `id` is an ID assigned by the repository for the uploaded Thing Description.
 
+If the associated uris of the new TD are already in the dataset, the response code is `400 Bad Request`. This is done in order to avoid duplicated TDs in the dataset. To change an existing TD use PUT instead.
+
 ###### Returns a list of TDs based on a SPARQL query pattern (e.g., a client queries the repository for a TD with a specific Thing URI).
 
 ```sh
@@ -133,6 +135,8 @@ Success: 200 OK
 Failure: 400 Bad Request
 Failure: 500 Internal Server Error
 ```
+
+If the update changes the associated uris and at least one of them is registered with another TD, then the response code is `400 Bad Request`. This is done in order to avoid duplicated TDs in the dataset.
 
 ###### Deletes an existing TD.
 ```sh
