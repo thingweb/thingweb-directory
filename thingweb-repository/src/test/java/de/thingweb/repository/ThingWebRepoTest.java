@@ -4,6 +4,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -88,7 +89,8 @@ public class ThingWebRepoTest {
 		
 		// POST TD fan
 		String tdUri = "coap:///www.example.com:5686/Fan";
-		content = getThingDescription("./samples/fanTD.jsonld");
+		URL path = Repository.class.getClassLoader().getResource("samples/fanTD.jsonld");
+		content  = getThingDescription(path.toURI());
 		resource = tdch.post(new URI(baseUri + "/td"), parameters, new ByteArrayInputStream(content));
 		tdId = resource.path;
 		
@@ -98,7 +100,8 @@ public class ThingWebRepoTest {
 		
 		// POST TD temperatureSensor
 		String tdUri2 = "coap:///www.example.com:5687/temp";
-		content = getThingDescription("./samples/temperatureSensorTD.jsonld");
+		path = Repository.class.getClassLoader().getResource("samples/temperatureSensorTD.jsonld");
+		content = getThingDescription(path.toURI());
 		resource = tdch.post(new URI(baseUri + "/td"), parameters, new ByteArrayInputStream(content));
 		tdId2 = resource.path;
 			
@@ -144,7 +147,8 @@ public class ThingWebRepoTest {
 		
 		
 		// PUT TD change fan's name
-		content = getThingDescription("./samples/fanTD_update.jsonld");
+		path = Repository.class.getClassLoader().getResource("samples/fanTD_update.jsonld");
+		content = getThingDescription(path.toURI());
 		tdh.put(new URI(baseUri + tdId), new HashMap<String,String>(), new ByteArrayInputStream(content));
 			
 		// GET TD by id and check change
@@ -174,13 +178,13 @@ public class ThingWebRepoTest {
 	 * Returns the content of a TD json-ld file.
 	 * Mocks the behavior of doing a GET to the TD's uri.
 	 * 
-	 * @param fileName Name of the json-ld file.
+	 * @param filePath Path of the json-ld file.
 	 * @return Content of the file in a String.
 	 * @throws IOException
 	 */
-	public byte[] getThingDescription(String fileName) throws IOException {
+	public byte[] getThingDescription(URI filePath) throws IOException {
 		
-		return Files.readAllBytes(Paths.get(fileName));
+		return Files.readAllBytes(Paths.get(filePath));
 	}
 
 }
