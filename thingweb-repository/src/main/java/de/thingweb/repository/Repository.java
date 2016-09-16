@@ -193,8 +193,8 @@ public class Repository {
         
         // Load ontology if it is not already there
         String fileName = "samples/qu-rec20.ttl";
-        URL path = Repository.class.getClassLoader().getResource(fileName);
-        ThingDescriptionUtils.loadOntology(path.getPath());
+        //URL path = Repository.class.getClassLoader().getResource(fileName);
+        //ThingDescriptionUtils.loadOntology(path.getPath());
     
         for (RESTServerInstance i : servers) {
             i.join();
