@@ -2,6 +2,7 @@ package de.thingweb.repository;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
@@ -193,8 +194,9 @@ public class Repository {
         
         // Load ontology if it is not already there
         String fileName = "samples/qu-rec20.ttl";
-        //URL path = Repository.class.getClassLoader().getResource(fileName);
-        //ThingDescriptionUtils.loadOntology(path.getPath());
+        InputStream in = Repository.get().getClass().getClassLoader().getResourceAsStream(fileName);
+        ThingDescriptionUtils.loadOntology(in);
+        
     
         for (RESTServerInstance i : servers) {
             i.join();

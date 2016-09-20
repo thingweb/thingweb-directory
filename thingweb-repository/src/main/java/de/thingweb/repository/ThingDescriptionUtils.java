@@ -37,6 +37,7 @@ import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.ResourceFactory;
 import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.rdf.model.StmtIterator;
+import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.sparql.util.QueryExecUtils;
 
@@ -235,7 +236,7 @@ public class ThingDescriptionUtils
    * default graph.
    * @param fileName File name with the ontology context.
    */
-  public static void loadOntology(String fileName) {
+  public static void loadOntology(InputStream fileName) {
 	  
 	  List<String> ont = new ArrayList<>();
 	  
@@ -265,7 +266,8 @@ public class ThingDescriptionUtils
 	      dataset.begin( ReadWrite.WRITE );
 	      try {
 	    	  Model m = dataset.getDefaultModel();
-	    	  RDFDataMgr.read(m, fileName);
+	    	  //RDFDataMgr.read(m, fileName);
+	    	  RDFDataMgr.read(m, fileName, Lang.TURTLE);
 	    	  dataset.commit();
 	      } finally {
 	    	  dataset.end();

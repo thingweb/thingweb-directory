@@ -2,9 +2,9 @@ package de.thingweb.repository;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -12,6 +12,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import org.apache.commons.io.IOUtils;
 
 import org.apache.jena.atlas.json.JSON;
 import org.apache.jena.atlas.json.JsonObject;
@@ -89,9 +91,8 @@ public class ThingWebRepoTest {
 		
 		// POST TD fan
 		String tdUri = "coap:///www.example.com:5686/Fan";
-		URL path = Repository.class.getClassLoader().getResource("samples/fanTD.jsonld");
-		content  = getThingDescription(path.toURI());
-		resource = tdch.post(new URI(baseUri + "/td"), parameters, new ByteArrayInputStream(content));
+		InputStream in = Repository.get().getClass().getClassLoader().getResourceAsStream("samples/fanTD.jsonld");
+		resource = tdch.post(new URI(baseUri + "/td"), parameters, in);
 		tdId = resource.path;
 		
 		td = ThingDescriptionUtils.getThingDescriptionIdFromUri(tdUri);
@@ -100,9 +101,8 @@ public class ThingWebRepoTest {
 		
 		// POST TD temperatureSensor
 		String tdUri2 = "coap:///www.example.com:5687/temp";
-		path = Repository.class.getClassLoader().getResource("samples/temperatureSensorTD.jsonld");
-		content = getThingDescription(path.toURI());
-		resource = tdch.post(new URI(baseUri + "/td"), parameters, new ByteArrayInputStream(content));
+		in = Repository.get().getClass().getClassLoader().getResourceAsStream("samples/temperatureSensorTD.jsonld");
+		resource = tdch.post(new URI(baseUri + "/td"), parameters, in);
 		tdId2 = resource.path;
 			
 		td = ThingDescriptionUtils.getThingDescriptionIdFromUri(tdUri2);
@@ -147,8 +147,8 @@ public class ThingWebRepoTest {
 		
 		
 		// PUT TD change fan's name
-		path = Repository.class.getClassLoader().getResource("samples/fanTD_update.jsonld");
-		content = getThingDescription(path.toURI());
+		in = Repository.get().getClass().getClassLoader().getResourceAsStream("samples/fanTD_update.jsonld");
+		content = IOUtils.toByteArray(in);
 		tdh.put(new URI(baseUri + tdId), new HashMap<String,String>(), new ByteArrayInputStream(content));
 			
 		// GET TD by id and check change
