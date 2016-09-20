@@ -13,6 +13,11 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.Map.Entry;
 
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.DefaultParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Options;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.text.EntityDefinition;
 import org.apache.jena.query.text.TextDatasetFactory;
@@ -20,6 +25,7 @@ import org.apache.jena.tdb.TDBFactory;
 import org.apache.jena.vocabulary.RDFS;
 
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
+import org.apache.lucene.queryparser.flexible.standard.parser.ParseException;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.util.Version;
@@ -154,24 +160,46 @@ public class Repository {
     }
     
     public static void main(String[] args) throws Exception {
+    	
+    	// Default values
         int portCoAP = 5683;
         int portHTTP = 8080;
         String loc = "db"; // directory to store the database //"jena-config.ttl";
         String lucene = "Lucene"; // directory to store lucene index
-
-        if (args.length >= 1) {
-            loc = args[0];
+        
+        //####### Handle input ##########
+        Options options = new Options();
+        
+        options.addOption("d", true, "Directory to store the database. Default is ./db.");
+        options.addOption("l", true, "Directory to store the lucene index. Default is ./Lucene.");
+        options.addOption("c", true, "CoAP port number. Default is 5683.");
+        options.addOption("h", true, "HTTP port number. Default is 8080.");
+        options.addOption("help", false, "This help message.");
+        
+        // Parse command line
+        CommandLineParser parser = new DefaultParser();
+        CommandLine cmd = parser.parse(options, args);
+        	
+        if (cmd.hasOption("c")) {
+           	portCoAP = Integer.parseInt(cmd.getOptionValue("c"));
         }
-        if (args.length >= 2) {
-            portCoAP = Integer.parseInt(args[1]);
+        if (cmd.hasOption("h")) {
+        	portHTTP = Integer.parseInt(cmd.getOptionValue("h"));
         }
-        if (args.length >= 3) {
-            portHTTP = Integer.parseInt(args[2]);
+        if (cmd.hasOption("d")) {
+        	loc = cmd.getOptionValue("d");
         }
-        if (args.length >= 4) {
-            lucene = args[3];
+        if (cmd.hasOption("l")) {
+        	lucene = cmd.getOptionValue("l");
         }
-
+        if (cmd.hasOption("help")) {
+        	// Automatically generate help statement
+            HelpFormatter formatter = new HelpFormatter();
+            formatter.printHelp( "thingweb-repository-version.jar", options );
+        	System.exit(0);
+        }
+        
+        // ##############################
 
         // TODO get http URI
         Repository.get().init(loc, "http://www.example.com", lucene);
