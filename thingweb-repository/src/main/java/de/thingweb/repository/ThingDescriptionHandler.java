@@ -62,11 +62,24 @@ public class ThingDescriptionHandler extends RESTHandler {
 	
 	@Override
 	public void put(URI uri, Map<String, String> parameters, InputStream payload) throws RESTException {
+		
+		String data = "";
+		try {
+			data = ThingDescriptionUtils.streamToString(payload);
+		} catch (IOException e1) {
+			e1.printStackTrace();
+			throw new BadRequestException();
+		}
+		
+		// Check if new TD has uris already registered in the dataset
+		if (ThingDescriptionUtils.hasInvalidURI(data, uri.toString())) {
+			throw new BadRequestException();
+		}
+		
 		Dataset dataset = Repository.get().dataset;
 		dataset.begin(ReadWrite.WRITE);
 		
 		try {
-			String data = ThingDescriptionUtils.streamToString(payload);
 			Model td = ModelFactory.createDefaultModel();
 			Model tdb = dataset.getDefaultModel();
 			String created, modified, lifetime, lt, endpointName;

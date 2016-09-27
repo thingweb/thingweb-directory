@@ -33,10 +33,15 @@ public class CoAPRESTResource extends CoapResource {
 
 		if (handler instanceof ThingDescriptionCollectionHandler) {
 			this.getAttributes().addResourceType("core.rd");
+			super.setObservable(true);
 			
 		} else if (handler instanceof TDLookUpHandler) {
 			this.getAttributes().addResourceType("core.rd-lookup");
 		}
+	}
+	
+	public void hasChanged() {
+		super.changed();
 	}
 	
 	@Override
@@ -64,6 +69,7 @@ public class CoAPRESTResource extends CoapResource {
 		} catch (RESTException e) {
 			exchange.respond(ResponseCode.INTERNAL_SERVER_ERROR);
 		}
+		this.hasChanged();
 	}
 	
 	@Override
@@ -76,6 +82,7 @@ public class CoAPRESTResource extends CoapResource {
 		} catch (RESTException e) {
 			exchange.respond(ResponseCode.INTERNAL_SERVER_ERROR);
 		}
+		this.hasChanged();
 	}
 
 	@Override
@@ -88,6 +95,7 @@ public class CoAPRESTResource extends CoapResource {
 		} catch (RESTException e) {
 			exchange.respond(ResponseCode.INTERNAL_SERVER_ERROR);
 		}
+		this.hasChanged();
 	}
 	
 	protected URI uri() {

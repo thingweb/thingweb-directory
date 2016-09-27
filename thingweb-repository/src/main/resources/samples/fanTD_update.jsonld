@@ -1,0 +1,40 @@
+{
+  "@context": ["http://w3c.github.io/wot/w3c-wot-td-context.jsonld",
+               "http://w3c.github.io/wot/w3c-wot-common-context.jsonld"],
+  "@type": "Sensor",
+  "name": "Fan2",
+  "uris" : ["coap:///www.example.com:5686/Fan"],
+  "encodings": ["JSON"],
+  "properties": [
+    {
+      "@type": "Temperature",
+      "name": "myThreshold",
+      "valueType": "number",
+      "unit": "celsius",
+      "writable": true,
+      "geo:location":"room_4",
+      "hrefs": ["threshold"]
+    }
+  ],
+  "actions": [
+    {
+      "@type": "Toggle",
+      "name": "fanOnOff",
+      "inputData": {
+        "@type": "OnOff",
+        "valueType": "xsd:boolean"
+      },
+      "hrefs": ["toggle"]
+    },{
+      "@type": "Toggle",
+      "name": "fanOnOffTempAction",
+      "inputData": {
+        "@type": "Temperature",
+        "valueType": "xsd:float",
+        "unit": "celsius"
+      },
+      "geo:location":"room_4",
+      "hrefs": ["fanOnOffTempAction"]
+    }
+  ]
+}

@@ -129,7 +129,20 @@ public class ThingDescriptionCollectionHandler extends RESTHandler {
 
 	@Override
 	public RESTResource post(URI uri, Map<String, String> parameters, InputStream payload) throws RESTException {
-
+		
+		String data = "";
+		try {
+			data = ThingDescriptionUtils.streamToString(payload);
+		} catch (IOException e1) {
+			e1.printStackTrace();
+			throw new BadRequestException();
+		}
+		
+		// Check if new TD has uris already registered in the dataset
+		if (ThingDescriptionUtils.hasInvalidURI(data)) {
+			throw new BadRequestException();
+		}
+		
 		// to register a resource following the standard
 		String endpointName = "http://example.org/"; // this is temporary
 		String lifeTime = "86400"; // 24 hours by default in seconds
@@ -152,8 +165,7 @@ public class ThingDescriptionCollectionHandler extends RESTHandler {
 
 		dataset.begin(ReadWrite.WRITE);
 		try {
-			String data = ThingDescriptionUtils.streamToString(payload);
-		  
+			
 			Model tdb = dataset.getNamedModel(resourceUri.toString());
 			tdb.read(new ByteArrayInputStream(data.getBytes()), endpointName, "JSON-LD");
 			// TODO check TD validity
@@ -189,9 +201,6 @@ public class ThingDescriptionCollectionHandler extends RESTHandler {
 			RESTResource resource = new RESTResource("/td/" + id, new ThingDescriptionHandler(id, instances));
 			return resource;
 
-		} catch (IOException e) {
-			e.printStackTrace();
-		  throw new BadRequestException();
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new RESTException();
@@ -199,7 +208,15 @@ public class ThingDescriptionCollectionHandler extends RESTHandler {
 			dataset.end();
 		}
 	}
+	
+	
+	@Override
+	public RESTResource observe(URI uri, Map<String, String> parameters) throws RESTException {
+		
+		return get(uri, null);
+	}
 
+	
 	private String normalize(URI uri) {
 		if (!uri.getScheme().equals("http")) {
 			return uri.toString().replace(uri.getScheme(), "http");

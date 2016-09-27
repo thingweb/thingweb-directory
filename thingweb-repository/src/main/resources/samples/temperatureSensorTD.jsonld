@@ -1,9 +1,9 @@
 {
-	"@context": ["https://w3c.github.io/wot/w3c-wot-td-context.jsonld",
-				 "https://w3c.github.io/wot/w3c-wot-common-context.jsonld"],
+	"@context": ["http://w3c.github.io/wot/w3c-wot-td-context.jsonld",
+				 "http://w3c.github.io/wot/w3c-wot-common-context.jsonld"],
 	"@type": "Sensor",
 	"name": "myTempSensor",
-	"uris" : ["coap:///www.example.com:5683/temp"],
+	"uris" : ["coap:///www.example.com:5687/temp"],
 	"encodings": ["JSON"],
 	"properties": [
 		{

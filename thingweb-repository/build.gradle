@@ -32,6 +32,14 @@ apply plugin: 'maven'
 apply plugin:'maven-publish'
 apply plugin: 'eclipse'
 
+sourceSets {
+    main {
+        resources {
+            srcDirs = ["src/main/resources"]
+        }
+    }
+}
+
 repositories {
 	maven { url "https://jitpack.io" }
 	maven { url "http://dl.bintray.com/thingweb/maven" }
@@ -46,6 +54,7 @@ dependencies {
 	compile 'org.eclipse.californium:californium-core:1.0.0-M3'
 	compile 'org.apache.jena:apache-jena-libs:3.0.0'
 	compile 'org.eclipse.jetty:jetty-maven-plugin:9.3.6.v20151106'
+	compile group: 'org.eclipse.jetty', name: 'jetty-servlets', version: '9.3.6.v20151106'
 
 	// dependencies for jena-text
 	compile group: 'commons-codec', name: 'commons-codec', version: '1.9'
@@ -59,7 +68,7 @@ dependencies {
 
 }
 
-version = '0.5'
+version = '0.6'
 group = 'de.thingweb'
 
 publishing {

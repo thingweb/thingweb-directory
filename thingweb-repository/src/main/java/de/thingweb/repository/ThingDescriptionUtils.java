@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.StringWriter;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -14,6 +15,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.Map.Entry;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.jena.atlas.lib.StrUtils;
 import org.apache.jena.query.Dataset;
@@ -27,11 +30,14 @@ import org.apache.jena.query.ResultSet;
 
 import org.apache.jena.rdf.model.Literal;
 import org.apache.jena.rdf.model.Model;
+import org.apache.jena.rdf.model.NodeIterator;
 import org.apache.jena.rdf.model.Property;
 import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.rdf.model.Resource;
+import org.apache.jena.rdf.model.ResourceFactory;
 import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.rdf.model.StmtIterator;
+import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.sparql.util.QueryExecUtils;
 
@@ -93,7 +99,7 @@ public class ThingDescriptionUtils
 	  try (QueryExecution qexec = QueryExecutionFactory.create(q, dataset)) {
 		ResultSet result = qexec.execSelect();
 		while (result.hasNext()) { 
-		id = result.next().get("g_id").toString();
+			id = result.next().get("g_id").toString();
 		}
 	  }
 	catch (Exception e) {
@@ -135,6 +141,48 @@ public class ThingDescriptionUtils
 	
 	return tds;
   }
+  
+  /**
+   * Returns true if td's uris are already registered
+   * in the database, false otherwise.
+   * Unless td is in the dataset with tdId.
+   * 
+   * @return true or false.
+   */
+  public static boolean hasInvalidURI(String td, String tdId) {
+	  
+	  String uris_re = "(\"uris\")[ ]*:[ ]*[-a-zA-Z0-9+&@#/%? \"=~_|!:,.;\\[\\]]*,";
+	  String url_re = "(coap?|http)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]";
+	  
+	  // Extract list of uris
+	  Matcher m = Pattern.compile(uris_re).matcher(td);
+	  String uri_ar = "";
+	  while (m.find()) {
+		  uri_ar += m.group();
+	  }
+	  
+	  // Check each uri
+	  Matcher m2 = Pattern.compile(url_re).matcher(uri_ar);
+	  while (m2.find()) {
+		  String thing_uri = m2.group();
+		  String id = getThingDescriptionIdFromUri(thing_uri);
+		  if (!id.equalsIgnoreCase("NOT FOUND") && !id.equalsIgnoreCase(tdId)) {
+			  return true;
+		  }
+	  }
+
+	  return false;
+  }
+  
+  /**
+   * Returns true if td's uris are already registered
+   * in the database, false otherwise.
+   * @return true or false.
+   */
+  public static boolean hasInvalidURI(String td) {
+	  return hasInvalidURI(td, "NOT FOUND");
+  }
+
   
   /**
    * Returns a list of type values for the given property.
@@ -188,9 +236,9 @@ public class ThingDescriptionUtils
    * default graph.
    * @param fileName File name with the ontology context.
    */
-  public static void loadOntology(String fileName) {
+  public static void loadOntology(InputStream fileName) {
 	  
-List<String> ont = new ArrayList<>();
+	  List<String> ont = new ArrayList<>();
 	  
 	  // Check if the ontology is already there
 	  Dataset dataset = Repository.get().dataset;
@@ -218,7 +266,8 @@ List<String> ont = new ArrayList<>();
 	      dataset.begin( ReadWrite.WRITE );
 	      try {
 	    	  Model m = dataset.getDefaultModel();
-	    	  RDFDataMgr.read(m, fileName);
+	    	  //RDFDataMgr.read(m, fileName);
+	    	  RDFDataMgr.read(m, fileName, Lang.TURTLE);
 	    	  dataset.commit();
 	      } finally {
 	    	  dataset.end();
@@ -262,6 +311,7 @@ List<String> ont = new ArrayList<>();
   }
   return keyWords;
  }
+  
 
  /**
    * Does a full text searc using jena-text.
