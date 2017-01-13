@@ -2,13 +2,13 @@
 
 Thingweb-Repository is an open source repository for Thing Descriptions. Thing Description (TD) is a proposal of W3C Web of Things interest group to describe Things.
 
-Thingweb-Repository features an API to create, read, update and delete (CRUD) a TD. The repository can be used to *browse* and *discover* Things based on their TDs. This functionality includes but is not limited to following cases: 
+Thingweb-Repository features an API to create, read, update and delete (CRUD) a TD. The repository can be used to *browse* and *discover* Things based on their TDs. This functionality includes but is not limited to following cases:
 
   - Searching for a Thing based on its metadata, properties, actions or events;
   - Creating a new Thing's TD or updating an existing one;
   - Deleting a Thing's TD;
   - CRUD operations are supported either over HTTP or CoAP;
-  - Generating a servient based on a discovered Thing. 
+  - Generating a servient based on a discovered Thing.
 
 ## Contents
 1. [Building](#building)
@@ -42,7 +42,7 @@ or over CoAP from:
 
 ```sh
 Method: POST
-URI Template: /td 
+URI Template: /td
 Request Parameters:
   lt := Lifetime (optional). Lifetime of the registration in seconds. If not specified, a default value of 86400 (24 hours) is assumed.
 Content-Type: application/ld+json
@@ -72,13 +72,13 @@ Failure: 500 Internal Server Error
 
 Examples:
 
-- SPARQL query pattern to return a TD with `coap://192.168.1.104/Fan` associated as its URI: 
+- SPARQL query pattern to return a TD with `coap://192.168.1.104/Fan` associated as its URI:
 ```sh
-?Y <http://www.w3c.org/wot/td#hasMetadata> ?X . ?Z <http://www.w3c.org/wot/td#associatedUri> "coap://192.168.1.104/Fan"^^xsd:anyURI .
+?Y <http://www.w3c.org/wot/td#hasMetadata> ?X . ?Z <http://www.w3c.org/wot/td#associatedUri> "coap://192.168.1.104/Fan" .
 ```
 HTTP request with the SPARQL query encoded as URI:
 ```sh
-http://localhost:8080/td?query=%3FY+<http%3A%2F%2Fwww.w3c.org%2Fwot%2Ftd%23hasMetadata>+%3FX+.%3FZ+<http%3A%2F%2Fwww.w3c.org%2Fwot%2Ftd%23associatedUri>++"coap%3A%2F%2F192.168.1.104%2FFan"^^xsd%3AanyURI+.
+http://localhost:8080/td?query=%3FY+<http%3A%2F%2Fwww.w3c.org%2Fwot%2Ftd%23hasMetadata>+%3FX+.%3FZ+<http%3A%2F%2Fwww.w3c.org%2Fwot%2Ftd%23associatedUri>++"coap%3A%2F%2F192.168.1.104%2FFan".
 ```
 
 - SPARQL query pattern to return all TDs (not recommended if their is a large amount of TDs in the repository)
@@ -128,7 +128,7 @@ Method: PUT
 URI Template: /td/{id}
 URI Template Parameter:   
   {id} := ID of a TD to be updated.
-  lt := Lifetime of the registration in seconds. If not specified, a default value of 86400 (24 hours) is assumed. 
+  lt := Lifetime of the registration in seconds. If not specified, a default value of 86400 (24 hours) is assumed.
 Payload: content of a TD.jsonld file
 Content-Type: application/ld+json
 Success: 200 OK
