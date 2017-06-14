@@ -14,7 +14,7 @@ Thingweb-Repository features an API to create, read, update and delete (CRUD) a 
 1. [Building](#building)
 2. [Running a Thingweb-Repository Server](#Running-a-Thingweb-Repository-Server)
 3. [Interacting with a Thingweb-Repository Server](#Interacting-with-a-Thingweb-Repository-Server)
-4. [Swagger Specification of Thingweb-Repository API](#Swagger-Specification-of-Thingweb-Repository-API)
+4. [Open API Specification of Thingweb-Repository](#Open-API-Specification-of-Thingweb-Repository)
 5. [ToDos](#ToDos)
 
 ### Building
@@ -186,6 +186,12 @@ coap://localhost:8080/td-lookup/sem?text="word1 AND word2"
 coap://localhost:8080/td-lookup/sem?rdf=http://example.org/lightBrightness
 ```
 
-## Swagger Specification of Thingweb-Repository API
+## Open API Specification of Thingweb-Repository
+
+See `src/main/resources/api.json` for a formal specification of the Thingweb-Repository API. This file is exposed by the server at `/api.json`. It can e.g. be processed by the [Swagger UI](http://swagger.io/swagger-ui/) to render an online documentation. See the [Open API Initiative](https://www.openapis.org/) for more details.
 
 ## TODOs
+
+ - proper configuration of log4j
+ - stack trace in logs if 500 returned
+ - full-fledged SPARQL endpoint?

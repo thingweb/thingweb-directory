@@ -23,7 +23,6 @@ import org.apache.jena.query.text.EntityDefinition;
 import org.apache.jena.query.text.TextDatasetFactory;
 import org.apache.jena.tdb.TDBFactory;
 import org.apache.jena.vocabulary.RDFS;
-
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.queryparser.flexible.standard.parser.ParseException;
 import org.apache.lucene.store.Directory;
@@ -31,9 +30,13 @@ import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.util.Version;
 
 import de.thingweb.repository.coap.CoAPServer;
+import de.thingweb.repository.handlers.OpenAPISpecHandler;
 import de.thingweb.repository.handlers.TDLookUpEPHandler;
 import de.thingweb.repository.handlers.TDLookUpHandler;
 import de.thingweb.repository.handlers.TDLookUpSEMHandler;
+import de.thingweb.repository.handlers.ThingDescriptionCollectionHandler;
+import de.thingweb.repository.handlers.ThingDescriptionHandler;
+import de.thingweb.repository.handlers.WelcomePageHandler;
 import de.thingweb.repository.http.HTTPServer;
 import de.thingweb.repository.rest.RESTException;
 import de.thingweb.repository.rest.RESTHandler;
@@ -209,9 +212,12 @@ public class Repository {
         servers.add(new HTTPServer(portHTTP, root));
 
         for (RESTServerInstance i : servers) {
+            i.add("/" + OpenAPISpecHandler.FILENAME, new OpenAPISpecHandler(servers));
+            
             i.add("/td-lookup", new TDLookUpHandler(servers));
             i.add("/td-lookup/ep", new TDLookUpEPHandler(servers));
             i.add("/td-lookup/sem", new TDLookUpSEMHandler(servers));
+            
             i.add("/td", new ThingDescriptionCollectionHandler(servers));
             for (String td : listThingDescriptions()) {
                 i.add("/td/" + td, new ThingDescriptionHandler(td, servers));

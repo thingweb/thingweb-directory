@@ -15,8 +15,8 @@ import org.eclipse.californium.core.coap.Response;
 import org.eclipse.californium.core.server.resources.CoapExchange;
 
 import de.thingweb.repository.Repository;
-import de.thingweb.repository.ThingDescriptionCollectionHandler;
 import de.thingweb.repository.handlers.TDLookUpHandler;
+import de.thingweb.repository.handlers.ThingDescriptionCollectionHandler;
 import de.thingweb.repository.rest.BadRequestException;
 import de.thingweb.repository.rest.NotFoundException;
 import de.thingweb.repository.rest.RESTException;
@@ -141,7 +141,8 @@ public class CoAPRESTResource extends CoapResource {
 	
 	protected int toContentFormatCode(String contentType) {
 	  switch (contentType) {
-      // TODO 50 -> application/json, not ld+json
+		case "application/json": return 50;
+		// TODO 50 -> application/json, not ld+json
 	    case "application/ld+json": return 50;
 	    default: return 0;
 	  }

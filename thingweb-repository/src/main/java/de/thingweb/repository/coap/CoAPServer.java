@@ -10,7 +10,7 @@ import java.util.Set;
 import org.eclipse.californium.core.CoapServer;
 import org.eclipse.californium.core.server.resources.Resource;
 
-import de.thingweb.repository.WelcomePageHandler;
+import de.thingweb.repository.handlers.WelcomePageHandler;
 import de.thingweb.repository.rest.RESTHandler;
 import de.thingweb.repository.rest.RESTServerInstance;
 

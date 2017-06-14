@@ -1,4 +1,4 @@
-package de.thingweb.repository;
+package de.thingweb.repository.handlers;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -19,6 +19,9 @@ import org.apache.jena.vocabulary.DC;
 import org.apache.jena.vocabulary.DCTerms;
 import org.apache.jena.vocabulary.RDFS;
 
+import de.thingweb.repository.Repository;
+import de.thingweb.repository.ThingDescription;
+import de.thingweb.repository.ThingDescriptionUtils;
 import de.thingweb.repository.rest.BadRequestException;
 import de.thingweb.repository.rest.NotFoundException;
 import de.thingweb.repository.rest.RESTException;

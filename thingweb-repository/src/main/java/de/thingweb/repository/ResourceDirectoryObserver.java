@@ -7,12 +7,12 @@ import java.lang.Boolean;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 import java.util.HashMap;
-
 import java.net.URI;
 import java.io.ByteArrayInputStream;
 
+import de.thingweb.repository.handlers.ThingDescriptionCollectionHandler;
+import de.thingweb.repository.handlers.ThingDescriptionHandler;
 import de.thingweb.repository.rest.RESTServerInstance;
-import de.thingweb.repository.ThingDescriptionCollectionHandler;
 
 import org.eclipse.californium.core.CoapClient;
 import org.eclipse.californium.core.CoapHandler;

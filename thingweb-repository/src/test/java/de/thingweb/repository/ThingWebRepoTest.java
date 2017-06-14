@@ -14,7 +14,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
-
 import org.apache.jena.atlas.json.JSON;
 import org.apache.jena.atlas.json.JsonObject;
 import org.apache.jena.atlas.json.JsonValue;
@@ -24,6 +23,9 @@ import de.thingweb.repository.coap.CoAPServer;
 import de.thingweb.repository.handlers.TDLookUpEPHandler;
 import de.thingweb.repository.handlers.TDLookUpHandler;
 import de.thingweb.repository.handlers.TDLookUpSEMHandler;
+import de.thingweb.repository.handlers.ThingDescriptionCollectionHandler;
+import de.thingweb.repository.handlers.ThingDescriptionHandler;
+import de.thingweb.repository.handlers.WelcomePageHandler;
 import de.thingweb.repository.http.HTTPServer;
 import de.thingweb.repository.rest.RESTHandler;
 import de.thingweb.repository.rest.RESTResource;
@@ -85,7 +87,7 @@ public class ThingWebRepoTest {
 		RESTResource resource;
 		byte[] content;
 		String tdId, tdId2, td;
-		
+
 		Map<String,String> parameters = new HashMap<String,String>();
 		parameters.put("ep", baseUri);
 		

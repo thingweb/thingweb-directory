@@ -1,4 +1,4 @@
-package de.thingweb.repository;
+package de.thingweb.repository.handlers;
 
 import java.net.URI;
 import java.util.List;
@@ -16,7 +16,8 @@ public class WelcomePageHandler extends RESTHandler
       + "Thingweb-Repository: a repository for W3C Thing Descriptions"
       + "</title></head><body>"
       + "Hi. This is a headless API.<br>"
-      + "See our documentation <a href=\"https://github.com/thingweb/thingweb-repository#interacting-with-a-thingweb-repository-server\">on Github</a>."
+      + "See the <a href=\"api.json\">OAS specification</a> for this API "
+      + "or a textual documentation <a href=\"https://github.com/thingweb/thingweb-repository#interacting-with-a-thingweb-repository-server\">on Github</a>."
       + "</body></html>";
 
   public WelcomePageHandler(List<RESTServerInstance> instances)

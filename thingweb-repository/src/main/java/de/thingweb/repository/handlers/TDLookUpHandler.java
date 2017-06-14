@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import de.thingweb.repository.ThingDescriptionHandler;
 import de.thingweb.repository.ThingDescriptionUtils;
 import de.thingweb.repository.rest.BadRequestException;
 import de.thingweb.repository.rest.RESTException;
