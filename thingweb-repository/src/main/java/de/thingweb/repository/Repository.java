@@ -7,8 +7,10 @@ import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashSet;
 import java.util.List;
 import java.util.PriorityQueue;
+import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.Map.Entry;
@@ -104,6 +106,16 @@ public class Repository {
         }
 
         return tds;
+    }
+    
+    private static Set<String> listVocabularies() {
+        Set<String> vocabs = new HashSet<>();
+
+        for (String uri : VocabularyUtils.listVocabularies()) {
+            vocabs.add(uri.substring(uri.lastIndexOf("/") + 1));
+        }
+
+        return vocabs;
     }
     
     private void loadTDQueue() {
@@ -232,7 +244,7 @@ public class Repository {
             }
             
             i.add("/vocab", new VocabularyCollectionHandler(servers));
-            for (String vocab : listThingDescriptions()) {
+            for (String vocab : listVocabularies()) {
                 i.add("/vocab/" + vocab, new VocabularyHandler(vocab, servers));
             }
       

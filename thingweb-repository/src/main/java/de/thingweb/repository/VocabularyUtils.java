@@ -51,7 +51,7 @@ public class VocabularyUtils {
 	dataset.begin(ReadWrite.READ);
 
 	try {
-	  String q = "SELECT DISTINCT ?g WHERE { GRAPH ?g { ?o a <http://www.w3.org/2002/07/owl#Ontology> }}";
+	  String q = "SELECT DISTINCT ?g WHERE { GRAPH ?g { ?o a <http://www.w3.org/2002/07/owl#Ontology> } }";
 	  QueryExecution qexec = QueryExecutionFactory.create(q, dataset);
 	  ResultSet result = qexec.execSelect();
 	  while (result.hasNext()) {

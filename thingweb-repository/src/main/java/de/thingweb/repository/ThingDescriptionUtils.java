@@ -56,7 +56,7 @@ public class ThingDescriptionUtils {
 	dataset.begin(ReadWrite.READ);
 
 	try {
-	  String q = "SELECT DISTINCT ?g WHERE { GRAPH ?g { " + query + " }}";
+	  String q = "SELECT DISTINCT ?g WHERE { GRAPH ?g { " + query + " FILTER NOT EXISTS { ?ontology a <http://www.w3.org/2002/07/owl#Ontology> } } }";
 	  try (QueryExecution qexec = QueryExecutionFactory.create(q, dataset)) {
 		ResultSet result = qexec.execSelect();
 		while (result.hasNext()) {
