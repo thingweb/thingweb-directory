@@ -18,16 +18,20 @@ import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
+import org.apache.commons.logging.Log;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.text.EntityDefinition;
 import org.apache.jena.query.text.TextDatasetFactory;
+import org.apache.jena.tdb.TDB;
 import org.apache.jena.tdb.TDBFactory;
 import org.apache.jena.vocabulary.RDFS;
+import org.apache.log4j.Logger;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.queryparser.flexible.standard.parser.ParseException;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.util.Version;
+import org.eclipse.californium.core.CaliforniumLogger;
 
 import de.thingweb.repository.coap.CoAPServer;
 import de.thingweb.repository.handlers.OpenAPISpecHandler;
@@ -36,6 +40,8 @@ import de.thingweb.repository.handlers.TDLookUpHandler;
 import de.thingweb.repository.handlers.TDLookUpSEMHandler;
 import de.thingweb.repository.handlers.ThingDescriptionCollectionHandler;
 import de.thingweb.repository.handlers.ThingDescriptionHandler;
+import de.thingweb.repository.handlers.VocabularyCollectionHandler;
+import de.thingweb.repository.handlers.VocabularyHandler;
 import de.thingweb.repository.handlers.WelcomePageHandler;
 import de.thingweb.repository.http.HTTPServer;
 import de.thingweb.repository.rest.RESTException;
@@ -43,7 +49,9 @@ import de.thingweb.repository.rest.RESTHandler;
 import de.thingweb.repository.rest.RESTServerInstance;
 
 public class Repository {
-  
+	
+	public static final Logger LOG = Logger.getRootLogger();
+
     // TODO make it private
     public Dataset dataset;
     public String baseURI;
@@ -163,7 +171,7 @@ public class Repository {
     }
     
     public static void main(String[] args) throws Exception {
-    	
+
     	// Default values
         int portCoAP = 5683;
         int portHTTP = 8080;
@@ -221,6 +229,11 @@ public class Repository {
             i.add("/td", new ThingDescriptionCollectionHandler(servers));
             for (String td : listThingDescriptions()) {
                 i.add("/td/" + td, new ThingDescriptionHandler(td, servers));
+            }
+            
+            i.add("/vocab", new VocabularyCollectionHandler(servers));
+            for (String vocab : listThingDescriptions()) {
+                i.add("/vocab/" + vocab, new VocabularyHandler(vocab, servers));
             }
       
             i.start();

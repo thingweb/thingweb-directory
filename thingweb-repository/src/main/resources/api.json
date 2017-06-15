@@ -16,9 +16,22 @@
   "schemes": [
     "http"
   ],
+  "tags": [
+    {
+      "name": "Thing Description",
+      "description": "WoT Thing Description management interface."
+    },
+    {
+      "name": "Vocabulary",
+      "description": "Vocabulary (OWL Ontology) management interface."
+    }
+  ],
   "paths": {
     "/td": {
       "get": {
+        "tags": [
+          "Thing Description"
+        ],
         "summary": "Lists all TDs in the repository.",
         "produces": [
           "application/json"
@@ -52,6 +65,9 @@
         }
       },
       "post": {
+        "tags": [
+          "Thing Description"
+        ],
         "summary": "Creates (adds) a TD to the repository.",
         "consumes": [
           "application/ld+json"
@@ -88,6 +104,9 @@
         }
       ],
       "get": {
+        "tags": [
+          "Thing Description"
+        ],
         "summary": "Returns a TD based on its id.",
         "produces": [
           "application/ld+json"
@@ -108,6 +127,9 @@
         }
       },
       "put": {
+        "tags": [
+          "Thing Description"
+        ],
         "summary": "Updates an existing TD",
         "consumes": [
           "application/ld+json"
@@ -128,6 +150,9 @@
         }
       },
       "delete": {
+        "tags": [
+          "Thing Description"
+        ],
         "summary": "Deletes an existing TD.",
         "responses": {
           "200": {
@@ -147,6 +172,9 @@
     },
     "/td-lookup/ep": {
       "get": {
+        "tags": [
+          "Thing Description"
+        ],
         "summary": "Discovers a TD based on a lookup by endpoint.",
         "produces": [
           "application/json"
@@ -174,6 +202,9 @@
     },
     "/td-lookup/sem": {
       "get": {
+        "tags": [
+          "Thing Description"
+        ],
         "summary": "Discovers a TD based on SPARQL or full text search (same as /td).",
         "produces": [
           "application/json"
@@ -207,6 +238,101 @@
           },
           "400": {
             "description": "Bad Request"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/vocab": {
+      "get": {
+        "tags": [
+          "Vocabulary"
+        ],
+        "summary": "Lists prefixes of all registered vocabularies.",
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Vocabulary"
+        ],
+        "summary": "Registers a vocabulary. The RDF input should at least contain one owl:Ontology with vann:preferredNamespacePrefix defined.",
+        "consumes": [
+          "text/turtle"
+        ],
+        "responses": {
+          "201": {
+            "description": "Created"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/vocab/{prefix}": {
+      "parameters": [
+        {
+          "in": "path",
+          "name": "prefix",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "get": {
+        "tags": [
+          "Vocabulary"
+        ],
+        "summary": "Returns the axioms of the vocabulary with given prefix (if registered).",
+        "produces": [
+          "text/turtle"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Vocabulary"
+        ],
+        "summary": "Unregister the vocabulary with given prefix.",
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "404": {
+            "description": "Not Found"
           },
           "500": {
             "description": "Internal Server Error"

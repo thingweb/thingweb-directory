@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 import de.thingweb.repository.Repository;
+import de.thingweb.repository.ThingDescriptionUtils;
 import de.thingweb.repository.rest.NotFoundException;
 import de.thingweb.repository.rest.RESTException;
 import de.thingweb.repository.rest.RESTHandler;
@@ -46,11 +47,9 @@ public class OpenAPISpecHandler extends RESTHandler {
 	
 	private String loadFile(String filename) {
         InputStream in = getClass().getClassLoader().getResourceAsStream(filename);
-        byte[] buf = new byte[8192]; // FIXME arbitrary length
 
         try {
-			int length = in.read(buf);
-	        return new String(buf, 0, length);
+	        return ThingDescriptionUtils.streamToString(in);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

@@ -6,6 +6,7 @@ import java.io.InputStreamReader;
 import java.io.StringWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -27,7 +28,6 @@ import org.apache.jena.query.QueryFactory;
 import org.apache.jena.query.QuerySolution;
 import org.apache.jena.query.ReadWrite;
 import org.apache.jena.query.ResultSet;
-
 import org.apache.jena.rdf.model.Literal;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.NodeIterator;
@@ -41,8 +41,14 @@ import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.sparql.util.QueryExecUtils;
 
-public class ThingDescriptionUtils
-{
+public class ThingDescriptionUtils {
+	
+  private static final URL TD_CONTEXT_URL = ClassLoader.getSystemResource("td-context.jsonld");
+
+  public static String withLocalJsonLdContext(String data) {
+	  // FIXME proper context substitution
+	  return data.replace("http://w3c.github.io/wot/w3c-wot-td-context.jsonld", TD_CONTEXT_URL.toString());
+  }
 
   public static List<String> listThingDescriptions(String query) {
 	List<String> tds = new ArrayList<>();
@@ -88,7 +94,7 @@ public class ThingDescriptionUtils
    */
   public static String getThingDescriptionIdFromUri(String uri) {
 	
-	String query = "?td <http://www.w3c.org/wot/td#associatedUri> <" + uri + ">";
+	String query = "?td <http://iot.linkeddata.es/def/wot#baseURI> <" + uri + ">";
 	String id = "NOT FOUND";
 	  
 	Dataset dataset = Repository.get().dataset;
@@ -96,15 +102,14 @@ public class ThingDescriptionUtils
 
 	try {
 	  String q = "SELECT ?g_id WHERE { GRAPH ?g_id { " + query + " }}";
-	  try (QueryExecution qexec = QueryExecutionFactory.create(q, dataset)) {
-		ResultSet result = qexec.execSelect();
-		while (result.hasNext()) { 
-			id = result.next().get("g_id").toString();
-		}
+	  QueryExecution qexec = QueryExecutionFactory.create(q, dataset);
+	  ResultSet result = qexec.execSelect();
+	  while (result.hasNext()) { 
+	    id = result.next().get("g_id").toString();
 	  }
-	catch (Exception e) {
+	} catch (Exception e) {
+	  e.printStackTrace();
 	  throw e;
-	}
 	} finally {
 	  dataset.end();
 	}
@@ -119,7 +124,7 @@ public class ThingDescriptionUtils
   public static List<String> listThingDescriptionsUri() {
 	
 	List<String> tds = new ArrayList<>();
-	String query = "?td <http://www.w3c.org/wot/td#associatedUri> ?uri";
+	String query = "?td <http://iot.linkeddata.es/def/wot#baseURI> ?uri";
 	  
 	Dataset dataset = Repository.get().dataset;
 	dataset.begin(ReadWrite.READ);
@@ -194,7 +199,7 @@ public class ThingDescriptionUtils
 	  List<String> vals = new ArrayList<>();
 	  Dataset dataset = Repository.get().dataset;
 	  String prefix = StrUtils.strjoinNL
-			  ( "PREFIX td: <http://www.w3c.org/wot/td#>"
+			  ( "PREFIX td: <http://w3c.github.io/wot/w3c-wot-td-ontology.owl#>"
 			  , "PREFIX qu: <http://purl.oclc.org/NET/ssnx/qu/qu#>"
 			  , "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>"
 			  , "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>"
@@ -458,6 +463,7 @@ public class ThingDescriptionUtils
   
   
   public String getCurrentDateTime(int plusTime) {
+	// TODO static?
 	
 	DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 	Calendar cal = Calendar.getInstance();

@@ -136,6 +136,7 @@ public class ThingDescriptionCollectionHandler extends RESTHandler {
 		String data = "";
 		try {
 			data = ThingDescriptionUtils.streamToString(payload);
+			data = ThingDescriptionUtils.withLocalJsonLdContext(data);
 		} catch (IOException e1) {
 			e1.printStackTrace();
 			throw new BadRequestException();
@@ -169,11 +170,11 @@ public class ThingDescriptionCollectionHandler extends RESTHandler {
 		dataset.begin(ReadWrite.WRITE);
 		try {
 			
-			Model tdb = dataset.getNamedModel(resourceUri.toString());
-			tdb.read(new ByteArrayInputStream(data.getBytes()), endpointName, "JSON-LD");
+			Model graph = dataset.getNamedModel(resourceUri.toString());
+			graph.read(new ByteArrayInputStream(data.getBytes()), endpointName, "JSON-LD");
 			// TODO check TD validity
 
-			tdb = dataset.getDefaultModel();
+			Model tdb = dataset.getDefaultModel();
 			tdb.createResource(resourceUri.toString()).addProperty(DC.source, data);
 
 			// Get key words from statements
@@ -194,6 +195,8 @@ public class ThingDescriptionCollectionHandler extends RESTHandler {
 	  
 			addToAll("/td/" + id, new ThingDescriptionHandler(id, instances));
 			dataset.commit();
+
+			Repository.LOG.info(String.format("Inserted TD %s (%d triples)", id, graph.size()));
 			
 			// Add to priority queue
 			ThingDescription td = new ThingDescription(resourceUri.toString(), lifetimeDate);

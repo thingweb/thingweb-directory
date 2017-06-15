@@ -1,0 +1,157 @@
+package de.thingweb.repository.handlers;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+
+import org.apache.jena.atlas.json.JsonParseException;
+import org.apache.jena.atlas.lib.StrUtils;
+import org.apache.jena.ontology.OntModel;
+import org.apache.jena.query.Dataset;
+import org.apache.jena.query.ReadWrite;
+import org.apache.jena.rdf.model.Model;
+import org.apache.jena.rdf.model.ModelFactory;
+import org.apache.jena.rdf.model.Resource;
+import org.apache.jena.vocabulary.DC;
+import org.apache.jena.vocabulary.DCTerms;
+import org.apache.jena.vocabulary.RDFS;
+
+import de.thingweb.repository.Repository;
+import de.thingweb.repository.ThingDescription;
+import de.thingweb.repository.ThingDescriptionUtils;
+import de.thingweb.repository.VocabularyUtils;
+import de.thingweb.repository.rest.BadRequestException;
+import de.thingweb.repository.rest.NotFoundException;
+import de.thingweb.repository.rest.RESTException;
+import de.thingweb.repository.rest.RESTHandler;
+import de.thingweb.repository.rest.RESTResource;
+import de.thingweb.repository.rest.RESTServerInstance;
+
+public class VocabularyCollectionHandler extends RESTHandler {
+	
+	public VocabularyCollectionHandler(List<RESTServerInstance> instances) {
+		super("vocab", instances);
+	}
+	
+	@Override
+	public RESTResource get(URI uri, Map<String, String> parameters) throws RESTException {
+	  
+		RESTResource resource = new RESTResource(name(uri), this);
+		resource.contentType = "application/json";
+		resource.content = "[";
+		
+		Set<String> vocabs = new HashSet<String>();
+		
+		// Return all TDs
+		try {
+			vocabs = VocabularyUtils.listVocabularies();
+		} catch (Exception e) {
+			throw new BadRequestException();
+		}
+		
+		Iterator<String> it = vocabs.iterator();
+		while (it.hasNext()) {
+			String vocab = it.next();
+			resource.content += "\"" + vocab.substring(vocab.lastIndexOf("/") + 1)+ "\"";
+			if (it.hasNext()) {
+				resource.content += ",";
+			}
+		}
+		
+		resource.content += "]";
+		return resource;
+	}
+
+	@Override
+	public RESTResource post(URI uri, Map<String, String> parameters, InputStream payload) throws RESTException {
+		
+		String data = "";
+		try {
+			data = ThingDescriptionUtils.streamToString(payload);
+			data = ThingDescriptionUtils.withLocalJsonLdContext(data);
+		} catch (IOException e1) {
+			e1.printStackTrace();
+			throw new BadRequestException();
+		}
+		
+		// Check if new TD has uris already registered in the dataset
+		if (ThingDescriptionUtils.hasInvalidURI(data)) {
+			throw new BadRequestException();
+		}
+		
+		// to register a resource following the standard
+		String endpointName = "http://example.org/"; // this is temporary
+
+		// to add new thing description to the collection
+		String id = generateID();
+		URI resourceUri = URI.create(normalize(uri) + "/" + id);
+		Dataset dataset = Repository.get().dataset;
+
+		dataset.begin(ReadWrite.WRITE);
+		try {
+			
+			OntModel ontology = ModelFactory.createOntologyModel();
+			ontology.read(new ByteArrayInputStream(data.getBytes("UTF-8")), endpointName, "Turtle");
+			
+			// TODO check ontology consistency, basic metadata, etc.
+			
+			dataset.addNamedModel(resourceUri.toString(), ontology);
+
+			Model tdb = dataset.getDefaultModel();
+			
+			Date currentDate = new Date(System.currentTimeMillis());
+			DateFormat f = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+			tdb.getResource(resourceUri.toString()).addProperty(RDFS.isDefinedBy, endpointName);
+			tdb.getResource(resourceUri.toString()).addProperty(DCTerms.created, f.format(currentDate));
+	  
+			addToAll("/vocab/" + id, new VocabularyHandler(id, instances));
+			dataset.commit();
+
+			Repository.LOG.info(String.format("Registered RDFS/OWL vocabulary %s (%d triples)", id, ontology.size()));
+			
+			// TODO remove useless return
+			RESTResource resource = new RESTResource("/vocab/" + id, new VocabularyHandler(id, instances));
+			return resource;
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new RESTException();
+		} finally {
+			dataset.end();
+		}
+	}
+	
+	private String normalize(URI uri) {
+		if (!uri.getScheme().equals("http")) {
+			return uri.toString().replace(uri.getScheme(), "http");
+		}
+		return uri.toString();
+	}
+	
+	private String name(URI uri) {
+		String path = uri.getPath();
+		if (path.contains("/")) {
+			return path.substring(uri.getPath().lastIndexOf("/") + 1);
+		}
+		return path;
+	}
+	
+	private String generateID() {
+		// TODO better way?
+		String id = UUID.randomUUID().toString();
+		return id.substring(0, id.indexOf('-'));
+	}
+
+}
