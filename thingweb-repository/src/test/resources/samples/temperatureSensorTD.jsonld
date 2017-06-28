@@ -1,0 +1,59 @@
+{
+	"@context": [
+		"http://w3c.github.io/wot/w3c-wot-td-context.jsonld",
+		{
+			"saref": "http://uri.etsi.org/m2m/saref#",
+			"Sensor": "saref:Sensor",
+			"Temperature": "saref:Temperature",
+			"unit": "saref:isMeasuredIn",
+			"celsius": "http://www.wurvoc.org/vocabularies/om-1.8/degree_Celsius"
+		}
+	],
+	"@type": "Sensor",
+	"name": "myTempSensor",
+	"base" : "coap:///www.example.com:5687/temp",
+	"interaction": [
+		{
+			"@type": ["Property", "Temperature"],
+			"unit": "celsius",
+			"reference": "threshold",
+			"name": "myTemp",
+			"valueType": "number",
+			"writable": false,
+			"link": {
+				"href": "val",
+				"mediaType": "application/json"
+			}
+		},
+		{
+			"@type": ["Property", "Temperature"],
+			"unit": "celsius",
+			"name": "myThreshold",
+			"valueType": "number",
+			"writable": true,
+			"link": {
+				"href": "threshold",
+				"mediaType": "application/json"
+			}
+		},
+		{
+			"@type": ["Event"],
+			"valueType": "number",
+			"name": "myChange",
+			"property": "temp",
+			"link": {
+				"href": "val/changed",
+				"mediaType": "application/json"
+			}
+		},
+		{
+			"@type": ["Event"],
+			"valueType": "number",
+			"name": "myWarning",
+			"link": {
+				"href": "val/high",
+				"mediaType": "application/json"
+			}
+		}
+	]
+}

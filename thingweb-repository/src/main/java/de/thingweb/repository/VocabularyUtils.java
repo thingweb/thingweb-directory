@@ -32,6 +32,7 @@ import org.apache.jena.query.ReadWrite;
 import org.apache.jena.query.ResultSet;
 import org.apache.jena.rdf.model.Literal;
 import org.apache.jena.rdf.model.Model;
+import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.NodeIterator;
 import org.apache.jena.rdf.model.Property;
 import org.apache.jena.rdf.model.RDFNode;
@@ -64,6 +65,22 @@ public class VocabularyUtils {
 	}
 
 	return tds;
+  }
+  
+  public static Model mergeVocabularies() {
+    // TODO add argument to scope the operation
+	Dataset dataset = Repository.get().dataset;
+	dataset.begin(ReadWrite.READ);
+	
+	try {
+	  String q = "CONSTRUCT { ?s ?p ?o } WHERE { GRAPH ?g { ?ontology a <http://www.w3.org/2002/07/owl#Ontology> . ?s ?p ?o } }";
+	  QueryExecution qexec = QueryExecutionFactory.create(q, dataset);
+	  return qexec.execConstruct();
+	} catch (Exception e) {
+	  throw e;
+	} finally {
+	  dataset.end();
+	}
   }
 
 }

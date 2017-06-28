@@ -1,0 +1,57 @@
+{
+  "@context": [
+    "http://w3c.github.io/wot/w3c-wot-td-context.jsonld",
+    {
+      "geo": "http://www.w3.org/2003/01/geo/wgs84_pos#",
+      "saref": "http://uri.etsi.org/m2m/saref#",
+      "Sensor": "saref:Sensor",
+      "Temperature": "saref:Temperature",
+      "Toggle": "saref:ToggleCommand",
+      "unit": "saref:isMeasuredIn",
+      "celsius": "http://www.wurvoc.org/vocabularies/om-1.8/degree_Celsius"
+    }
+  ],
+  "@type": ["Thing", "Sensor"],
+  "name": "Fan2",
+  "base" : "coap:///www.example.com:5686/Fan",
+  "interaction": [
+    {
+      "@type": ["Property", "Temperature"],
+      "name": "myThreshold",
+      "valueType": "number",
+      "unit": "celsius",
+      "writable": true,
+      "geo:location":"room_4",
+      "link": {
+        "href": "threshold",
+        "mediaType": "application/json"
+      }
+    },
+    {
+      "@type": ["Action", "Toggle"],
+      "name": "fanOnOff",
+      "inputData": {
+        "@type": "OnOff",
+        "valueType": "xsd:boolean"
+      },
+      "link": {
+        "href": "toggle",
+        "mediaType": "application/json"
+      }
+    },
+    {
+      "@type": ["Action", "Toggle"],
+      "name": "fanOnOffTempAction",
+      "inputData": {
+        "@type": "Temperature",
+        "valueType": "xsd:float",
+        "unit": "celsius"
+      },
+      "geo:location": "room_4",
+      "link": {
+        "href": "fanOnOffTempAction",
+        "mediaType": "application/json"
+      }
+    }
+  ]
+}

@@ -19,11 +19,16 @@ import java.util.UUID;
 import org.apache.jena.atlas.json.JsonParseException;
 import org.apache.jena.atlas.lib.StrUtils;
 import org.apache.jena.ontology.OntModel;
+import org.apache.jena.ontology.Ontology;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.ReadWrite;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
+import org.apache.jena.rdf.model.Property;
+import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.rdf.model.Resource;
+import org.apache.jena.rdf.model.ResourceFactory;
+import org.apache.jena.util.iterator.ExtendedIterator;
 import org.apache.jena.vocabulary.DC;
 import org.apache.jena.vocabulary.DCTerms;
 import org.apache.jena.vocabulary.RDFS;
@@ -80,7 +85,6 @@ public class VocabularyCollectionHandler extends RESTHandler {
 		String data = "";
 		try {
 			data = ThingDescriptionUtils.streamToString(payload);
-			data = ThingDescriptionUtils.withLocalJsonLdContext(data);
 		} catch (IOException e1) {
 			e1.printStackTrace();
 			throw new BadRequestException();
@@ -105,8 +109,19 @@ public class VocabularyCollectionHandler extends RESTHandler {
 			OntModel ontology = ModelFactory.createOntologyModel();
 			ontology.read(new ByteArrayInputStream(data.getBytes("UTF-8")), endpointName, "Turtle");
 			
-			// TODO check ontology consistency, basic metadata, etc.
-			
+			ExtendedIterator<Ontology> it = ontology.listOntologies();
+			if (!it.hasNext()) {
+					throw new BadRequestException();
+			}
+			while (it.hasNext()) {
+				// TODO manage imports
+				Ontology o = it.next();
+				String prefix = ontology.getNsURIPrefix(o.getURI()); // FIXME always null?
+				if (prefix != null) {
+					id = prefix;
+				}
+			}
+
 			dataset.addNamedModel(resourceUri.toString(), ontology);
 
 			Model tdb = dataset.getDefaultModel();

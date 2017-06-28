@@ -44,12 +44,12 @@ public class ThingDescriptionHandler extends RESTHandler {
 
 		Dataset dataset = Repository.get().dataset;
 		dataset.begin(ReadWrite.READ);
-		
+
 		try {
 			String q = "SELECT ?str WHERE { <" + uri + "> <" + DC.source + "> ?str }";
 			QueryExecution qexec = QueryExecutionFactory.create(q, dataset);
 			ResultSet result = qexec.execSelect();
-			
+
 			if (result.hasNext()) {
 				resource.contentType = "application/ld+json";
 				resource.content = result.next().get("str").asLiteral().getLexicalForm();

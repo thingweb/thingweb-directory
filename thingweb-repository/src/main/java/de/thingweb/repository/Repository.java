@@ -252,6 +252,7 @@ public class Repository {
         }
         
         // Load ontology if it is not already there
+        // TODO move to /onto and load as a vocabulary
         String fileName = "samples/qu-rec20.ttl";
         InputStream in = Repository.get().getClass().getClassLoader().getResourceAsStream(fileName);
         ThingDescriptionUtils.loadOntology(in);

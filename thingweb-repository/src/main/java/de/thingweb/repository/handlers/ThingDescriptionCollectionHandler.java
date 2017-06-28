@@ -14,8 +14,11 @@ import org.apache.jena.atlas.json.JsonParseException;
 import org.apache.jena.atlas.lib.StrUtils;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.ReadWrite;
+import org.apache.jena.rdf.model.InfModel;
 import org.apache.jena.rdf.model.Model;
+import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.Resource;
+import org.apache.jena.reasoner.ReasonerRegistry;
 import org.apache.jena.vocabulary.DC;
 import org.apache.jena.vocabulary.DCTerms;
 import org.apache.jena.vocabulary.RDFS;
@@ -23,6 +26,7 @@ import org.apache.jena.vocabulary.RDFS;
 import de.thingweb.repository.Repository;
 import de.thingweb.repository.ThingDescription;
 import de.thingweb.repository.ThingDescriptionUtils;
+import de.thingweb.repository.VocabularyUtils;
 import de.thingweb.repository.rest.BadRequestException;
 import de.thingweb.repository.rest.NotFoundException;
 import de.thingweb.repository.rest.RESTException;
@@ -166,13 +170,17 @@ public class ThingDescriptionCollectionHandler extends RESTHandler {
 		URI resourceUri = URI.create(normalize(uri) + "/" + id);
 		Dataset dataset = Repository.get().dataset;
 		List<String> keyWords;
+		Model schema = VocabularyUtils.mergeVocabularies();
 
 		dataset.begin(ReadWrite.WRITE);
 		try {
 			
-			Model graph = dataset.getNamedModel(resourceUri.toString());
+			Model graph = ModelFactory.createDefaultModel();
 			graph.read(new ByteArrayInputStream(data.getBytes()), endpointName, "JSON-LD");
+			InfModel inf = ModelFactory.createInfModel(ReasonerRegistry.getOWLMicroReasoner(), schema, graph);
 			// TODO check TD validity
+			
+			dataset.addNamedModel(resourceUri.toString(), inf.difference(schema));
 
 			Model tdb = dataset.getDefaultModel();
 			tdb.createResource(resourceUri.toString()).addProperty(DC.source, data);
