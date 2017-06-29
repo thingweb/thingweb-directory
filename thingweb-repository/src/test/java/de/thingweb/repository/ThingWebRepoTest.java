@@ -1,6 +1,7 @@
 package de.thingweb.repository;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
@@ -18,6 +19,11 @@ import org.apache.jena.atlas.json.JSON;
 import org.apache.jena.atlas.json.JsonObject;
 import org.apache.jena.atlas.json.JsonValue;
 import org.apache.jena.query.Dataset;
+import org.apache.jena.query.QueryExecution;
+import org.apache.jena.query.QueryExecutionFactory;
+import org.apache.jena.query.ReadWrite;
+import org.apache.jena.query.ResultSet;
+import org.apache.solr.client.solrj.request.CollectionAdminRequest.DeleteAlias;
 
 import de.thingweb.repository.coap.CoAPServer;
 import de.thingweb.repository.handlers.TDLookUpEPHandler;
@@ -42,8 +48,8 @@ public class ThingWebRepoTest {
 	
 	private final static int portCoap = 5683;
 	private final static int portHttp = 8080;
-	private final static String dbPath  = "db";
-	private final static String idxPath = "Lucene";
+	private final static String dbPath  = "DB-test";
+	private final static String idxPath = "Lucene-test";
 	private static String baseUri = "http://www.example.com";
 
 	@BeforeClass
@@ -74,10 +80,12 @@ public class ThingWebRepoTest {
 
 	@AfterClass
 	public static void oneTimeTearDown() {
-		
 		// Close dataset
 		Dataset ds = Repository.get().dataset;
 		ds.close();
+		
+		deleteAll(dbPath); // FIXME returns false?
+		deleteAll(idxPath);
 	}
 
 	
@@ -106,7 +114,7 @@ public class ThingWebRepoTest {
 		in = Repository.get().getClass().getClassLoader().getResourceAsStream("samples/temperatureSensorTD.jsonld");
 		resource = tdch.post(new URI(baseUri + "/td"), parameters, in);
 		tdId2 = resource.path;
-			
+		
 		td = ThingDescriptionUtils.getThingDescriptionIdFromUri(tdUri2);
 		Assert.assertEquals("TD temperatureSensor not registered", baseUri + tdId2, td);
 		
@@ -184,9 +192,17 @@ public class ThingWebRepoTest {
 	 * @return Content of the file in a String.
 	 * @throws IOException
 	 */
-	public byte[] getThingDescription(URI filePath) throws IOException {
+	private byte[] getThingDescription(URI filePath) throws IOException {
 		
 		return Files.readAllBytes(Paths.get(filePath));
+	}
+	
+	private static boolean deleteAll(String dirPath) {
+		File dir = new File(dirPath);
+		for (File f : dir.listFiles()) {
+			f.delete();
+		}
+		return dir.delete();
 	}
 
 }

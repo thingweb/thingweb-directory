@@ -332,7 +332,7 @@ public class ThingDescriptionUtils {
 	String qMatch = "";
 	String predicate, property;
 	predicate = " text:query ";
-	property = "rdfs:comment";     
+	property = "rdfs:comment";
 	qMatch += " ?s " + predicate + "(" + property + " " + keyWords + ") . ";
 	
 	String prefix = StrUtils.strjoinNL
