@@ -1,6 +1,8 @@
 package de.thingweb.repository.handlers;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
@@ -32,6 +34,8 @@ import org.apache.jena.rdf.model.ResourceFactory;
 import org.apache.jena.util.iterator.ExtendedIterator;
 import org.apache.jena.vocabulary.DC;
 import org.apache.jena.vocabulary.DCTerms;
+import org.apache.jena.vocabulary.OWL;
+import org.apache.jena.vocabulary.RDF;
 import org.apache.jena.vocabulary.RDFS;
 
 import de.thingweb.repository.Repository;
@@ -97,15 +101,10 @@ public class VocabularyCollectionHandler extends RESTHandler {
 			// do nothing
 		}
 		
-		// TODO Check if new vocab already registered in the dataset
-
-		// to add new thing description to the collection
-		String id = generateID();
-		URI resourceUri = URI.create(normalize(uri) + "/" + id);
 		Dataset dataset = Repository.get().dataset;
-
 		dataset.begin(ReadWrite.WRITE);
 		try {
+			String rootId = null;
 			
 			OntModel ontology = ModelFactory.createOntologyModel();
 			if (data == null) {
@@ -114,37 +113,45 @@ public class VocabularyCollectionHandler extends RESTHandler {
 				ontologyUri = "http://example.org/"; // TODO
 				ontology.read(new ByteArrayInputStream(data.getBytes("UTF-8")), ontologyUri, "Turtle");
 			}
+
+			Model tdb = dataset.getDefaultModel();
 			
 			ExtendedIterator<Ontology> it = ontology.listOntologies();
 			if (!it.hasNext()) {
 					throw new BadRequestException();
 			}
 			while (it.hasNext()) {
-				// TODO manage imports
 				Ontology o = it.next();
+				
 				String prefix = ontology.getNsURIPrefix(o.getURI());
-				if (prefix != null && !prefix.isEmpty()) { // either no prefix found or base URI
-					id = prefix;
+				// if no prefix found, generates id
+				String id = (prefix != null && !prefix.isEmpty()) ? prefix : generateID();
+				URI resourceUri = URI.create(normalize(uri) + "/" + id);
+				
+				OntModel axioms;
+				if (isRootOntology(o.getURI(), ontology)) {
+					rootId = id;
+					axioms = ontology;
+				} else {
+					axioms = ontology.getImportedModel(o.getURI());
 				}
-				System.out.println(o.getURI() + " -> " + id);
+				
+				// TODO Check if the vocab isn't already registered in the dataset
+				dataset.addNamedModel(resourceUri.toString(), axioms);
+				
+				Date currentDate = new Date(System.currentTimeMillis());
+				DateFormat f = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+				tdb.getResource(resourceUri.toString()).addProperty(DCTerms.source, ontologyUri);
+				tdb.getResource(resourceUri.toString()).addProperty(DCTerms.created, f.format(currentDate));
+
+				addToAll("/vocab/" + id, new VocabularyHandler(id, instances));
+
+				Repository.LOG.info(String.format("Registered RDFS/OWL vocabulary %s (id: %s)", o.getURI(), id));
 			}
-
-			dataset.addNamedModel(resourceUri.toString(), ontology);
-
-			Model tdb = dataset.getDefaultModel();
 			
-			Date currentDate = new Date(System.currentTimeMillis());
-			DateFormat f = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-			tdb.getResource(resourceUri.toString()).addProperty(DCTerms.source, ontologyUri);
-			tdb.getResource(resourceUri.toString()).addProperty(DCTerms.created, f.format(currentDate));
-	  
-			addToAll("/vocab/" + id, new VocabularyHandler(id, instances));
 			dataset.commit();
-
-			Repository.LOG.info(String.format("Registered RDFS/OWL vocabulary %s (%d triples)", id, ontology.size()));
 			
-			// TODO remove useless return
-			RESTResource resource = new RESTResource("/vocab/" + id, new VocabularyHandler(id, instances));
+			RESTResource resource = new RESTResource("/vocab/" + rootId, new VocabularyHandler(rootId, instances));
 			return resource;
 
 		} catch (Exception e) {
@@ -174,6 +181,10 @@ public class VocabularyCollectionHandler extends RESTHandler {
 		// TODO better way?
 		String id = UUID.randomUUID().toString();
 		return id.substring(0, id.indexOf('-'));
+	}
+	
+	private boolean isRootOntology(String uri, OntModel m) {
+		return !m.contains(null, OWL.imports, ResourceFactory.createResource(uri));
 	}
 
 }

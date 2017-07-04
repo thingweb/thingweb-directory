@@ -214,6 +214,7 @@ public class ThingWebRepoTest {
 		
 		JsonValue ontoIds = JSON.parseAny(resource.content);
 		Assert.assertTrue("Vocabulary collection is not an array", ontoIds.isArray());
+		Assert.assertTrue("Vocabulary imports were not added", ontoIds.getAsArray().size() > 1);
 		Assert.assertTrue("QU ontology not found", ontoIds.getAsArray().contains(new JsonString(ontoId)));
 		
 		// GET vocabulary by id
