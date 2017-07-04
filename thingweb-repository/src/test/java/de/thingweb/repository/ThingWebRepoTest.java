@@ -144,7 +144,7 @@ public class ThingWebRepoTest {
 		tdIds = fanQR.keys();
 		Assert.assertFalse("TD fan not found", tdIds.isEmpty());
 		Assert.assertTrue("TD fan not found", tdIds.contains(tdId));
-		//Assert.assertFalse("TD temperatureSensor found", tdIds.contains(tdId2));
+		Assert.assertFalse("TD temperatureSensor found", tdIds.contains(tdId2));
 		
 		
 		

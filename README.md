@@ -192,6 +192,23 @@ See `src/main/resources/api.json` for a formal specification of the Thingweb-Rep
 
 ## TODOs
 
- - proper configuration of log4j
+ - content negotiation
+ - clean resources
+   - samples?
+   - register default vocabularies (WoT, SAREF, BA, QUDT...)
+ - reject vocabulary if no alignment with WoT (LOV approach?)
+ - full-fledged SPARQL endpoint? SPARQL query in the body?
+   - add parameter to filter vocabularies in the KB at insertion time
+ - add PATCH to /td/{id}
+ - update tests
+   - new TD form
+   - delete RDF store after tests terminate
+   - vocabulary management
+ - decouple repository from TDB (SPARQL only)
+ - clean ThingDescriptionUtils
+ - clean response codes throughout the API
+   - trailing / -> 404...
+   - vocab not found -> 500...
+ - proper configuration of log4j and java.util.logging
+   - add consistent logging throughout the application
  - stack trace in logs if 500 returned
- - full-fledged SPARQL endpoint?

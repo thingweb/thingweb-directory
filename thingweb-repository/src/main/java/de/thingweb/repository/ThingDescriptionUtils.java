@@ -333,7 +333,7 @@ public class ThingDescriptionUtils {
 	String predicate, property;
 	predicate = " text:query ";
 	property = "rdfs:comment";
-	qMatch += " ?s " + predicate + "(" + property + " " + keyWords + ") . ";
+	qMatch += " ?g " + predicate + "(" + property + " " + keyWords + ") . ";
 	
 	String prefix = StrUtils.strjoinNL
 			  ( "PREFIX text: <http://jena.apache.org/text#>"
@@ -348,7 +348,7 @@ public class ThingDescriptionUtils {
 	dataset.begin(ReadWrite.READ);
 	
 	try {
-	  String query = "SELECT DISTINCT ?g WHERE { GRAPH ?g { " + qMatch + " FILTER NOT EXISTS { ?ontology a <http://www.w3.org/2002/07/owl#Ontology> } } }";
+	  String query = "SELECT DISTINCT ?g WHERE { " + qMatch + " GRAPH ?g { FILTER NOT EXISTS { ?ontology a <http://www.w3.org/2002/07/owl#Ontology> } } }";
 	  Query q = QueryFactory.create(prefix + "\n" + query);
 	  
 	  try {
