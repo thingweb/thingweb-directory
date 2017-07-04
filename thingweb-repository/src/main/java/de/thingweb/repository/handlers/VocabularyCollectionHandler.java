@@ -4,6 +4,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -69,7 +70,8 @@ public class VocabularyCollectionHandler extends RESTHandler {
 		Iterator<String> it = vocabs.iterator();
 		while (it.hasNext()) {
 			String vocab = it.next();
-			resource.content += "\"" + vocab.substring(vocab.lastIndexOf("/") + 1)+ "\"";
+			URI vocabUri = URI.create(vocab);
+			resource.content += "\"" + vocabUri.getPath() + "\"";
 			if (it.hasNext()) {
 				resource.content += ",";
 			}
@@ -83,20 +85,19 @@ public class VocabularyCollectionHandler extends RESTHandler {
 	public RESTResource post(URI uri, Map<String, String> parameters, InputStream payload) throws RESTException {
 		
 		String data = "";
+		String ontologyUri = null;
 		try {
 			data = ThingDescriptionUtils.streamToString(payload);
+			ontologyUri = new URI(data).toString();
+			data = null;
 		} catch (IOException e1) {
 			e1.printStackTrace();
 			throw new BadRequestException();
+		} catch (URISyntaxException e2) {
+			// do nothing
 		}
 		
-		// Check if new TD has uris already registered in the dataset
-		if (ThingDescriptionUtils.hasInvalidURI(data)) {
-			throw new BadRequestException();
-		}
-		
-		// to register a resource following the standard
-		String endpointName = "http://example.org/"; // this is temporary
+		// TODO Check if new vocab already registered in the dataset
 
 		// to add new thing description to the collection
 		String id = generateID();
@@ -107,7 +108,12 @@ public class VocabularyCollectionHandler extends RESTHandler {
 		try {
 			
 			OntModel ontology = ModelFactory.createOntologyModel();
-			ontology.read(new ByteArrayInputStream(data.getBytes("UTF-8")), endpointName, "Turtle");
+			if (data == null) {
+				ontology.read(ontologyUri.toString(), "Turtle");
+			} else {
+				ontologyUri = "http://example.org/"; // TODO
+				ontology.read(new ByteArrayInputStream(data.getBytes("UTF-8")), ontologyUri, "Turtle");
+			}
 			
 			ExtendedIterator<Ontology> it = ontology.listOntologies();
 			if (!it.hasNext()) {
@@ -116,10 +122,11 @@ public class VocabularyCollectionHandler extends RESTHandler {
 			while (it.hasNext()) {
 				// TODO manage imports
 				Ontology o = it.next();
-				String prefix = ontology.getNsURIPrefix(o.getURI()); // FIXME always null?
-				if (prefix != null) {
+				String prefix = ontology.getNsURIPrefix(o.getURI());
+				if (prefix != null && !prefix.isEmpty()) { // either no prefix found or base URI
 					id = prefix;
 				}
+				System.out.println(o.getURI() + " -> " + id);
 			}
 
 			dataset.addNamedModel(resourceUri.toString(), ontology);
@@ -128,7 +135,7 @@ public class VocabularyCollectionHandler extends RESTHandler {
 			
 			Date currentDate = new Date(System.currentTimeMillis());
 			DateFormat f = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-			tdb.getResource(resourceUri.toString()).addProperty(RDFS.isDefinedBy, endpointName);
+			tdb.getResource(resourceUri.toString()).addProperty(DCTerms.source, ontologyUri);
 			tdb.getResource(resourceUri.toString()).addProperty(DCTerms.created, f.format(currentDate));
 	  
 			addToAll("/vocab/" + id, new VocabularyHandler(id, instances));

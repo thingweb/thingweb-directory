@@ -7,6 +7,7 @@ import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.PriorityQueue;
@@ -249,14 +250,7 @@ public class Repository {
             }
       
             i.start();
-        }
-        
-        // Load ontology if it is not already there
-        // TODO move to /onto and load as a vocabulary
-        String fileName = "samples/qu-rec20.ttl";
-        InputStream in = Repository.get().getClass().getClassLoader().getResourceAsStream(fileName);
-        ThingDescriptionUtils.loadOntology(in);
-        
+        }        
     
         for (RESTServerInstance i : servers) {
             i.join();

@@ -1,5 +1,7 @@
 package de.thingweb.repository;
 
+import static org.junit.Assert.*;
+
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
@@ -16,13 +18,19 @@ import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.jena.atlas.json.JSON;
+import org.apache.jena.atlas.json.JsonArray;
 import org.apache.jena.atlas.json.JsonObject;
+import org.apache.jena.atlas.json.JsonString;
 import org.apache.jena.atlas.json.JsonValue;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.QueryExecution;
 import org.apache.jena.query.QueryExecutionFactory;
 import org.apache.jena.query.ReadWrite;
 import org.apache.jena.query.ResultSet;
+import org.apache.jena.rdf.model.Model;
+import org.apache.jena.rdf.model.ModelFactory;
+import org.apache.jena.sparql.util.ModelUtils;
+import org.apache.jena.util.FileUtils;
 import org.apache.solr.client.solrj.request.CollectionAdminRequest.DeleteAlias;
 
 import de.thingweb.repository.coap.CoAPServer;
@@ -31,6 +39,8 @@ import de.thingweb.repository.handlers.TDLookUpHandler;
 import de.thingweb.repository.handlers.TDLookUpSEMHandler;
 import de.thingweb.repository.handlers.ThingDescriptionCollectionHandler;
 import de.thingweb.repository.handlers.ThingDescriptionHandler;
+import de.thingweb.repository.handlers.VocabularyCollectionHandler;
+import de.thingweb.repository.handlers.VocabularyHandler;
 import de.thingweb.repository.handlers.WelcomePageHandler;
 import de.thingweb.repository.http.HTTPServer;
 import de.thingweb.repository.rest.RESTHandler;
@@ -45,6 +55,7 @@ import org.junit.Assert;
 public class ThingWebRepoTest {
 
 	private static ThingDescriptionCollectionHandler tdch;
+	private static VocabularyCollectionHandler vch;
 	
 	private final static int portCoap = 5683;
 	private final static int portHttp = 8080;
@@ -68,6 +79,7 @@ public class ThingWebRepoTest {
             i.add("/td-lookup/ep", new TDLookUpEPHandler(servers));
             i.add("/td-lookup/sem", new TDLookUpSEMHandler(servers));
             i.add("/td", new ThingDescriptionCollectionHandler(servers));
+            i.add("/vocab", new VocabularyCollectionHandler(servers));
             i.start();
         }
         
@@ -75,6 +87,7 @@ public class ThingWebRepoTest {
 		Repository.servers = servers;
 		
 		tdch = new ThingDescriptionCollectionHandler(servers);
+		vch = new VocabularyCollectionHandler(servers);
 
 	}
 
@@ -90,7 +103,7 @@ public class ThingWebRepoTest {
 
 	
 	@Test
-	public void testREST() throws IOException, URISyntaxException {
+	public void testTDManagement() throws IOException, URISyntaxException {
 		
 		RESTResource resource;
 		byte[] content;
@@ -177,6 +190,44 @@ public class ThingWebRepoTest {
 		td = ThingDescriptionUtils.getThingDescriptionIdFromUri(tdUri2);
 		Assert.assertEquals("TD temperatureSensor not deleted", "NOT FOUND", td);
 		
+	}
+	
+	@Test
+	public void testVocabularyManagement() throws Exception {
+		RESTResource resource;
+		String ontoId;
+
+		Map<String,String> parameters = new HashMap<String,String>();
+		
+		// POST vocabulary
+		String ontoUri = "http://purl.oclc.org/NET/ssnx/qu/qu-rec20";
+		InputStream uriStream = new ByteArrayInputStream(ontoUri.getBytes("UTF-8"));
+		resource = vch.post(new URI(baseUri + "/vocab"), parameters, uriStream);
+		ontoId = resource.path;
+
+		Assert.assertTrue("QU ontology not registered", VocabularyUtils.containsVocabulary(ontoUri));
+		
+		// GET vocabulary by SPARQL query
+		parameters.clear();
+		parameters.put("query", "?s ?p ?o");
+		resource = vch.get(new URI(baseUri + "/vocab"), parameters);
+		
+		JsonValue ontoIds = JSON.parseAny(resource.content);
+		Assert.assertTrue("Vocabulary collection is not an array", ontoIds.isArray());
+		Assert.assertTrue("QU ontology not found", ontoIds.getAsArray().contains(new JsonString(ontoId)));
+		
+		// GET vocabulary by id
+		VocabularyHandler vh = new VocabularyHandler(ontoId, Repository.servers);
+		resource = vh.get(new URI(baseUri + ontoId), null);
+		
+		ByteArrayInputStream byteStream = new ByteArrayInputStream(resource.content.getBytes());
+		Model m = ModelFactory.createDefaultModel();
+		m.read(byteStream, "", "Turtle");
+		Assert.assertFalse("QU ontology definition is not valid", m.isEmpty());
+
+		// DELETE vocabulary
+		vh.delete(new URI(baseUri + ontoId), null, null);
+		Assert.assertFalse("QU ontology not deleted", VocabularyUtils.containsVocabulary(ontoUri));
 	}
 	
 	
