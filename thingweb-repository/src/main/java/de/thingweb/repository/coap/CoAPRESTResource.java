@@ -61,9 +61,14 @@ public class CoAPRESTResource extends CoapResource {
 	public void handlePOST(CoapExchange exchange) {
 		try {
 			RESTResource resource = handler.post(uri(), params(exchange), payload(exchange));
+			if(resource.content != null){
+				exchange.respond(ResponseCode.VALID, resource.content, toContentFormatCode(resource.contentType));
+			}
+			else{
 			Response response = new Response(ResponseCode.CREATED);
 			response.setOptions(new OptionSet().addLocationPath(trim(resource.path)));
 			exchange.respond(response);
+			}
 		} catch (BadRequestException e) {
 			exchange.respond(ResponseCode.BAD_REQUEST);
 		} catch (RESTException e) {
