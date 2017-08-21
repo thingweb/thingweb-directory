@@ -47,7 +47,7 @@ public class ThingDescriptionUtils {
 
   public static String withLocalJsonLdContext(String data) {
 	  // FIXME proper context substitution
-	  return data.replace("http://w3c.github.io/wot/w3c-wot-td-context.jsonld", TD_CONTEXT_URL.toString());
+	  return data;
   }
 
   public static List<String> listThingDescriptions(String query) {
