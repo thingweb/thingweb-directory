@@ -1,4 +1,4 @@
-package de.thingweb.repository.handlers;
+package de.thingweb.directory.handlers;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
@@ -10,13 +10,13 @@ import java.net.URI;
 import java.util.List;
 import java.util.Map;
 
-import de.thingweb.repository.Repository;
-import de.thingweb.repository.ThingDescriptionUtils;
-import de.thingweb.repository.rest.NotFoundException;
-import de.thingweb.repository.rest.RESTException;
-import de.thingweb.repository.rest.RESTHandler;
-import de.thingweb.repository.rest.RESTResource;
-import de.thingweb.repository.rest.RESTServerInstance;
+import de.thingweb.directory.ThingDirectory;
+import de.thingweb.directory.ThingDescriptionUtils;
+import de.thingweb.directory.rest.NotFoundException;
+import de.thingweb.directory.rest.RESTException;
+import de.thingweb.directory.rest.RESTHandler;
+import de.thingweb.directory.rest.RESTResource;
+import de.thingweb.directory.rest.RESTServerInstance;
 
 public class OpenAPISpecHandler extends RESTHandler {
 	

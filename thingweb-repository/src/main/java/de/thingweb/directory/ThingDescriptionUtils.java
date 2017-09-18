@@ -1,4 +1,4 @@
-package de.thingweb.repository;
+package de.thingweb.directory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -52,7 +52,7 @@ public class ThingDescriptionUtils {
 
   public static List<String> listThingDescriptions(String query) {
 	List<String> tds = new ArrayList<>();
-	Dataset dataset = Repository.get().dataset;
+	Dataset dataset = ThingDirectory.get().dataset;
 	dataset.begin(ReadWrite.READ);
 
 	try {
@@ -97,7 +97,7 @@ public class ThingDescriptionUtils {
 	String query = "?td <http://iot.linkeddata.es/def/wot#baseURI> <" + uri + ">";
 	String id = "NOT FOUND";
 	  
-	Dataset dataset = Repository.get().dataset;
+	Dataset dataset = ThingDirectory.get().dataset;
 	dataset.begin(ReadWrite.READ);
 
 	try {
@@ -126,7 +126,7 @@ public class ThingDescriptionUtils {
 	List<String> tds = new ArrayList<>();
 	String query = "?td <http://iot.linkeddata.es/def/wot#baseURI> ?uri";
 	  
-	Dataset dataset = Repository.get().dataset;
+	Dataset dataset = ThingDirectory.get().dataset;
 	dataset.begin(ReadWrite.READ);
 
 	try {
@@ -197,7 +197,7 @@ public class ThingDescriptionUtils {
   public static List<String> listRDFTypeValues(String propertyURI) {
 	  
 	  List<String> vals = new ArrayList<>();
-	  Dataset dataset = Repository.get().dataset;
+	  Dataset dataset = ThingDirectory.get().dataset;
 	  String prefix = StrUtils.strjoinNL
 			  ( "PREFIX td: <http://w3c.github.io/wot/w3c-wot-td-ontology.owl#>"
 			  , "PREFIX qu: <http://purl.oclc.org/NET/ssnx/qu/qu#>"
@@ -246,7 +246,7 @@ public class ThingDescriptionUtils {
 	  List<String> ont = new ArrayList<>();
 	  
 	  // Check if the ontology is already there
-	  Dataset dataset = Repository.get().dataset;
+	  Dataset dataset = ThingDirectory.get().dataset;
 	  dataset.begin(ReadWrite.READ);
 	  try {
 		  String prefix = StrUtils.strjoinNL
@@ -267,7 +267,7 @@ public class ThingDescriptionUtils {
 	  
 	  // Load QUDT ontology
 	  if (ont.isEmpty()) {
-		  dataset = Repository.get().dataset;
+		  dataset = ThingDirectory.get().dataset;
 	      dataset.begin( ReadWrite.WRITE );
 	      try {
 	    	  Model m = dataset.getDefaultModel();
@@ -344,7 +344,7 @@ public class ThingDescriptionUtils {
 			  , "PREFIX geo: <http://www.w3.org/2003/01/geo/wgs84_pos#>");
 	
 	// Run the query
-	Dataset dataset = Repository.get().dataset;
+	Dataset dataset = ThingDirectory.get().dataset;
 	dataset.begin(ReadWrite.READ);
 	
 	try {
@@ -378,7 +378,7 @@ public class ThingDescriptionUtils {
 	
 	List<String> eps = new ArrayList<>();
 	
-	Dataset dataset = Repository.get().dataset;
+	Dataset dataset = ThingDirectory.get().dataset;
 	dataset.begin(ReadWrite.READ);
 	
 	String prefix = "PREFIX rdf-schema: <http://www.w3.org/2000/01/rdf-schema#>";
@@ -411,7 +411,7 @@ public class ThingDescriptionUtils {
 	List<String> dates = new ArrayList<String>();
 	Boolean hasTime = true;
 	
-	Dataset dataset = Repository.get().dataset;
+	Dataset dataset = ThingDirectory.get().dataset;
 	dataset.begin(ReadWrite.READ);
 	
 	String prefix = "PREFIX purl: <http://purl.org/dc/terms/> ";
@@ -474,7 +474,7 @@ public class ThingDescriptionUtils {
   
   public static void printTDQueue() {
 	  
-	  Iterator<ThingDescription> iter = Repository.get().tdQueue.iterator();
+	  Iterator<ThingDescription> iter = ThingDirectory.get().tdQueue.iterator();
 	  while (iter.hasNext()) {
 		  System.out.println(iter.next().getId());
 	  }
@@ -484,7 +484,7 @@ public class ThingDescriptionUtils {
   public static List<Entry<String,String>> listThingDescriptionsLifetime() {
 	  
 	  List<Entry<String, String>> tds = new ArrayList<>();
-	  Dataset dataset = Repository.get().dataset;
+	  Dataset dataset = ThingDirectory.get().dataset;
 	  
 	  String prefix = "PREFIX purl: <http://purl.org/dc/terms/> ";
 	  String query = prefix + "SELECT ?id ?lifetime WHERE {?id purl:dateAccepted ?lifetime.}";

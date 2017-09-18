@@ -98,7 +98,7 @@ jar {
 	}
 	
 	manifest {
-		attributes 'Main-Class': 'de.thingweb.repository.Repository'
+		attributes 'Main-Class': 'de.thingweb.directory.ThingDirectory'
 	}
 	
 	// include service files from the buildDir
@@ -113,8 +113,8 @@ bintray {
     pkg {
     	version { name = version }
         repo = 'maven'
-        name = 'thingweb-repository'
+        name = 'thingweb-directory'
         licenses = ['MIT']
-        vcsUrl = 'https://github.com/thingweb/thingweb-repository.git'
+        vcsUrl = 'https://github.com/thingweb/thingweb-directory.git'
     }
 }

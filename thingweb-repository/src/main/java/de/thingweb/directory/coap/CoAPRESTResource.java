@@ -1,4 +1,4 @@
-package de.thingweb.repository.coap;
+package de.thingweb.directory.coap;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -14,14 +14,14 @@ import org.eclipse.californium.core.coap.OptionSet;
 import org.eclipse.californium.core.coap.Response;
 import org.eclipse.californium.core.server.resources.CoapExchange;
 
-import de.thingweb.repository.Repository;
-import de.thingweb.repository.handlers.TDLookUpHandler;
-import de.thingweb.repository.handlers.ThingDescriptionCollectionHandler;
-import de.thingweb.repository.rest.BadRequestException;
-import de.thingweb.repository.rest.NotFoundException;
-import de.thingweb.repository.rest.RESTException;
-import de.thingweb.repository.rest.RESTHandler;
-import de.thingweb.repository.rest.RESTResource;
+import de.thingweb.directory.ThingDirectory;
+import de.thingweb.directory.handlers.TDLookUpHandler;
+import de.thingweb.directory.handlers.ThingDescriptionCollectionHandler;
+import de.thingweb.directory.rest.BadRequestException;
+import de.thingweb.directory.rest.NotFoundException;
+import de.thingweb.directory.rest.RESTException;
+import de.thingweb.directory.rest.RESTHandler;
+import de.thingweb.directory.rest.RESTResource;
 
 public class CoAPRESTResource extends CoapResource {
 
@@ -99,7 +99,7 @@ public class CoAPRESTResource extends CoapResource {
 	}
 	
 	protected URI uri() {
-		return URI.create(Repository.get().baseURI + getURI());
+		return URI.create(ThingDirectory.get().baseURI + getURI());
 	}
 	
 	protected Map<String, String> params(CoapExchange exchange) {

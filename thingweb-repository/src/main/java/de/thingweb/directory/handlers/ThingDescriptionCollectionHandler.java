@@ -1,4 +1,4 @@
-package de.thingweb.repository.handlers;
+package de.thingweb.directory.handlers;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -23,16 +23,16 @@ import org.apache.jena.vocabulary.DC;
 import org.apache.jena.vocabulary.DCTerms;
 import org.apache.jena.vocabulary.RDFS;
 
-import de.thingweb.repository.Repository;
-import de.thingweb.repository.ThingDescription;
-import de.thingweb.repository.ThingDescriptionUtils;
-import de.thingweb.repository.VocabularyUtils;
-import de.thingweb.repository.rest.BadRequestException;
-import de.thingweb.repository.rest.NotFoundException;
-import de.thingweb.repository.rest.RESTException;
-import de.thingweb.repository.rest.RESTHandler;
-import de.thingweb.repository.rest.RESTResource;
-import de.thingweb.repository.rest.RESTServerInstance;
+import de.thingweb.directory.ThingDirectory;
+import de.thingweb.directory.ThingDescription;
+import de.thingweb.directory.ThingDescriptionUtils;
+import de.thingweb.directory.VocabularyUtils;
+import de.thingweb.directory.rest.BadRequestException;
+import de.thingweb.directory.rest.NotFoundException;
+import de.thingweb.directory.rest.RESTException;
+import de.thingweb.directory.rest.RESTHandler;
+import de.thingweb.directory.rest.RESTResource;
+import de.thingweb.directory.rest.RESTServerInstance;
 
 public class ThingDescriptionCollectionHandler extends RESTHandler {
 
@@ -168,7 +168,7 @@ public class ThingDescriptionCollectionHandler extends RESTHandler {
 		// to add new thing description to the collection
 		String id = generateID();
 		URI resourceUri = URI.create(normalize(uri) + "/" + id);
-		Dataset dataset = Repository.get().dataset;
+		Dataset dataset = ThingDirectory.get().dataset;
 		List<String> keyWords;
 		Model schema = VocabularyUtils.mergeVocabularies();
 
@@ -204,12 +204,12 @@ public class ThingDescriptionCollectionHandler extends RESTHandler {
 			addToAll("/td/" + id, new ThingDescriptionHandler(id, instances));
 			dataset.commit();
 
-			Repository.LOG.info(String.format("Inserted TD %s (%d triples)", id, graph.size()));
+			ThingDirectory.LOG.info(String.format("Inserted TD %s (%d triples)", id, graph.size()));
 			
 			// Add to priority queue
 			ThingDescription td = new ThingDescription(resourceUri.toString(), lifetimeDate);
-			Repository.get().tdQueue.add(td);
-			Repository.get().setTimer();
+			ThingDirectory.get().tdQueue.add(td);
+			ThingDirectory.get().setTimer();
 			
 			// TODO remove useless return
 			RESTResource resource = new RESTResource("/td/" + id, new ThingDescriptionHandler(id, instances));

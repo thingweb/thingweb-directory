@@ -1,4 +1,4 @@
-package de.thingweb.repository.rest;
+package de.thingweb.directory.rest;
 
 public class MethodNotAllowedException extends RESTException {
 

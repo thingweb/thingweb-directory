@@ -1,4 +1,4 @@
-package de.thingweb.repository;
+package de.thingweb.directory;
 
 import java.io.File;
 import java.io.IOException;
@@ -36,22 +36,22 @@ import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.util.Version;
 import org.eclipse.californium.core.CaliforniumLogger;
 
-import de.thingweb.repository.coap.CoAPServer;
-import de.thingweb.repository.handlers.OpenAPISpecHandler;
-import de.thingweb.repository.handlers.TDLookUpEPHandler;
-import de.thingweb.repository.handlers.TDLookUpHandler;
-import de.thingweb.repository.handlers.TDLookUpSEMHandler;
-import de.thingweb.repository.handlers.ThingDescriptionCollectionHandler;
-import de.thingweb.repository.handlers.ThingDescriptionHandler;
-import de.thingweb.repository.handlers.VocabularyCollectionHandler;
-import de.thingweb.repository.handlers.VocabularyHandler;
-import de.thingweb.repository.handlers.WelcomePageHandler;
-import de.thingweb.repository.http.HTTPServer;
-import de.thingweb.repository.rest.RESTException;
-import de.thingweb.repository.rest.RESTHandler;
-import de.thingweb.repository.rest.RESTServerInstance;
+import de.thingweb.directory.coap.CoAPServer;
+import de.thingweb.directory.handlers.OpenAPISpecHandler;
+import de.thingweb.directory.handlers.TDLookUpEPHandler;
+import de.thingweb.directory.handlers.TDLookUpHandler;
+import de.thingweb.directory.handlers.TDLookUpSEMHandler;
+import de.thingweb.directory.handlers.ThingDescriptionCollectionHandler;
+import de.thingweb.directory.handlers.ThingDescriptionHandler;
+import de.thingweb.directory.handlers.VocabularyCollectionHandler;
+import de.thingweb.directory.handlers.VocabularyHandler;
+import de.thingweb.directory.handlers.WelcomePageHandler;
+import de.thingweb.directory.http.HTTPServer;
+import de.thingweb.directory.rest.RESTException;
+import de.thingweb.directory.rest.RESTHandler;
+import de.thingweb.directory.rest.RESTServerInstance;
 
-public class Repository {
+public class ThingDirectory {
 	
 	public static final Logger LOG = Logger.getRootLogger();
 
@@ -62,11 +62,11 @@ public class Repository {
     public PriorityQueue<ThingDescription> tdQueue;
     public Timer timer;
     
-    private static Repository singleton;
+    private static ThingDirectory singleton;
     
-    public static Repository get() {
+    public static ThingDirectory get() {
         if (singleton == null) {
-            singleton = new Repository();
+            singleton = new ThingDirectory();
         }
         return singleton;
     }
@@ -226,7 +226,7 @@ public class Repository {
         // ##############################
 
         // TODO get http URI
-        Repository.get().init(loc, "http://www.example.com", lucene);
+        ThingDirectory.get().init(loc, "http://www.example.com", lucene);
         
         RESTHandler root = new WelcomePageHandler(servers); // FIXME circular reference here...
         servers.add(new CoAPServer(portCoAP, root));
@@ -255,7 +255,7 @@ public class Repository {
         for (RESTServerInstance i : servers) {
             i.join();
         }
-        Repository.get().terminate();
+        ThingDirectory.get().terminate();
     }
     
 }

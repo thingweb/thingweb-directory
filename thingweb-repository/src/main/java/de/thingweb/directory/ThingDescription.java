@@ -1,4 +1,4 @@
-package de.thingweb.repository;
+package de.thingweb.directory;
 
 import java.text.DateFormat;
 import java.text.ParseException;

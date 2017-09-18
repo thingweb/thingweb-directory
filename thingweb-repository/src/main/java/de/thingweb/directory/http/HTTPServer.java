@@ -1,4 +1,4 @@
-package de.thingweb.repository.http;
+package de.thingweb.directory.http;
 
 import java.util.EnumSet;
 import java.util.Map;
@@ -12,8 +12,8 @@ import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.servlet.ServletMapping;
 import org.eclipse.jetty.servlets.CrossOriginFilter;
 
-import de.thingweb.repository.rest.RESTHandler;
-import de.thingweb.repository.rest.RESTServerInstance;
+import de.thingweb.directory.rest.RESTHandler;
+import de.thingweb.directory.rest.RESTServerInstance;
 
 public class HTTPServer implements RESTServerInstance {
 

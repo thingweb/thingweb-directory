@@ -1,4 +1,4 @@
-package de.thingweb.repository.handlers;
+package de.thingweb.directory.handlers;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -19,15 +19,15 @@ import org.apache.jena.vocabulary.DC;
 import org.apache.jena.vocabulary.DCTerms;
 import org.apache.jena.vocabulary.RDFS;
 
-import de.thingweb.repository.Repository;
-import de.thingweb.repository.ThingDescription;
-import de.thingweb.repository.ThingDescriptionUtils;
-import de.thingweb.repository.rest.BadRequestException;
-import de.thingweb.repository.rest.NotFoundException;
-import de.thingweb.repository.rest.RESTException;
-import de.thingweb.repository.rest.RESTHandler;
-import de.thingweb.repository.rest.RESTResource;
-import de.thingweb.repository.rest.RESTServerInstance;
+import de.thingweb.directory.ThingDirectory;
+import de.thingweb.directory.ThingDescription;
+import de.thingweb.directory.ThingDescriptionUtils;
+import de.thingweb.directory.rest.BadRequestException;
+import de.thingweb.directory.rest.NotFoundException;
+import de.thingweb.directory.rest.RESTException;
+import de.thingweb.directory.rest.RESTHandler;
+import de.thingweb.directory.rest.RESTResource;
+import de.thingweb.directory.rest.RESTServerInstance;
 
 public class ThingDescriptionHandler extends RESTHandler {
 
@@ -42,7 +42,7 @@ public class ThingDescriptionHandler extends RESTHandler {
 	public RESTResource get(URI uri, Map<String, String> parameters) throws RESTException {
 		RESTResource resource = new RESTResource(uri.toString(),this);
 
-		Dataset dataset = Repository.get().dataset;
+		Dataset dataset = ThingDirectory.get().dataset;
 		dataset.begin(ReadWrite.READ);
 
 		try {
@@ -80,7 +80,7 @@ public class ThingDescriptionHandler extends RESTHandler {
 			throw new BadRequestException();
 		}
 		
-		Dataset dataset = Repository.get().dataset;
+		Dataset dataset = ThingDirectory.get().dataset;
 		dataset.begin(ReadWrite.WRITE);
 		
 		try {
@@ -140,9 +140,9 @@ public class ThingDescriptionHandler extends RESTHandler {
 			
 			// Update priority queue
 			ThingDescription t = new ThingDescription(uri.toString(), lifetime);
-			Repository.get().tdQueue.remove(t);
-			Repository.get().tdQueue.add(t);
-			Repository.get().setTimer();
+			ThingDirectory.get().tdQueue.remove(t);
+			ThingDirectory.get().tdQueue.add(t);
+			ThingDirectory.get().setTimer();
 			
 			dataset.commit();
 			
@@ -160,7 +160,7 @@ public class ThingDescriptionHandler extends RESTHandler {
 	
 	@Override
 	public void delete(URI uri, Map<String, String> parameters, InputStream payload) throws RESTException {
-		Dataset dataset = Repository.get().dataset;
+		Dataset dataset = ThingDirectory.get().dataset;
 		dataset.begin(ReadWrite.WRITE);
 		try {
 			dataset.getDefaultModel().createResource(uri.toString()).removeProperties();
@@ -170,8 +170,8 @@ public class ThingDescriptionHandler extends RESTHandler {
 			
 			// Remove from priority queue
 			ThingDescription td = new ThingDescription(uri.toString());
-			Repository.get().tdQueue.remove(td);
-			Repository.get().setTimer();
+			ThingDirectory.get().tdQueue.remove(td);
+			ThingDirectory.get().setTimer();
 						
 		} catch (Exception e) {
 			// TODO distinguish between client and server errors

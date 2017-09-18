@@ -1,4 +1,4 @@
-package de.thingweb.repository;
+package de.thingweb.directory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -47,7 +47,7 @@ import org.apache.jena.sparql.util.QueryExecUtils;
 public class VocabularyUtils {
 
 	public static boolean containsVocabulary(String uri) {
-		Dataset dataset = Repository.get().dataset;
+		Dataset dataset = ThingDirectory.get().dataset;
 		dataset.begin(ReadWrite.READ);
 
 		try {
@@ -63,7 +63,7 @@ public class VocabularyUtils {
 
 	public static Set<String> listVocabularies() {
 		Set<String> tds = new HashSet<>();
-		Dataset dataset = Repository.get().dataset;
+		Dataset dataset = ThingDirectory.get().dataset;
 		dataset.begin(ReadWrite.READ);
 
 		try {
@@ -84,7 +84,7 @@ public class VocabularyUtils {
 
 	public static Model mergeVocabularies() {
 		// TODO add argument to scope the operation
-		Dataset dataset = Repository.get().dataset;
+		Dataset dataset = ThingDirectory.get().dataset;
 		dataset.begin(ReadWrite.READ);
 
 		try {

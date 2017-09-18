@@ -1,4 +1,4 @@
-package de.thingweb.repository;
+package de.thingweb.directory;
 
 import java.util.List;
 import java.util.Map;
@@ -10,9 +10,9 @@ import java.util.HashMap;
 import java.net.URI;
 import java.io.ByteArrayInputStream;
 
-import de.thingweb.repository.handlers.ThingDescriptionCollectionHandler;
-import de.thingweb.repository.handlers.ThingDescriptionHandler;
-import de.thingweb.repository.rest.RESTServerInstance;
+import de.thingweb.directory.handlers.ThingDescriptionCollectionHandler;
+import de.thingweb.directory.handlers.ThingDescriptionHandler;
+import de.thingweb.directory.rest.RESTServerInstance;
 
 import org.eclipse.californium.core.CoapClient;
 import org.eclipse.californium.core.CoapHandler;

@@ -33,19 +33,22 @@ import org.apache.jena.sparql.util.ModelUtils;
 import org.apache.jena.util.FileUtils;
 import org.apache.solr.client.solrj.request.CollectionAdminRequest.DeleteAlias;
 
-import de.thingweb.repository.coap.CoAPServer;
-import de.thingweb.repository.handlers.TDLookUpEPHandler;
-import de.thingweb.repository.handlers.TDLookUpHandler;
-import de.thingweb.repository.handlers.TDLookUpSEMHandler;
-import de.thingweb.repository.handlers.ThingDescriptionCollectionHandler;
-import de.thingweb.repository.handlers.ThingDescriptionHandler;
-import de.thingweb.repository.handlers.VocabularyCollectionHandler;
-import de.thingweb.repository.handlers.VocabularyHandler;
-import de.thingweb.repository.handlers.WelcomePageHandler;
-import de.thingweb.repository.http.HTTPServer;
-import de.thingweb.repository.rest.RESTHandler;
-import de.thingweb.repository.rest.RESTResource;
-import de.thingweb.repository.rest.RESTServerInstance;
+import de.thingweb.directory.ThingDirectory;
+import de.thingweb.directory.ThingDescriptionUtils;
+import de.thingweb.directory.VocabularyUtils;
+import de.thingweb.directory.coap.CoAPServer;
+import de.thingweb.directory.handlers.TDLookUpEPHandler;
+import de.thingweb.directory.handlers.TDLookUpHandler;
+import de.thingweb.directory.handlers.TDLookUpSEMHandler;
+import de.thingweb.directory.handlers.ThingDescriptionCollectionHandler;
+import de.thingweb.directory.handlers.ThingDescriptionHandler;
+import de.thingweb.directory.handlers.VocabularyCollectionHandler;
+import de.thingweb.directory.handlers.VocabularyHandler;
+import de.thingweb.directory.handlers.WelcomePageHandler;
+import de.thingweb.directory.http.HTTPServer;
+import de.thingweb.directory.rest.RESTHandler;
+import de.thingweb.directory.rest.RESTResource;
+import de.thingweb.directory.rest.RESTServerInstance;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -67,7 +70,7 @@ public class ThingWebRepoTest {
 	public static void oneTimeSetUp() {
 		
 		// Setup repository
-		Repository.get().init(dbPath, baseUri, idxPath);
+		ThingDirectory.get().init(dbPath, baseUri, idxPath);
 		
 		List<RESTServerInstance> servers = new ArrayList<>();
 		RESTHandler root = new WelcomePageHandler(servers);
@@ -83,8 +86,8 @@ public class ThingWebRepoTest {
             i.start();
         }
         
-        Repository.get();
-		Repository.servers = servers;
+        ThingDirectory.get();
+		ThingDirectory.servers = servers;
 		
 		tdch = new ThingDescriptionCollectionHandler(servers);
 		vch = new VocabularyCollectionHandler(servers);
@@ -94,7 +97,7 @@ public class ThingWebRepoTest {
 	@AfterClass
 	public static void oneTimeTearDown() {
 		// Close dataset
-		Dataset ds = Repository.get().dataset;
+		Dataset ds = ThingDirectory.get().dataset;
 		ds.close();
 		
 		deleteAll(dbPath); // FIXME returns false?
@@ -114,7 +117,7 @@ public class ThingWebRepoTest {
 		
 		// POST TD fan
 		String tdUri = "coap:///www.example.com:5686/Fan";
-		InputStream in = Repository.get().getClass().getClassLoader().getResourceAsStream("samples/fanTD.jsonld");
+		InputStream in = ThingDirectory.get().getClass().getClassLoader().getResourceAsStream("samples/fanTD.jsonld");
 		resource = tdch.post(new URI(baseUri + "/td"), parameters, in);
 		tdId = resource.path;
 		
@@ -124,7 +127,7 @@ public class ThingWebRepoTest {
 		
 		// POST TD temperatureSensor
 		String tdUri2 = "coap:///www.example.com:5687/temp";
-		in = Repository.get().getClass().getClassLoader().getResourceAsStream("samples/temperatureSensorTD.jsonld");
+		in = ThingDirectory.get().getClass().getClassLoader().getResourceAsStream("samples/temperatureSensorTD.jsonld");
 		resource = tdch.post(new URI(baseUri + "/td"), parameters, in);
 		tdId2 = resource.path;
 		
@@ -162,7 +165,7 @@ public class ThingWebRepoTest {
 		
 		
 		// GET TD by id
-		ThingDescriptionHandler tdh = new ThingDescriptionHandler(tdId, Repository.get().servers);
+		ThingDescriptionHandler tdh = new ThingDescriptionHandler(tdId, ThingDirectory.get().servers);
 		resource = tdh.get(new URI(baseUri + tdId), null);
 		JsonObject o = JSON.parse(resource.content);
 		JsonValue v = o.get("base");
@@ -170,7 +173,7 @@ public class ThingWebRepoTest {
 		
 		
 		// PUT TD change fan's name
-		in = Repository.get().getClass().getClassLoader().getResourceAsStream("samples/fanTD_update.jsonld");
+		in = ThingDirectory.get().getClass().getClassLoader().getResourceAsStream("samples/fanTD_update.jsonld");
 		content = IOUtils.toByteArray(in);
 		tdh.put(new URI(baseUri + tdId), new HashMap<String,String>(), new ByteArrayInputStream(content));
 			
@@ -218,7 +221,7 @@ public class ThingWebRepoTest {
 		Assert.assertTrue("QU ontology not found", ontoIds.getAsArray().contains(new JsonString(ontoId)));
 		
 		// GET vocabulary by id
-		VocabularyHandler vh = new VocabularyHandler(ontoId, Repository.servers);
+		VocabularyHandler vh = new VocabularyHandler(ontoId, ThingDirectory.servers);
 		resource = vh.get(new URI(baseUri + ontoId), null);
 		
 		ByteArrayInputStream byteStream = new ByteArrayInputStream(resource.content.getBytes());

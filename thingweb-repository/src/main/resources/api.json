@@ -1,9 +1,9 @@
 {
   "swagger": "2.0",
   "info": {
-    "description": "Web of Things (WoT) Thing Description Repository. Also available over CoAP.",
+    "description": "Web of Things (WoT) Thing Directory. Also available over CoAP.",
     "version": "0.6",
-    "title": "thingweb-repository",
+    "title": "thingweb-directory",
     "contact": {
       "email": "victor.charpenay@siemens.com"
     },
@@ -32,7 +32,7 @@
         "tags": [
           "Thing Description"
         ],
-        "summary": "Lists all TDs in the repository.",
+        "summary": "Lists all registered TDs.",
         "produces": [
           "application/json"
         ],
@@ -68,7 +68,7 @@
         "tags": [
           "Thing Description"
         ],
-        "summary": "Creates (adds) a TD to the repository.",
+        "summary": "Registers (adds) a TD.",
         "consumes": [
           "application/ld+json"
         ],
@@ -343,6 +343,6 @@
   },
   "externalDocs": {
     "description": "Github",
-    "url": "https://github.com/thingweb/thingweb-repository/"
+    "url": "https://github.com/thingweb/thingweb-directory/"
   }
 }

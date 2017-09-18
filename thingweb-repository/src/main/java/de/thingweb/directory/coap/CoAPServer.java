@@ -1,4 +1,4 @@
-package de.thingweb.repository.coap;
+package de.thingweb.directory.coap;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -10,9 +10,9 @@ import java.util.Set;
 import org.eclipse.californium.core.CoapServer;
 import org.eclipse.californium.core.server.resources.Resource;
 
-import de.thingweb.repository.handlers.WelcomePageHandler;
-import de.thingweb.repository.rest.RESTHandler;
-import de.thingweb.repository.rest.RESTServerInstance;
+import de.thingweb.directory.handlers.WelcomePageHandler;
+import de.thingweb.directory.rest.RESTHandler;
+import de.thingweb.directory.rest.RESTServerInstance;
 
 public class CoAPServer implements RESTServerInstance {
 

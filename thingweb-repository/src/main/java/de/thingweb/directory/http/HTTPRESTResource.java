@@ -1,4 +1,4 @@
-package de.thingweb.repository.http;
+package de.thingweb.directory.http;
 
 import java.io.IOException;
 import java.net.URI;
@@ -11,11 +11,11 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import de.thingweb.repository.Repository;
-import de.thingweb.repository.rest.BadRequestException;
-import de.thingweb.repository.rest.RESTException;
-import de.thingweb.repository.rest.RESTHandler;
-import de.thingweb.repository.rest.RESTResource;
+import de.thingweb.directory.ThingDirectory;
+import de.thingweb.directory.rest.BadRequestException;
+import de.thingweb.directory.rest.RESTException;
+import de.thingweb.directory.rest.RESTHandler;
+import de.thingweb.directory.rest.RESTResource;
 
 public class HTTPRESTResource extends HttpServlet {
 
@@ -94,7 +94,7 @@ public class HTTPRESTResource extends HttpServlet {
   }
   
   protected URI uri(String path) {
-    return URI.create(Repository.get().baseURI + path);
+    return URI.create(ThingDirectory.get().baseURI + path);
   }
   
   
