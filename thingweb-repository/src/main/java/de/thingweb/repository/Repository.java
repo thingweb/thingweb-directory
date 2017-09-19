@@ -25,6 +25,7 @@ import org.apache.commons.logging.Log;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.text.EntityDefinition;
 import org.apache.jena.query.text.TextDatasetFactory;
+import org.apache.jena.sparql.function.FunctionRegistry;
 import org.apache.jena.tdb.TDB;
 import org.apache.jena.tdb.TDBFactory;
 import org.apache.jena.vocabulary.RDFS;
@@ -50,6 +51,7 @@ import de.thingweb.repository.http.HTTPServer;
 import de.thingweb.repository.rest.RESTException;
 import de.thingweb.repository.rest.RESTHandler;
 import de.thingweb.repository.rest.RESTServerInstance;
+import de.thingweb.repository.sparql.Functions;
 
 public class Repository {
 	
@@ -227,6 +229,8 @@ public class Repository {
 
         // TODO get http URI
         Repository.get().init(loc, "http://www.example.com", lucene);
+        
+        Functions.registerAll();
         
         RESTHandler root = new WelcomePageHandler(servers); // FIXME circular reference here...
         servers.add(new CoAPServer(portCoAP, root));
