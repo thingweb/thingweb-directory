@@ -1,0 +1,120 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2015 Siemens AG and the thingweb community
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+ 
+plugins {
+    id "com.jfrog.bintray" version "1.7"
+}
+
+apply plugin: 'java'
+apply plugin: 'java-library-distribution'
+apply plugin: 'maven'
+apply plugin:'maven-publish'
+apply plugin: 'eclipse'
+
+sourceSets {
+    main {
+        resources {
+            srcDirs = ["src/main/resources"]
+        }
+    }
+}
+
+repositories {
+	maven { url "https://jitpack.io" }
+	maven { url "http://dl.bintray.com/thingweb/maven" }
+	mavenCentral()
+	jcenter()
+}
+
+dependencies {
+	//compile "com.github.thingweb.thingweb:thingweb-parser:master-SNAPSHOT"
+	compile "de.thingweb:thingweb-parser:v0.2.0+"
+	
+	compile 'org.eclipse.californium:californium-core:1.0.0-M3'
+	compile 'org.apache.jena:apache-jena-libs:3.0.0'
+	compile 'org.eclipse.jetty:jetty-maven-plugin:9.3.6.v20151106'
+	compile group: 'org.eclipse.jetty', name: 'jetty-servlets', version: '9.3.6.v20151106'
+
+	// dependencies for jena-text
+	compile group: 'commons-codec', name: 'commons-codec', version: '1.9'
+	compile group: 'org.apache.lucene', name: 'lucene-core', version: '4.9.1'
+	compile group: 'org.apache.lucene', name: 'lucene-analyzers-common', version: '4.9.1'
+	compile group: 'org.apache.lucene', name: 'lucene-queryparser', version: '4.9.1'
+	compile group: 'org.apache.solr', name: 'solr-solrj', version: '4.9.1'
+	compile group: 'org.apache.jena', name: 'jena-text', version: '3.0.0', ext: "jar"
+	
+	testCompile group: 'junit', name: 'junit', version: '4.8'
+
+}
+
+version = '0.7'
+group = 'de.thingweb'
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+        }
+    }
+}
+
+jar {
+	doFirst {
+		def serviceDir = file("$buildDir/META-INF/services")
+		serviceDir.deleteDir()
+		serviceDir.mkdirs()
+
+		// copy all service files from deps to buildDir
+		for(file in configurations.runtime) {
+			zipTree(file).matching{ include 'META-INF/services/*' }.each { f ->
+				new File(serviceDir, f.name) << f.getText("UTF-8")
+			}
+		}
+	}
+	
+	from ( configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } ) {
+		exclude 'META-INF/**' // Don't let Gradle merge service files
+	}
+	
+	manifest {
+		attributes 'Main-Class': 'de.thingweb.directory.ThingDirectory'
+	}
+	
+	// include service files from the buildDir
+	from fileTree(buildDir).matching{ include 'META-INF/services/*' }
+}
+
+bintray {
+    user = System.getenv('BINTRAY_USER')
+    key = System.getenv('BINTRAY_KEY')
+    publications  = ['mavenJava']
+    publish = true
+    pkg {
+    	version { name = version }
+        repo = 'maven'
+        name = 'thingweb-directory'
+        licenses = ['MIT']
+        vcsUrl = 'https://github.com/thingweb/thingweb-directory.git'
+    }
+}

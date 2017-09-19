@@ -1,8 +1,7 @@
-# thingweb-repository
+# thingweb-directory
 
-Thingweb-Repository is an open source repository for Thing Descriptions. Thing Description (TD) is a proposal of W3C Web of Things interest group to describe Things.
-
-Thingweb-Repository features an API to create, read, update and delete (CRUD) a TD. The repository can be used to *browse* and *discover* Things based on their TDs. This functionality includes but is not limited to following cases:
+The Thingweb Directory is an open source directory for Thing Descriptions. The [Thing Description (TD) model](https://www.w3.org/TR/wot-thing-description/) is a proposal of W3C Web of Things working group to describe Things.
+The directory features an API to create, read, update and delete (CRUD) a TD. The directory can be used to *browse* and *discover* Things based on their TDs. This functionality includes but is not limited to following cases:
 
   - Searching for a Thing based on its metadata, properties, actions or events;
   - Creating a new Thing's TD or updating an existing one;
@@ -12,9 +11,9 @@ Thingweb-Repository features an API to create, read, update and delete (CRUD) a 
 
 ## Contents
 1. [Building](#building)
-2. [Running a Thingweb-Repository Server](#Running-a-Thingweb-Repository-Server)
-3. [Interacting with a Thingweb-Repository Server](#Interacting-with-a-Thingweb-Repository-Server)
-4. [Open API Specification of Thingweb-Repository](#Open-API-Specification-of-Thingweb-Repository)
+2. [Running the Directory](#Running-the-Directory)
+3. [Interacting with the Directory](#Interacting-with-the-Directory)
+4. [Open API Specification](#Open-API-Specification)
 5. [ToDos](#ToDos)
 
 ### Building
@@ -22,21 +21,22 @@ Thingweb-Repository features an API to create, read, update and delete (CRUD) a 
 * We are using [Gradle](https://gradle.org/) as a build tool
 * The application is built using the [Gradle Application Plugin](https://docs.gradle.org/current/userguide/application_plugin.html)
 
-### Running a Thingweb-Repository Server
+### Running the Directory
 
-Download the project and build it (see [Building](#Building). Once it is finished, Thingweb-Repository server can be started:
+Download the project and build it (see [Building](#Building). Once it is finished, the server can be started:
 ```sh
-$ java -jar thingweb-repository.jar <thingweb_repository_path>
+$ java -jar thingweb-directory.jar <thingweb_directory_path>
 ```
-<thingweb-repository_path> specifies the chosen location where Thingweb-Repository will be installed. After this step, a Thingweb-Repository server is running and can be accessed over HTTP from:
+`<thingweb-directory_path>` specifies the chosen location where the Directory is installed. After this step, the Directory server is running and can be accessed over HTTP from:
 ```sh
-http://<thingweb_repository_ip>:8080/td
+http://<thingweb_directory_ip>:8080/td
 ```
 or over CoAP from:
+```sh
+coap://<thingweb_directory_ip>:5683/td
+```
 
-    coap://<thingweb_repository_ip>:5683/td
-
-### Interacting with a Thingweb-Repository Server
+### Interacting with the Directory
 
 ###### Creates (adds) a TD to a collection `/td` (e.g., a Thing registers itself).
 
@@ -52,11 +52,11 @@ Failure: 400 Bad Request
 Failure: 500 Internal Server Error
 ```
 
-If the response code is `201 Created`, the URI path of the created sub-resource is defined in the header field `Location` (for HTTP) or `Location-Path` (for CoAP). The path is relative to the root resource and follows the pattern `/td/{id}`, where `id` is an ID assigned by the repository for the uploaded Thing Description.
+If the response code is `201 Created`, the URI path of the created sub-resource is defined in the header field `Location` (for HTTP) or `Location-Path` (for CoAP). The path is relative to the root resource and follows the pattern `/td/{id}`, where `id` is an ID assigned by the directory for the uploaded Thing Description.
 
 If the associated uris of the new TD are already in the dataset, the response code is `400 Bad Request`. This is done in order to avoid duplicated TDs in the dataset. To change an existing TD use PUT instead.
 
-###### Returns a list of TDs based on a SPARQL query pattern (e.g., a client queries the repository for a TD with a specific Thing URI).
+###### Returns a list of TDs based on a SPARQL query pattern (e.g., a client queries the directory for a TD with a specific Thing URI).
 
 ```sh
 Method: GET
@@ -81,7 +81,7 @@ HTTP request with the SPARQL query encoded as URI:
 http://localhost:8080/td?query=%3FY+<http%3A%2F%2Fwww.w3c.org%2Fwot%2Ftd%23hasMetadata>+%3FX+.%3FZ+<http%3A%2F%2Fwww.w3c.org%2Fwot%2Ftd%23associatedUri>++"coap%3A%2F%2F192.168.1.104%2FFan".
 ```
 
-- SPARQL query pattern to return all TDs (not recommended if their is a large amount of TDs in the repository)
+- SPARQL query pattern to return all TDs (not recommended if their is a large amount of TDs in the directory)
 ```sh
 ?X ?Y ?Z .
 ```
@@ -102,7 +102,7 @@ The response is a JSON object (_but no valid JSON-LD document_). This JSON objec
 }
 ```
 
-###### Returns a TD based on its `{id}` (e.g., a client queries the repository for a specific TD).
+###### Returns a TD based on its `{id}` (e.g., a client queries the directory for a specific TD).
 
 ```sh
 Method: GET
@@ -186,9 +186,9 @@ coap://localhost:8080/td-lookup/sem?text="word1 AND word2"
 coap://localhost:8080/td-lookup/sem?rdf=http://example.org/lightBrightness
 ```
 
-## Open API Specification of Thingweb-Repository
+## Open API Specification
 
-See `src/main/resources/api.json` for a formal specification of the Thingweb-Repository API. This file is exposed by the server at `/api.json`. It can e.g. be processed by the [Swagger UI](http://swagger.io/swagger-ui/) to render an online documentation. See the [Open API Initiative](https://www.openapis.org/) for more details.
+See `src/main/resources/api.json` for a formal specification of the Thing Directory API. This file is exposed by the server at `/api.json`. It can e.g. be processed by the [Swagger UI](http://swagger.io/swagger-ui/) to render an online documentation. See the [Open API Initiative](https://www.openapis.org/) for more details.
 
 ## TODOs
 
@@ -204,7 +204,7 @@ See `src/main/resources/api.json` for a formal specification of the Thingweb-Rep
    - new TD form
    - delete RDF store after tests terminate
    - vocabulary management
- - decouple repository from TDB (SPARQL only)
+ - decouple directory from TDB (SPARQL only)
  - clean ThingDescriptionUtils
  - clean response codes throughout the API
    - trailing / -> 404...
