@@ -11,9 +11,9 @@ The directory features an API to create, read, update and delete (CRUD) a TD. Th
 
 ## Contents
 1. [Building](#building)
-2. [Running the Directory](#Running-the-Directory)
-3. [Interacting with the Directory](#Interacting-with-the-Directory)
-4. [Open API Specification](#Open-API-Specification)
+2. [Running the Directory](#running-the-directory)
+3. [Interacting with the Directory](#interacting-with-the-directory)
+4. [Open API Specification](#open-api-specification)
 5. [ToDos](#ToDos)
 
 ### Building

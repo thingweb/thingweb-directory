@@ -55,7 +55,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.Assert;
 
-public class ThingWebRepoTest {
+public class ThingDirectoryTest {
 
 	private static ThingDescriptionCollectionHandler tdch;
 	private static VocabularyCollectionHandler vch;
@@ -203,12 +203,12 @@ public class ThingWebRepoTest {
 		Map<String,String> parameters = new HashMap<String,String>();
 		
 		// POST vocabulary
-		String ontoUri = "http://purl.oclc.org/NET/ssnx/qu/qu-rec20";
-		InputStream uriStream = new ByteArrayInputStream(ontoUri.getBytes("UTF-8"));
-		resource = vch.post(new URI(baseUri + "/vocab"), parameters, uriStream);
+		String sosaUri = "http://www.w3.org/ns/sosa/";
+		InputStream in = ThingDirectory.get().getClass().getClassLoader().getResourceAsStream("onto/sosa.ttl");
+		resource = vch.post(new URI(baseUri + "/vocab"), parameters, in);
 		ontoId = resource.path;
 
-		Assert.assertTrue("QU ontology not registered", VocabularyUtils.containsVocabulary(ontoUri));
+		Assert.assertTrue("SOSA ontology not registered", VocabularyUtils.containsVocabulary(sosaUri));
 		
 		// GET vocabulary by SPARQL query
 		parameters.clear();
@@ -218,7 +218,7 @@ public class ThingWebRepoTest {
 		JsonValue ontoIds = JSON.parseAny(resource.content);
 		Assert.assertTrue("Vocabulary collection is not an array", ontoIds.isArray());
 		Assert.assertTrue("Vocabulary imports were not added", ontoIds.getAsArray().size() > 1);
-		Assert.assertTrue("QU ontology not found", ontoIds.getAsArray().contains(new JsonString(ontoId)));
+		Assert.assertTrue("SOSA ontology not found", ontoIds.getAsArray().contains(new JsonString(ontoId)));
 		
 		// GET vocabulary by id
 		VocabularyHandler vh = new VocabularyHandler(ontoId, ThingDirectory.servers);
@@ -227,11 +227,11 @@ public class ThingWebRepoTest {
 		ByteArrayInputStream byteStream = new ByteArrayInputStream(resource.content.getBytes());
 		Model m = ModelFactory.createDefaultModel();
 		m.read(byteStream, "", "Turtle");
-		Assert.assertFalse("QU ontology definition is not valid", m.isEmpty());
+		Assert.assertFalse("SOSA ontology definition is not valid", m.isEmpty());
 
 		// DELETE vocabulary
 		vh.delete(new URI(baseUri + ontoId), null, null);
-		Assert.assertFalse("QU ontology not deleted", VocabularyUtils.containsVocabulary(ontoUri));
+		Assert.assertFalse("SOSA ontology not deleted", VocabularyUtils.containsVocabulary(sosaUri));
 	}
 	
 	
