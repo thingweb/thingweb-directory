@@ -10,6 +10,7 @@ import java.util.Map;
 
 import org.eclipse.californium.core.CoapResource;
 import org.eclipse.californium.core.coap.CoAP.ResponseCode;
+import org.eclipse.californium.core.coap.MediaTypeRegistry;
 import org.eclipse.californium.core.coap.OptionSet;
 import org.eclipse.californium.core.coap.Response;
 import org.eclipse.californium.core.server.resources.CoapExchange;
@@ -109,27 +110,32 @@ public class CoAPRESTResource extends CoapResource {
 	
 	protected Map<String, String> params(CoapExchange exchange) {
 		Map<String, String> params = new HashMap<>();
-	  try
-	{
-		for (String pair : exchange.getRequestOptions().getUriQuery()) {
-		pair = URLDecoder.decode(pair, "UTF-8");
-		if (pair.contains("=")) {
-		  String[] p = pair.split("=");
-		  if (p.length > 1)
-		  {
-			  params.put(p[0], p[1]);  
-		  }
-		  else
-		  {
-			  params.put(p[0], "");
-		  }
+		try {
+			// content negotiation headers
+			Integer acceptCode = exchange.getRequestOptions().getAccept();
+			if (acceptCode > 0) {
+				params.put(RESTHandler.PARAMETER_ACCEPT, MediaTypeRegistry.toString(acceptCode));
+			}
+			Integer cfCode = exchange.getRequestOptions().getContentFormat();
+			if (cfCode > 0) {
+				params.put(RESTHandler.PARAMETER_CONTENT_TYPE, MediaTypeRegistry.toString(cfCode));
+			}
+			
+			// query parameters
+			for (String pair : exchange.getRequestOptions().getUriQuery()) {
+				pair = URLDecoder.decode(pair, "UTF-8");
+				if (pair.contains("=")) {
+					String[] p = pair.split("=");
+					if (p.length > 1) {
+						params.put(p[0], p[1]);
+					} else {
+						params.put(p[0], "");
+					}
+				}
+			}
+		} catch (UnsupportedEncodingException e) {
+			System.err.println("UTF-8 encoding not supported!");
 		}
-		}
-	}
-	catch (UnsupportedEncodingException e)
-	{
-	  System.err.println("UTF-8 encoding not supported!");
-	}
 		return params;
 	}
 	
@@ -143,14 +149,12 @@ public class CoAPRESTResource extends CoapResource {
 	  }
 	  return path;
 	}
-	
+
 	protected int toContentFormatCode(String contentType) {
-	  switch (contentType) {
-		case "application/json": return 50;
-		// TODO 50 -> application/json, not ld+json
-	    case "application/ld+json": return 50;
-	    default: return 0;
-	  }
+		if (contentType.equals("application/ld+json")) {
+			contentType = "application/json";
+		}
+    	return MediaTypeRegistry.parse(contentType);
 	}
 
 }

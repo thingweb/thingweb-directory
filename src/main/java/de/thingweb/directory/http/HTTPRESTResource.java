@@ -32,7 +32,7 @@ public class HTTPRESTResource extends HttpServlet {
   protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException
   {
     try {
-      RESTResource res = handler.get(uri(req.getRequestURI()), concat(req.getParameterMap()));
+      RESTResource res = handler.get(uri(req.getRequestURI()), params(req));
       resp.setContentType(res.contentType);
       resp.getWriter().write(res.content);
     } catch (BadRequestException e) {
@@ -46,7 +46,7 @@ public class HTTPRESTResource extends HttpServlet {
   protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException
   {
     try {
-      RESTResource res = handler.post(uri(req.getRequestURI()), concat(req.getParameterMap()), req.getInputStream());
+      RESTResource res = handler.post(uri(req.getRequestURI()), params(req), req.getInputStream());
       resp.setStatus(201);
       resp.setHeader("Location", res.path);
     } catch (BadRequestException e) {
@@ -60,7 +60,7 @@ public class HTTPRESTResource extends HttpServlet {
   protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException
   {
     try {
-      handler.put(uri(req.getRequestURI()), concat(req.getParameterMap()), req.getInputStream());
+      handler.put(uri(req.getRequestURI()), params(req), req.getInputStream());
     } catch (BadRequestException e) {
       resp.sendError(400);
     } catch (RESTException e) {
@@ -72,7 +72,7 @@ public class HTTPRESTResource extends HttpServlet {
   protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException
   {
     try {
-      handler.delete(uri(req.getRequestURI()), concat(req.getParameterMap()), req.getInputStream());
+      handler.delete(uri(req.getRequestURI()), params(req), req.getInputStream());
     } catch (BadRequestException e) {
       resp.sendError(400);
     } catch (RESTException e) {
@@ -80,17 +80,30 @@ public class HTTPRESTResource extends HttpServlet {
     }
   }
   
-  protected Map<String, String> concat(Map<String, String[]> params) {
-    Map<String, String> p = new HashMap<>();
-    for (Entry<String, String[]> e : params.entrySet()) {
-      String val = "";
-      for (String v : e.getValue()) {
-        val += v + ",";
-      }
-      val = val.substring(0, val.length() - 1);
-      p.put(e.getKey(), val);
-    }
-    return p;
+  protected Map<String, String> params(HttpServletRequest req) {
+	  Map<String, String> p = new HashMap<>();
+	  
+	  // content negotiation headers
+	  String accept = req.getHeader("Accept");
+	  if (accept != null && !accept.isEmpty()) {
+		  p.put(RESTHandler.PARAMETER_ACCEPT, req.getHeader("Accept"));
+	  }
+	  String ct = req.getHeader("Content-Type");
+	  if (ct != null && !ct.isEmpty()) {
+		  p.put(RESTHandler.PARAMETER_CONTENT_TYPE, req.getHeader("Content-Type"));
+	  }
+
+	  // query parameters
+	  for (Entry<String, String[]> e : req.getParameterMap().entrySet()) {
+		  String val = "";
+		  for (String v : e.getValue()) {
+			  val += v + ",";
+		  }
+		  val = val.substring(0, val.length() - 1);
+		  p.put(e.getKey(), val);
+	  }
+	  
+	  return p;
   }
   
   protected URI uri(String path) {

@@ -12,6 +12,7 @@ import java.util.UUID;
 
 import org.apache.jena.atlas.json.JsonParseException;
 import org.apache.jena.atlas.lib.StrUtils;
+import org.apache.jena.atlas.web.ContentType;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.ReadWrite;
 import org.apache.jena.rdf.model.InfModel;
@@ -19,6 +20,8 @@ import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.reasoner.ReasonerRegistry;
+import org.apache.jena.riot.RDFLanguages;
+import org.apache.jena.riot.RIOT;
 import org.apache.jena.vocabulary.DC;
 import org.apache.jena.vocabulary.DCTerms;
 import org.apache.jena.vocabulary.RDFS;
@@ -33,6 +36,7 @@ import de.thingweb.directory.rest.RESTException;
 import de.thingweb.directory.rest.RESTHandler;
 import de.thingweb.directory.rest.RESTResource;
 import de.thingweb.directory.rest.RESTServerInstance;
+import de.thingweb.thing.MediaType;
 
 public class ThingDescriptionCollectionHandler extends RESTHandler {
 
@@ -140,19 +144,19 @@ public class ThingDescriptionCollectionHandler extends RESTHandler {
 		String data = "";
 		try {
 			data = ThingDescriptionUtils.streamToString(payload);
-			data = ThingDescriptionUtils.withLocalJsonLdContext(data);
 		} catch (IOException e1) {
 			e1.printStackTrace();
 			throw new BadRequestException();
 		}
 		
 		// Check if new TD has uris already registered in the dataset
+		// TODO update - should be performed on the RDF graph instead
 		if (ThingDescriptionUtils.hasInvalidURI(data)) {
 			throw new BadRequestException();
 		}
 		
 		// to register a resource following the standard
-		String endpointName = "http://example.org/"; // this is temporary
+		String endpointName = "http://example.org/"; // TODO
 		String lifeTime = "86400"; // 24 hours by default in seconds
 
 		// TODO make it mandatory. The rest are optional
@@ -174,9 +178,14 @@ public class ThingDescriptionCollectionHandler extends RESTHandler {
 
 		dataset.begin(ReadWrite.WRITE);
 		try {
+			String format = "JSON-LD";
+			if (parameters.containsKey(RESTHandler.PARAMETER_CONTENT_TYPE)) {
+				String mediaType = parameters.get(RESTHandler.PARAMETER_CONTENT_TYPE);
+				format = RDFLanguages.contentTypeToLang(mediaType).getName();
+			}
 			
 			Model graph = ModelFactory.createDefaultModel();
-			graph.read(new ByteArrayInputStream(data.getBytes()), endpointName, "JSON-LD");
+			graph.read(new ByteArrayInputStream(data.getBytes()), endpointName, format);
 			InfModel inf = ModelFactory.createInfModel(ReasonerRegistry.getOWLMicroReasoner(), schema, graph);
 			// TODO check TD validity
 			

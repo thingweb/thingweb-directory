@@ -42,13 +42,6 @@ import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.sparql.util.QueryExecUtils;
 
 public class ThingDescriptionUtils {
-	
-  private static final URL TD_CONTEXT_URL = ClassLoader.getSystemResource("td-context.jsonld");
-
-  public static String withLocalJsonLdContext(String data) {
-	  // FIXME proper context substitution
-	  return data;
-  }
 
   public static List<String> listThingDescriptions(String query) {
 	List<String> tds = new ArrayList<>();

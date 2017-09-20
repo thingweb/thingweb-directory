@@ -69,7 +69,6 @@ public class ThingDescriptionHandler extends RESTHandler {
 		String data = "";
 		try {
 			data = ThingDescriptionUtils.streamToString(payload);
-			data = ThingDescriptionUtils.withLocalJsonLdContext(data);
 		} catch (IOException e1) {
 			e1.printStackTrace();
 			throw new BadRequestException();

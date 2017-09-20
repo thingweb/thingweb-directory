@@ -3,9 +3,11 @@ package de.thingweb.repository;
 import static org.junit.Assert.*;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
@@ -33,6 +35,7 @@ import org.apache.jena.sparql.util.ModelUtils;
 import org.apache.jena.util.FileUtils;
 import org.apache.solr.client.solrj.request.CollectionAdminRequest.DeleteAlias;
 
+import de.thingweb.directory.ThingDescription;
 import de.thingweb.directory.ThingDirectory;
 import de.thingweb.directory.ThingDescriptionUtils;
 import de.thingweb.directory.VocabularyUtils;
@@ -196,6 +199,31 @@ public class ThingDirectoryTest {
 	}
 	
 	@Test
+	public void testTDContentNegotiation() throws Exception {
+		Model m = ModelFactory.createDefaultModel();
+		RESTResource resource;
+		
+		Map<String,String> parameters = new HashMap<String,String>();
+		parameters.put("ep", baseUri);
+		parameters.put("ct", "text/turtle");
+		
+		// POST TD fan
+		String tdUri = "coap:///www.example.com:5686/Fan";
+		InputStream in = ThingDirectory.get().getClass().getClassLoader().getResourceAsStream("samples/fanTD.jsonld");
+		m.read(in, baseUri, "JSON-LD");
+		
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		m.write(out, "Turtle");
+		in = new ByteArrayInputStream(out.toByteArray());
+	
+		resource = tdch.post(new URI(baseUri + "/td"), parameters, in);
+		String tdId = resource.path;
+		
+		String id = ThingDescriptionUtils.getThingDescriptionIdFromUri(tdUri);
+		Assert.assertEquals("TD fan not registered", baseUri + tdId, id);
+	}
+	
+	@Test
 	public void testVocabularyManagement() throws Exception {
 		RESTResource resource;
 		String ontoId;
@@ -232,6 +260,11 @@ public class ThingDirectoryTest {
 		// DELETE vocabulary
 		vh.delete(new URI(baseUri + ontoId), null, null);
 		Assert.assertFalse("SOSA ontology not deleted", VocabularyUtils.containsVocabulary(sosaUri));
+	}
+	
+	@Test
+	public void testVocabularyContentNegotiation() throws Exception {
+		// TODO
 	}
 	
 	

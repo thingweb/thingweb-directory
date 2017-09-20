@@ -8,6 +8,12 @@ import java.util.Map;
 
 public abstract class RESTHandler {
 	
+	/**
+	 * Note: some headers should also be given as parameters, e.g. to allow for content negotiation (Accept/Content-Type).
+	 */
+	public final static String PARAMETER_ACCEPT = "accept";
+	public final static String PARAMETER_CONTENT_TYPE = "ct";
+	
 	private final String name;
 	protected List<RESTServerInstance> instances;
 	
