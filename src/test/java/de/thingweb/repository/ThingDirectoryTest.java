@@ -212,6 +212,27 @@ public class ThingDirectoryTest {
 	}
 	
 	@Test
+	public void testMultipleTDManagement() throws Exception {
+		Model m = ModelFactory.createDefaultModel();
+		RESTResource resource;
+		
+		Map<String,String> parameters = new HashMap<String,String>();
+		parameters.put("ep", baseUri);
+		
+		// POST TD fan
+		String tdFirstUri = "coap:///www.example.com:5686/Fan";
+		String tdSecondUri = "coap:///www.example.com:5687/temp";
+		InputStream in = ThingDirectory.get().getClass().getClassLoader().getResourceAsStream("samples/fanTD+temperatureSensorTD.jsonld");
+	
+		tdch.post(new URI(baseUri + "/td"), parameters, in);
+		
+		List<String> uris = ThingDescriptionUtils.listThingDescriptionsUri();
+		Assert.assertEquals("TD fan and TD temperatureSensor not registered as expected", 2, uris.size());
+		
+		// note: it is unknown whether resource path is fan TD's or Sensor TD's
+	}
+	
+	@Test
 	public void testTDContentNegotiation() throws Exception {
 		Model m = ModelFactory.createDefaultModel();
 		RESTResource resource;
@@ -295,8 +316,6 @@ public class ThingDirectoryTest {
 		
 		Assert.assertTrue("SOSA ontology not found (JSON-LD format)", VocabularyUtils.containsVocabulary(sosaUri));
 	}
-	
-	
 	
 	// ***** EXTRAS *****
 	

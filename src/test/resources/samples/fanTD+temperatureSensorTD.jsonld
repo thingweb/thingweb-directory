@@ -1,0 +1,150 @@
+{
+	"@context": {
+		"xsd": "http://www.w3.org/2001/XMLSchema#",
+		"td": "http://iot.linkeddata.es/def/wot#",
+		"Thing": "td:Thing",
+		"name": "td:name",
+		"base": {
+			"@id": "td:baseURI",
+			"@type": "@id"
+		},
+		"Link": "td:Link",
+		"href": {
+			"@id": "td:href",
+			"@type": "@id"
+		},
+		"mediaType": {
+			"@id": "td:hasMediaType"
+		},
+		"Interaction": "td:Interaction",
+		"interaction": {
+			"@id": "td:providesInteractionPattern",
+			"@type": "@id",
+			"@container": "@set"
+		},
+		"link": {
+			"@id": "td:isAccessibleThrough",
+			"@type": "@id"
+		},
+		"security": "td:implementsSecurity",
+		"Property": "td:Property",
+		"required": {
+			"@id": "td:isRequired",
+			"@type": "xsd:boolean"
+		},
+		"writable": {
+			"@id": "td:isWritable",
+			"@type": "xsd:boolean"
+		},
+		"Event": "td:Event",
+		"Action": "td:Action",
+		"inputData": {
+			"@id": "td:hasInputData"
+		},
+		"outputData": {
+			"@id": "td:hasOutputData"
+		},
+		"child": "td:isChildOf",
+		"geo": "http://www.w3.org/2003/01/geo/wgs84_pos#",
+		"saref": "http://uri.etsi.org/m2m/saref#",
+		"Sensor": "saref:Sensor",
+		"Temperature": "saref:Temperature",
+		"Toggle": "saref:ToggleCommand",
+		"unit": "saref:isMeasuredIn",
+		"celsius": "http://www.wurvoc.org/vocabularies/om-1.8/degree_Celsius"
+	},
+	"@graph": [
+		{
+			"@type": ["Thing", "Sensor"],
+			"name": "Fan",
+			"base": "coap:///www.example.com:5686/Fan",
+			"interaction": [{
+					"@type": ["Property", "Temperature"],
+					"name": "myThreshold",
+					"valueType": "number",
+					"unit": "celsius",
+					"writable": true,
+					"geo:location": "room_4",
+					"link": {
+						"href": "threshold",
+						"mediaType": "application/json"
+					}
+				},
+				{
+					"@type": ["Action", "Toggle"],
+					"name": "fanOnOff",
+					"inputData": {
+						"@type": "OnOff",
+						"valueType": "xsd:boolean"
+					},
+					"link": {
+						"href": "toggle",
+						"mediaType": "application/json"
+					}
+				},
+				{
+					"@type": ["Action", "Toggle"],
+					"name": "fanOnOffTempAction",
+					"inputData": {
+						"@type": "Temperature",
+						"valueType": "xsd:float",
+						"unit": "celsius"
+					},
+					"geo:location": "room_4",
+					"link": {
+						"href": "fanOnOffTempAction",
+						"mediaType": "application/json"
+					}
+				}
+			]
+		},
+		{	
+			"@type": ["Thing", "Sensor"],
+			"name": "myTempSensor",
+			"base": "coap:///www.example.com:5687/temp",
+			"interaction": [{
+					"@type": ["Property", "Temperature"],
+					"unit": "celsius",
+					"reference": "threshold",
+					"name": "myTemp",
+					"valueType": "number",
+					"writable": false,
+					"link": {
+						"href": "val",
+						"mediaType": "application/json"
+					}
+				},
+				{
+					"@type": ["Property", "Temperature"],
+					"unit": "celsius",
+					"name": "myThreshold",
+					"valueType": "number",
+					"writable": true,
+					"link": {
+						"href": "threshold",
+						"mediaType": "application/json"
+					}
+				},
+				{
+					"@type": ["Event"],
+					"valueType": "number",
+					"name": "myChange",
+					"property": "temp",
+					"link": {
+						"href": "val/changed",
+						"mediaType": "application/json"
+					}
+				},
+				{
+					"@type": ["Event"],
+					"valueType": "number",
+					"name": "myWarning",
+					"link": {
+						"href": "val/high",
+						"mediaType": "application/json"
+					}
+				}
+			]
+		}
+	]
+}

@@ -19,13 +19,18 @@ import org.apache.jena.query.ReadWrite;
 import org.apache.jena.rdf.model.InfModel;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
+import org.apache.jena.rdf.model.ResIterator;
 import org.apache.jena.rdf.model.Resource;
+import org.apache.jena.rdf.model.ResourceFactory;
+import org.apache.jena.rdf.model.Statement;
+import org.apache.jena.rdf.model.StmtIterator;
 import org.apache.jena.reasoner.ReasonerRegistry;
 import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFLanguages;
 import org.apache.jena.riot.RIOT;
 import org.apache.jena.vocabulary.DC;
 import org.apache.jena.vocabulary.DCTerms;
+import org.apache.jena.vocabulary.RDF;
 import org.apache.jena.vocabulary.RDFS;
 import org.eclipse.californium.core.coap.MediaTypeRegistry;
 
@@ -39,6 +44,7 @@ import de.thingweb.directory.rest.RESTException;
 import de.thingweb.directory.rest.RESTHandler;
 import de.thingweb.directory.rest.RESTResource;
 import de.thingweb.directory.rest.RESTServerInstance;
+import de.thingweb.repository.rdf.TD;
 import de.thingweb.thing.MediaType;
 
 public class ThingDescriptionCollectionHandler extends RESTHandler {
@@ -151,7 +157,7 @@ public class ThingDescriptionCollectionHandler extends RESTHandler {
 			e1.printStackTrace();
 			throw new BadRequestException();
 		}
-		
+
 		// Check if new TD has uris already registered in the dataset
 		// TODO update - should be performed on the RDF graph instead
 		if (ThingDescriptionUtils.hasInvalidURI(data)) {
@@ -173,13 +179,9 @@ public class ThingDescriptionCollectionHandler extends RESTHandler {
 		}
 
 		// to add new thing description to the collection
-		String id = generateID();
-		URI resourceUri = URI.create(normalize(uri) + "/" + id);
 		Dataset dataset = ThingDirectory.get().dataset;
-		List<String> keyWords;
 		Model schema = VocabularyUtils.mergeVocabularies();
 
-		dataset.begin(ReadWrite.WRITE);
 		try {
 			String format = "JSON-LD";
 			if (parameters.containsKey(RESTHandler.PARAMETER_CONTENT_TYPE)) {
@@ -206,46 +208,66 @@ public class ThingDescriptionCollectionHandler extends RESTHandler {
 			InfModel inf = ModelFactory.createInfModel(ReasonerRegistry.getOWLMicroReasoner(), schema, graph);
 			// TODO check TD validity
 			
-			dataset.addNamedModel(resourceUri.toString(), inf.difference(schema));
+			List<RESTResource> resources = new ArrayList<>();
+			ResIterator it = inf.listResourcesWithProperty(RDF.type, TD.Thing);
+			if (!it.hasNext()) {
+					throw new BadRequestException();
+			}
+			while (it.hasNext()) {
+				String id = generateID();
+				URI resourceUri = URI.create(normalize(uri) + "/" + id);
+				List<String> keyWords;
 
-			Model tdb = dataset.getDefaultModel();
-			tdb.createResource(resourceUri.toString()).addProperty(DC.source, data);
+				dataset.begin(ReadWrite.WRITE);
+				
+				Model tdModel = extractTD(it.next());
+				dataset.addNamedModel(resourceUri.toString(), tdModel);
 
-			// Get key words from statements
-			ThingDescriptionUtils utils = new ThingDescriptionUtils();
-			Model newThing = dataset.getNamedModel(resourceUri.toString());
-			keyWords = utils.getModelKeyWords(newThing);
+				Model tdb = dataset.getDefaultModel();
+				tdb.createResource(resourceUri.toString()).addProperty(DC.source, data);
 
-			// Store key words as triple: ?g_id rdfs:comment "keyWordOrWords"
-			tdb.getResource(resourceUri.toString()).addProperty(RDFS.comment, StrUtils.strjoin(" ", keyWords));
+				// Get key words from statements
+				ThingDescriptionUtils utils = new ThingDescriptionUtils();
+				Model newThing = dataset.getNamedModel(resourceUri.toString());
+				keyWords = utils.getModelKeyWords(newThing);
 
-			// Store END_POINT and LIFE_TIME as triples
-			String currentDate = utils.getCurrentDateTime(0);
-			String lifetimeDate = utils.getCurrentDateTime(Integer.parseInt(lifeTime));
-			tdb.getResource(resourceUri.toString()).addProperty(RDFS.isDefinedBy, endpointName);
-			tdb.getResource(resourceUri.toString()).addProperty(DCTerms.created, currentDate);
-			tdb.getResource(resourceUri.toString()).addProperty(DCTerms.modified, currentDate);
-			tdb.getResource(resourceUri.toString()).addProperty(DCTerms.dateAccepted, lifetimeDate);
-	  
-			addToAll("/td/" + id, new ThingDescriptionHandler(id, instances));
-			dataset.commit();
+				// Store key words as triple: ?g_id rdfs:comment "keyWordOrWords"
+				tdb.getResource(resourceUri.toString()).addProperty(RDFS.comment, StrUtils.strjoin(" ", keyWords));
 
-			ThingDirectory.LOG.info(String.format("Inserted TD %s (%d triples)", id, graph.size()));
+				// Store END_POINT and LIFE_TIME as triples
+				String currentDate = utils.getCurrentDateTime(0);
+				String lifetimeDate = utils.getCurrentDateTime(Integer.parseInt(lifeTime));
+				tdb.getResource(resourceUri.toString()).addProperty(RDFS.isDefinedBy, endpointName);
+				tdb.getResource(resourceUri.toString()).addProperty(DCTerms.created, currentDate);
+				tdb.getResource(resourceUri.toString()).addProperty(DCTerms.modified, currentDate);
+				tdb.getResource(resourceUri.toString()).addProperty(DCTerms.dateAccepted, lifetimeDate);
+		  
+				addToAll("/td/" + id, new ThingDescriptionHandler(id, instances));
+				dataset.commit();
+
+				ThingDirectory.LOG.info(String.format("Inserted TD %s (%d triples)", id, graph.size()));
+				
+				// Add to priority queue
+				ThingDescription td = new ThingDescription(resourceUri.toString(), lifetimeDate);
+				ThingDirectory.get().tdQueue.add(td);
+				ThingDirectory.get().setTimer();
+				
+				RESTResource resource = new RESTResource("/td/" + id, new ThingDescriptionHandler(id, instances));
+				resources.add(resource);
+				
+				dataset.end();
+			}
 			
-			// Add to priority queue
-			ThingDescription td = new ThingDescription(resourceUri.toString(), lifetimeDate);
-			ThingDirectory.get().tdQueue.add(td);
-			ThingDirectory.get().setTimer();
-			
-			// TODO remove useless return
-			RESTResource resource = new RESTResource("/td/" + id, new ThingDescriptionHandler(id, instances));
-			return resource;
+			// TODO Location header must be a single URI. Other TDs?
+			return resources.get(0);
 
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new RESTException();
 		} finally {
-			dataset.end();
+			if (dataset.isInTransaction()) {
+				dataset.end();
+			}
 		}
 	}
 	
@@ -276,6 +298,25 @@ public class ThingDescriptionCollectionHandler extends RESTHandler {
 		// TODO better way?
 		String id = UUID.randomUUID().toString();
 		return id.substring(0, id.indexOf('-'));
+	}
+	
+	private static Model extractTD(Resource root) {
+		Model td = ModelFactory.createDefaultModel();
+		  
+		StmtIterator it = root.listProperties();
+		while (it.hasNext()) {
+			Statement st = it.next();
+			td.add(st);
+			if (!st.getPredicate().equals(RDF.type) && st.getObject().isResource()) {
+				Resource node = st.getObject().asResource();
+				if (!node.hasProperty(RDF.type, TD.Thing)) {
+					// FIXME cycle detection (if interaction patterns reference each other)
+					td.add(extractTD(node));
+				}
+			}
+		}
+		  
+		return td;
 	}
 
 }
