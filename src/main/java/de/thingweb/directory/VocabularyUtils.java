@@ -48,7 +48,10 @@ public class VocabularyUtils {
 
 	public static boolean containsVocabulary(String uri) {
 		Dataset dataset = ThingDirectory.get().dataset;
-		dataset.begin(ReadWrite.READ);
+		boolean isOpen = dataset.isInTransaction();
+		if (!isOpen) {
+			dataset.begin(ReadWrite.READ);
+		}
 
 		try {
 			String q = "ASK { GRAPH ?g { <%s> a <http://www.w3.org/2002/07/owl#Ontology> } }";
@@ -57,7 +60,9 @@ public class VocabularyUtils {
 		} catch (Exception e) {
 			throw e;
 		} finally {
-			dataset.end();
+			if (!isOpen) {
+				dataset.end();
+			}
 		}
 	}
 

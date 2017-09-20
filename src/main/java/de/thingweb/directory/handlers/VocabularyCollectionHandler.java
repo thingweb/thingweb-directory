@@ -31,6 +31,8 @@ import org.apache.jena.rdf.model.Property;
 import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.ResourceFactory;
+import org.apache.jena.riot.Lang;
+import org.apache.jena.riot.RDFLanguages;
 import org.apache.jena.util.iterator.ExtendedIterator;
 import org.apache.jena.vocabulary.DC;
 import org.apache.jena.vocabulary.DCTerms;
@@ -105,13 +107,25 @@ public class VocabularyCollectionHandler extends RESTHandler {
 		dataset.begin(ReadWrite.WRITE);
 		try {
 			String rootId = null;
+
+			String format = "Turtle";
+			if (parameters.containsKey(RESTHandler.PARAMETER_CONTENT_TYPE)) {
+				String mediaType = parameters.get(RESTHandler.PARAMETER_CONTENT_TYPE);
+				Lang l = RDFLanguages.contentTypeToLang(mediaType);
+				if (l != null) {
+					format = l.getName();
+				} else {
+					// TODO guess RDF specific type from generic media type (CoAP)
+					ThingDirectory.LOG.debug("No RDF format for media type: " + mediaType + ". Assuming Turtle.");
+				}
+			}
 			
 			OntModel ontology = ModelFactory.createOntologyModel();
 			if (data == null) {
-				ontology.read(ontologyUri.toString(), "Turtle");
+				ontology.read(ontologyUri.toString(), format);
 			} else {
 				ontologyUri = "http://example.org/"; // TODO
-				ontology.read(new ByteArrayInputStream(data.getBytes("UTF-8")), ontologyUri, "Turtle");
+				ontology.read(new ByteArrayInputStream(data.getBytes("UTF-8")), ontologyUri, format);
 			}
 
 			Model tdb = dataset.getDefaultModel();
@@ -123,30 +137,34 @@ public class VocabularyCollectionHandler extends RESTHandler {
 			while (it.hasNext()) {
 				Ontology o = it.next();
 				
-				String prefix = ontology.getNsURIPrefix(o.getURI());
-				// if no prefix found, generates id
-				String id = (prefix != null && !prefix.isEmpty()) ? prefix : generateID();
-				URI resourceUri = URI.create(normalize(uri) + "/" + id);
-				
-				OntModel axioms;
-				if (isRootOntology(o.getURI(), ontology)) {
-					rootId = id;
-					axioms = ontology;
+				if (VocabularyUtils.containsVocabulary(o.getURI())) {
+					ThingDirectory.LOG.info("Skipped ontology (already registered): " + o.getURI());
+					// do nothing
 				} else {
-					axioms = ontology.getImportedModel(o.getURI());
+					String prefix = ontology.getNsURIPrefix(o.getURI());
+					// if no prefix found, generates id
+					String id = (prefix != null && !prefix.isEmpty()) ? prefix : generateID();
+					URI resourceUri = URI.create(normalize(uri) + "/" + id);
+					
+					OntModel axioms;
+					if (isRootOntology(o.getURI(), ontology)) {
+						rootId = id;
+						axioms = ontology;
+					} else {
+						axioms = ontology.getImportedModel(o.getURI());
+					}
+					
+					dataset.addNamedModel(resourceUri.toString(), axioms);
+
+					Date currentDate = new Date(System.currentTimeMillis());
+					DateFormat f = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+					tdb.getResource(resourceUri.toString()).addProperty(DCTerms.source, ontologyUri);
+					tdb.getResource(resourceUri.toString()).addProperty(DCTerms.created, f.format(currentDate));
+
+					addToAll("/vocab/" + id, new VocabularyHandler(id, instances));
+
+					ThingDirectory.LOG.info(String.format("Registered RDFS/OWL vocabulary %s (id: %s)", o.getURI(), id));
 				}
-				
-				// TODO Check if the vocab isn't already registered in the dataset
-				dataset.addNamedModel(resourceUri.toString(), axioms);
-				
-				Date currentDate = new Date(System.currentTimeMillis());
-				DateFormat f = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-				tdb.getResource(resourceUri.toString()).addProperty(DCTerms.source, ontologyUri);
-				tdb.getResource(resourceUri.toString()).addProperty(DCTerms.created, f.format(currentDate));
-
-				addToAll("/vocab/" + id, new VocabularyHandler(id, instances));
-
-				ThingDirectory.LOG.info(String.format("Registered RDFS/OWL vocabulary %s (id: %s)", o.getURI(), id));
 			}
 			
 			dataset.commit();

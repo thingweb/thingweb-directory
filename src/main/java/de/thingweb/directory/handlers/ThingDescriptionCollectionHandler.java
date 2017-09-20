@@ -1,6 +1,7 @@
 package de.thingweb.directory.handlers;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
@@ -20,11 +21,13 @@ import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.reasoner.ReasonerRegistry;
+import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFLanguages;
 import org.apache.jena.riot.RIOT;
 import org.apache.jena.vocabulary.DC;
 import org.apache.jena.vocabulary.DCTerms;
 import org.apache.jena.vocabulary.RDFS;
+import org.eclipse.californium.core.coap.MediaTypeRegistry;
 
 import de.thingweb.directory.ThingDirectory;
 import de.thingweb.directory.ThingDescription;
@@ -52,7 +55,7 @@ public class ThingDescriptionCollectionHandler extends RESTHandler {
 	public RESTResource get(URI uri, Map<String, String> parameters) throws RESTException {
 	  
 		RESTResource resource = new RESTResource(name(uri), this);
-		resource.contentType = "application/ld+json";
+		resource.contentType = "application/json";
 		resource.content = "{";
 		
 		List<String> tds = new ArrayList<String>();
@@ -181,11 +184,25 @@ public class ThingDescriptionCollectionHandler extends RESTHandler {
 			String format = "JSON-LD";
 			if (parameters.containsKey(RESTHandler.PARAMETER_CONTENT_TYPE)) {
 				String mediaType = parameters.get(RESTHandler.PARAMETER_CONTENT_TYPE);
-				format = RDFLanguages.contentTypeToLang(mediaType).getName();
+				Lang l = RDFLanguages.contentTypeToLang(mediaType);
+				if (l != null) {
+					format = l.getName();
+				} else {
+					// TODO guess RDF specific type from generic media type (CoAP)
+					ThingDirectory.LOG.debug("No RDF format for media type: " + mediaType + ". Assuming JSON-LD.");
+				}
 			}
 			
 			Model graph = ModelFactory.createDefaultModel();
 			graph.read(new ByteArrayInputStream(data.getBytes()), endpointName, format);
+			
+			if (!format.equals("JSON-LD")) {
+				// data source should be encoded in JSON-LD
+				ByteArrayOutputStream out = new ByteArrayOutputStream();
+				graph.write(out, "JSON-LD");
+				data = out.toString("UTF-8");
+			}
+			
 			InfModel inf = ModelFactory.createInfModel(ReasonerRegistry.getOWLMicroReasoner(), schema, graph);
 			// TODO check TD validity
 			

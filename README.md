@@ -205,10 +205,12 @@ See `src/main/resources/api.json` for a formal specification of the Thing Direct
    - delete RDF store after tests terminate
    - vocabulary management
  - decouple directory from TDB (SPARQL only)
+   - issues with TDB transactions?
  - clean ThingDescriptionUtils
  - clean response codes throughout the API
    - trailing / -> 404...
    - vocab not found -> 500...
+ - repair text search
  - proper configuration of log4j and java.util.logging
    - add consistent logging throughout the application
  - stack trace in logs if 500 returned
