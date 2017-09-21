@@ -80,14 +80,41 @@ public class ThingDescriptionUtils {
 	
 	return w.toString();
   }
+  
+	public static String getThingDescriptionId(Resource root) {
+		Dataset dataset = ThingDirectory.get().dataset;
+		boolean isOpen = dataset.isInTransaction();
+		if (!isOpen) {
+			dataset.begin(ReadWrite.READ);
+		}
+
+		try {
+			String q = String.format("SELECT ?id WHERE { GRAPH ?id { <%s> ?p ?o }}", root);
+			QueryExecution qexec = QueryExecutionFactory.create(q, dataset);
+			ResultSet result = qexec.execSelect();
+			if (result.hasNext()) {
+				String uri = result.next().get("id").toString();
+				return uri.substring(uri.lastIndexOf("/") + 1);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		} finally {
+			if (!isOpen) {
+				dataset.end();
+			}
+		}
+
+		return null;
+	}
 
   /**
    * Returns the ID of a thing description stored in the database given its URI.
    * @param uri URI of the thing description we want to return.
    * @return the ID of the thing description.
+   * @deprecated
    */
   public static String getThingDescriptionIdFromUri(String uri) {
-	
 	String query = "?td <http://iot.linkeddata.es/def/wot#baseURI> <" + uri + ">";
 	String id = "NOT FOUND";
 	  
@@ -114,6 +141,7 @@ public class ThingDescriptionUtils {
   /**
    * Returns a list of the thing descriptions URIs.
    * @return a list of URIs stored in the database.
+   * @deprecated
    */
   public static List<String> listThingDescriptionsUri() {
 	
@@ -139,47 +167,6 @@ public class ThingDescriptionUtils {
 	}
 	
 	return tds;
-  }
-  
-  /**
-   * Returns true if td's uris are already registered
-   * in the database, false otherwise.
-   * Unless td is in the dataset with tdId.
-   * 
-   * @return true or false.
-   */
-  public static boolean hasInvalidURI(String td, String tdId) {
-	  
-	  String uris_re = "(\"uris\")[ ]*:[ ]*[-a-zA-Z0-9+&@#/%? \"=~_|!:,.;\\[\\]]*,";
-	  String url_re = "(coap?|http)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]";
-	  
-	  // Extract list of uris
-	  Matcher m = Pattern.compile(uris_re).matcher(td);
-	  String uri_ar = "";
-	  while (m.find()) {
-		  uri_ar += m.group();
-	  }
-	  
-	  // Check each uri
-	  Matcher m2 = Pattern.compile(url_re).matcher(uri_ar);
-	  while (m2.find()) {
-		  String thing_uri = m2.group();
-		  String id = getThingDescriptionIdFromUri(thing_uri);
-		  if (!id.equalsIgnoreCase("NOT FOUND") && !id.equalsIgnoreCase(tdId)) {
-			  return true;
-		  }
-	  }
-
-	  return false;
-  }
-  
-  /**
-   * Returns true if td's uris are already registered
-   * in the database, false otherwise.
-   * @return true or false.
-   */
-  public static boolean hasInvalidURI(String td) {
-	  return hasInvalidURI(td, "NOT FOUND");
   }
 
   

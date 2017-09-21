@@ -157,12 +157,6 @@ public class ThingDescriptionCollectionHandler extends RESTHandler {
 			e1.printStackTrace();
 			throw new BadRequestException();
 		}
-
-		// Check if new TD has uris already registered in the dataset
-		// TODO update - should be performed on the RDF graph instead
-		if (ThingDescriptionUtils.hasInvalidURI(data)) {
-			throw new BadRequestException();
-		}
 		
 		// to register a resource following the standard
 		String endpointName = "http://example.org/"; // TODO
@@ -214,48 +208,55 @@ public class ThingDescriptionCollectionHandler extends RESTHandler {
 					throw new BadRequestException();
 			}
 			while (it.hasNext()) {
-				String id = generateID();
-				URI resourceUri = URI.create(normalize(uri) + "/" + id);
-				List<String> keyWords;
-
-				dataset.begin(ReadWrite.WRITE);
+				Resource root = it.next();
 				
-				Model tdModel = extractTD(it.next());
-				dataset.addNamedModel(resourceUri.toString(), tdModel);
-
-				Model tdb = dataset.getDefaultModel();
-				tdb.createResource(resourceUri.toString()).addProperty(DC.source, data);
-
-				// Get key words from statements
-				ThingDescriptionUtils utils = new ThingDescriptionUtils();
-				Model newThing = dataset.getNamedModel(resourceUri.toString());
-				keyWords = utils.getModelKeyWords(newThing);
-
-				// Store key words as triple: ?g_id rdfs:comment "keyWordOrWords"
-				tdb.getResource(resourceUri.toString()).addProperty(RDFS.comment, StrUtils.strjoin(" ", keyWords));
-
-				// Store END_POINT and LIFE_TIME as triples
-				String currentDate = utils.getCurrentDateTime(0);
-				String lifetimeDate = utils.getCurrentDateTime(Integer.parseInt(lifeTime));
-				tdb.getResource(resourceUri.toString()).addProperty(RDFS.isDefinedBy, endpointName);
-				tdb.getResource(resourceUri.toString()).addProperty(DCTerms.created, currentDate);
-				tdb.getResource(resourceUri.toString()).addProperty(DCTerms.modified, currentDate);
-				tdb.getResource(resourceUri.toString()).addProperty(DCTerms.dateAccepted, lifetimeDate);
-		  
-				addToAll("/td/" + id, new ThingDescriptionHandler(id, instances));
-				dataset.commit();
-
-				ThingDirectory.LOG.info(String.format("Inserted TD %s (%d triples)", id, graph.size()));
+				String id = ThingDescriptionUtils.getThingDescriptionId(root);
 				
-				// Add to priority queue
-				ThingDescription td = new ThingDescription(resourceUri.toString(), lifetimeDate);
-				ThingDirectory.get().tdQueue.add(td);
-				ThingDirectory.get().setTimer();
+				if (id != null) {
+					ThingDirectory.LOG.info("TD already registered: " + root);
+				} else {
+					id = generateID();
+					URI resourceUri = URI.create(normalize(uri) + "/" + id);
+					List<String> keyWords;
+
+					dataset.begin(ReadWrite.WRITE);
+					Model tdModel = extractTD(root);
+					dataset.addNamedModel(resourceUri.toString(), tdModel);
+
+					Model tdb = dataset.getDefaultModel();
+					tdb.createResource(resourceUri.toString()).addProperty(DC.source, data);
+
+					// Get key words from statements
+					ThingDescriptionUtils utils = new ThingDescriptionUtils();
+					Model newThing = dataset.getNamedModel(resourceUri.toString());
+					keyWords = utils.getModelKeyWords(newThing);
+
+					// Store key words as triple: ?g_id rdfs:comment "keyWordOrWords"
+					tdb.getResource(resourceUri.toString()).addProperty(RDFS.comment, StrUtils.strjoin(" ", keyWords));
+
+					// Store END_POINT and LIFE_TIME as triples
+					String currentDate = utils.getCurrentDateTime(0);
+					String lifetimeDate = utils.getCurrentDateTime(Integer.parseInt(lifeTime));
+					tdb.getResource(resourceUri.toString()).addProperty(RDFS.isDefinedBy, endpointName);
+					tdb.getResource(resourceUri.toString()).addProperty(DCTerms.created, currentDate);
+					tdb.getResource(resourceUri.toString()).addProperty(DCTerms.modified, currentDate);
+					tdb.getResource(resourceUri.toString()).addProperty(DCTerms.dateAccepted, lifetimeDate);
+			  
+					addToAll("/td/" + id, new ThingDescriptionHandler(id, instances));
+					dataset.commit();
+
+					ThingDirectory.LOG.info(String.format("Registered TD: %s (%d triples)", id, graph.size()));
+					
+					// Add to priority queue
+					ThingDescription td = new ThingDescription(resourceUri.toString(), lifetimeDate);
+					ThingDirectory.get().tdQueue.add(td);
+					ThingDirectory.get().setTimer();
+					
+					dataset.end();
+				}
 				
 				RESTResource resource = new RESTResource("/td/" + id, new ThingDescriptionHandler(id, instances));
 				resources.add(resource);
-				
-				dataset.end();
 			}
 			
 			// TODO Location header must be a single URI. Other TDs?

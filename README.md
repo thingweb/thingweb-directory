@@ -192,21 +192,21 @@ See `src/main/resources/api.json` for a formal specification of the Thing Direct
 
 ## TODOs
 
- - content negotiation
+ - content negotiation (PUT/GET /td/{id})
+ - add PATCH to /td/{id}
  - clean resources
    - samples?
    - register default vocabularies (WoT, SAREF, BA, QUDT...)
  - reject vocabulary if no alignment with WoT (LOV approach?)
- - full-fledged SPARQL endpoint? SPARQL query in the body?
    - add parameter to filter vocabularies in the KB at insertion time
- - add PATCH to /td/{id}
+ - full-fledged SPARQL endpoint? SPARQL query in the body?
  - update tests
    - new TD form
    - delete RDF store after tests terminate
    - vocabulary management
  - decouple directory from TDB (SPARQL only)
    - issues with TDB transactions?
- - clean ThingDescriptionUtils
+ - clean ThingDescriptionUtils (streamToString, static/not static)
  - clean response codes throughout the API
    - trailing / -> 404...
    - vocab not found -> 500...

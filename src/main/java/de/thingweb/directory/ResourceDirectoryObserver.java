@@ -33,6 +33,9 @@ import org.eclipse.californium.core.CoapResponse;
  *deleted from the database. A deregistered thing is identified because its
  *URI would not be found in the ResourceDirectory response.
  *
+ * @deprecated not maintained anymore.
+ * TODO update this class?
+ *
  */
 public class ResourceDirectoryObserver {
 private String rd_uri;

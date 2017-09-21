@@ -53,6 +53,7 @@
 		"unit": "saref:isMeasuredIn",
 		"celsius": "http://www.wurvoc.org/vocabularies/om-1.8/degree_Celsius"
 	},
+	"@id": "urn:Fan",
 	"@type": ["Thing", "Sensor"],
 	"name": "Fan",
 	"base": "coap:///www.example.com:5686/Fan",

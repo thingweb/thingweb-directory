@@ -166,7 +166,7 @@ public class ThingDirectoryTest {
 		//Assert.assertEquals("Found more than one TD", 1, tdIds.size());
 		Assert.assertTrue("TD fan not found", tdIds.contains(tdId));
 		
-		/*
+		/* TODO update
 		// GET by text query
 		parameters.clear();
 		parameters.put("text", "\"name AND fan\"");
@@ -230,6 +230,21 @@ public class ThingDirectoryTest {
 		Assert.assertEquals("TD fan and TD temperatureSensor not registered as expected", 2, uris.size());
 		
 		// note: it is unknown whether resource path is fan TD's or Sensor TD's
+	}
+	
+	@Test
+	public void testDuplicateDetection() throws Exception {		
+		Map<String,String> parameters = new HashMap<String,String>();
+		parameters.put("ep", baseUri);
+		
+		// POST TD fan
+		InputStream in = ThingDirectory.get().getClass().getClassLoader().getResourceAsStream("samples/fanTD.jsonld");
+		String buf = ThingDescriptionUtils.streamToString(in);
+
+		RESTResource id1 = tdch.post(new URI(baseUri + "/td"), parameters, new ByteArrayInputStream(buf.getBytes()));
+		RESTResource id2 = tdch.post(new URI(baseUri + "/td"), parameters, new ByteArrayInputStream(buf.getBytes()));
+		
+		Assert.assertTrue("TD duplicates not detected", id1.name.equals(id2.name));
 	}
 	
 	@Test

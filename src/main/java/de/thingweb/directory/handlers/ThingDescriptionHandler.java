@@ -15,8 +15,10 @@ import org.apache.jena.query.ReadWrite;
 import org.apache.jena.query.ResultSet;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
+import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.vocabulary.DC;
 import org.apache.jena.vocabulary.DCTerms;
+import org.apache.jena.vocabulary.RDF;
 import org.apache.jena.vocabulary.RDFS;
 
 import de.thingweb.directory.ThingDirectory;
@@ -28,6 +30,7 @@ import de.thingweb.directory.rest.RESTException;
 import de.thingweb.directory.rest.RESTHandler;
 import de.thingweb.directory.rest.RESTResource;
 import de.thingweb.directory.rest.RESTServerInstance;
+import de.thingweb.repository.rdf.TD;
 
 public class ThingDescriptionHandler extends RESTHandler {
 
@@ -74,11 +77,6 @@ public class ThingDescriptionHandler extends RESTHandler {
 			throw new BadRequestException();
 		}
 		
-		// Check if new TD has uris already registered in the dataset
-		if (ThingDescriptionUtils.hasInvalidURI(data, uri.toString())) {
-			throw new BadRequestException();
-		}
-		
 		Dataset dataset = ThingDirectory.get().dataset;
 		dataset.begin(ReadWrite.WRITE);
 		
@@ -108,6 +106,12 @@ public class ThingDescriptionHandler extends RESTHandler {
 				
 				// TODO find a way to know the base IRI in the document...
 				td.read(new ByteArrayInputStream(data.getBytes()), endpointName, "JSON-LD");
+
+				// Check if new TD has uris already registered in the dataset
+				Resource id = td.listResourcesWithProperty(RDF.type, TD.Thing).next();
+				if (id == null || ThingDescriptionUtils.getThingDescriptionId(id) != null) {
+					throw new BadRequestException();
+				}
 		  
 				if (td.isEmpty()) {
 					throw new BadRequestException();
