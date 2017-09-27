@@ -1,4 +1,4 @@
-package de.thingweb.directory.sparql;
+package de.thingweb.directory.sparql.server;
 
 import org.apache.jena.sparql.function.FunctionRegistry;
 

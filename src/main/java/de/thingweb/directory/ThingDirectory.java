@@ -23,11 +23,17 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.commons.logging.Log;
 import org.apache.jena.query.Dataset;
+import org.apache.jena.query.DatasetFactory;
+import org.apache.jena.query.ReadWrite;
 import org.apache.jena.query.text.EntityDefinition;
 import org.apache.jena.query.text.TextDatasetFactory;
+import org.apache.jena.rdf.model.Model;
+import org.apache.jena.rdfconnection.RDFConnection;
+import org.apache.jena.rdfconnection.RDFConnectionFactory;
 import org.apache.jena.sparql.function.FunctionRegistry;
 import org.apache.jena.tdb.TDB;
 import org.apache.jena.tdb.TDBFactory;
+import org.apache.jena.tdb.base.file.Location;
 import org.apache.jena.vocabulary.RDFS;
 import org.apache.log4j.Logger;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
@@ -38,26 +44,17 @@ import org.apache.lucene.util.Version;
 import org.eclipse.californium.core.CaliforniumLogger;
 
 import de.thingweb.directory.coap.CoAPServer;
-import de.thingweb.directory.handlers.OpenAPISpecHandler;
-import de.thingweb.directory.handlers.TDLookUpEPHandler;
-import de.thingweb.directory.handlers.TDLookUpHandler;
-import de.thingweb.directory.handlers.TDLookUpSEMHandler;
-import de.thingweb.directory.handlers.ThingDescriptionCollectionHandler;
-import de.thingweb.directory.handlers.ThingDescriptionHandler;
-import de.thingweb.directory.handlers.VocabularyCollectionHandler;
-import de.thingweb.directory.handlers.VocabularyHandler;
-import de.thingweb.directory.handlers.WelcomePageHandler;
 import de.thingweb.directory.http.HTTPServer;
 import de.thingweb.directory.rest.RESTException;
 import de.thingweb.directory.rest.RESTHandler;
 import de.thingweb.directory.rest.RESTServerInstance;
-import de.thingweb.directory.sparql.Functions;
+import de.thingweb.directory.sparql.server.Functions;
 
 public class ThingDirectory {
 	
 	public static final Logger LOG = Logger.getRootLogger();
-
-    // TODO make it private
+    
+	// TODO make it private
     public Dataset dataset;
     public String baseURI;
     public static List<RESTServerInstance> servers;
@@ -71,6 +68,10 @@ public class ThingDirectory {
             singleton = new ThingDirectory();
         }
         return singleton;
+    }
+    
+    private ThingDirectory() {
+    	// default constructor
     }
     
     public void init(String db, String uri, String lucene) {
@@ -94,7 +95,11 @@ public class ThingDirectory {
         baseURI = uri;
         servers = new ArrayList<>();
         tdQueue = new PriorityQueue<ThingDescription>();
-        loadTDQueue();
+//        loadTDQueue();
+    }
+    
+    public RDFConnection getStoreConnection() {
+    	return RDFConnectionFactory.connect(dataset);
     }
     
     private void terminate() {

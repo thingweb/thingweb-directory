@@ -52,7 +52,7 @@ dependencies {
 	compile "de.thingweb:thingweb-parser:v0.2.0+"
 	
 	compile 'org.eclipse.californium:californium-core:1.0.0-M3'
-	compile 'org.apache.jena:apache-jena-libs:3.0.0'
+	compile 'org.apache.jena:apache-jena-libs:3.4.0'
 	compile 'org.eclipse.jetty:jetty-maven-plugin:9.3.6.v20151106'
 	compile group: 'org.eclipse.jetty', name: 'jetty-servlets', version: '9.3.6.v20151106'
 
