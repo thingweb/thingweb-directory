@@ -12,53 +12,61 @@ import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.servlet.ServletMapping;
 import org.eclipse.jetty.servlets.CrossOriginFilter;
 
-import de.thingweb.directory.rest.RESTHandler;
+import de.thingweb.directory.rest.IndexResource;
+import de.thingweb.directory.rest.RESTResource;
 import de.thingweb.directory.rest.RESTServerInstance;
 
 public class HTTPServer implements RESTServerInstance {
 
+	protected IndexResource root;
   protected Server server;
   protected ServletHandler handler;
   
-  public HTTPServer(int port, RESTHandler root)
+  public HTTPServer(int port)
   {
     server = new Server(port);
     handler = new ServletHandler();
     server.setHandler(handler);
-    add("", root);
     
     configureCORS();
   }
   
   @Override
-  public void add(String path, RESTHandler restHandler) {
-    ServletHolder holder = new ServletHolder(new HTTPRESTResource(restHandler));
-    handler.addServletWithMapping(holder, path);
-  }
+	public void onCreate(RESTResource resource) {
+	    ServletHolder holder = new ServletHolder(new HTTPResourceContainer(resource));
+	    handler.addServletWithMapping(holder, resource.getPath());
+	    
+	    resource.addListener(this);
+	}
   
   @Override
-  public void delete(String path)
-  {
-    ServletMapping mapping = handler.getServletMapping(path);
-    ServletMapping[] mappings = new ServletMapping [handler.getServletMappings().length - 1];
-    ServletHolder[] servlets = new ServletHolder [handler.getServlets().length - 1];
-    int mLength = 0, sLength = 0;
-    
-    for (ServletMapping m : handler.getServletMappings()) {
-      if (!m.equals(mapping)) {
-        mappings[mLength++] = m;
-      }
-    }
-    
-    for (ServletHolder s : handler.getServlets()) {
-      if (!s.equals(handler.getServlet(mapping.getServletName()))) {
-        servlets[sLength++] = s;
-      }
-    }
-    
-    handler.setServletMappings(mappings);
-    handler.setServlets(servlets);
-  }
+	public void onDelete(RESTResource resource) {
+	    ServletMapping mapping = handler.getServletMapping(resource.getPath());
+	    ServletMapping[] mappings = new ServletMapping [handler.getServletMappings().length - 1];
+	    ServletHolder[] servlets = new ServletHolder [handler.getServlets().length - 1];
+	    int mLength = 0, sLength = 0;
+	    
+	    for (ServletMapping m : handler.getServletMappings()) {
+	      if (!m.equals(mapping)) {
+	        mappings[mLength++] = m;
+	      }
+	    }
+	    
+	    for (ServletHolder s : handler.getServlets()) {
+	      if (!s.equals(handler.getServlet(mapping.getServletName()))) {
+	        servlets[sLength++] = s;
+	      }
+	    }
+	    
+	    handler.setServletMappings(mappings);
+	    handler.setServlets(servlets);
+	}
+  
+  @Override
+	public void setIndex(IndexResource index) {
+		root = index;
+		onCreate(index);
+	}
   
   @Override
   public void start()

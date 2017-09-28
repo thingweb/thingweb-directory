@@ -17,6 +17,7 @@ import java.util.Map;
 
 
 
+
 import org.apache.jena.datatypes.RDFDatatype;
 import org.apache.jena.datatypes.xsd.XSDDateTime;
 import org.apache.jena.datatypes.xsd.impl.XSDDateTimeType;
@@ -47,6 +48,7 @@ import org.joda.time.DateTime;
 
 
 
+
 import de.thingweb.directory.ThingDescriptionUtils;
 import de.thingweb.directory.ThingDirectory;
 import de.thingweb.directory.rest.BadRequestException;
@@ -54,6 +56,7 @@ import de.thingweb.directory.rest.NotFoundException;
 import de.thingweb.directory.rest.RESTException;
 import de.thingweb.directory.rest.RESTResource;
 import de.thingweb.directory.rest.RESTResourceFactory;
+import de.thingweb.directory.rest.RESTResourceListener;
 import de.thingweb.directory.sparql.client.Queries;
 
 /**
@@ -99,7 +102,7 @@ public class DirectoryResource extends RESTResource {
 			lt = Integer.parseInt(parameters.get(PARAMETER_LIFETIME));
 		}
 		
-		uri = ThingDirectory.get().baseURI + path;
+		uri = ThingDirectory.get().getBaseURI() + path;
 		lifetime = lt;
 		
 		updateTimeout(uri, true);
@@ -123,9 +126,11 @@ public class DirectoryResource extends RESTResource {
 	
 	@Override
 	public void delete(Map<String, String> parameters) throws RESTException {
-		// TODO remove from servers
-		
 		// TODO delete triples in RDF store?
+		
+		for (RESTResourceListener l : listeners) {
+			l.onDelete(this);
+		}
 	}
 	
 	private boolean hasExpired(String uri) {

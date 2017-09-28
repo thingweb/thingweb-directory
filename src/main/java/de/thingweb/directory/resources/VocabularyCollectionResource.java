@@ -30,6 +30,8 @@ public class VocabularyCollectionResource extends CollectionResource {
 
 	public VocabularyCollectionResource(String path) {
 		super(path, RDFDocument.factory());
+		
+		// TODO create child resources for all graphs already in the RDF store.
 	}
 	
 	@Override
@@ -38,6 +40,11 @@ public class VocabularyCollectionResource extends CollectionResource {
 		OntModel vocab = ModelFactory.createOntologyModel(OntModelSpec.OWL_DL_MEM, base);
 
 		RESTResource root = null;
+		
+		if (parameters.containsKey(RESTResource.PARAMETER_CONTENT_TYPE)) {
+			// forces default RDF format
+			parameters.remove(RESTResource.PARAMETER_CONTENT_TYPE);
+		}
 
 		ExtendedIterator<Ontology> it = vocab.listOntologies();
 		while (it.hasNext()) {
@@ -51,10 +58,6 @@ public class VocabularyCollectionResource extends CollectionResource {
 			axioms.write(out, RDFDocument.DEFAULT_FORMAT);
 			ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
 
-			if (parameters.containsKey(RESTResource.PARAMETER_CONTENT_TYPE)) {
-				// forces default RDF format
-				parameters.remove(RESTResource.PARAMETER_CONTENT_TYPE);
-			}
 			RESTResource res = super.post(parameters, in);
 			
 			if (isRootOntology(o.getURI(), vocab)) {

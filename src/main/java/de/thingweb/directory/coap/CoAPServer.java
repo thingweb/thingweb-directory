@@ -7,76 +7,57 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.eclipse.californium.core.CoapResource;
 import org.eclipse.californium.core.CoapServer;
+import org.eclipse.californium.core.server.resources.CoapExchange;
 import org.eclipse.californium.core.server.resources.Resource;
 
-import de.thingweb.directory.handlers.WelcomePageHandler;
-import de.thingweb.directory.rest.RESTHandler;
+import de.thingweb.directory.rest.IndexResource;
+import de.thingweb.directory.rest.RESTResource;
 import de.thingweb.directory.rest.RESTServerInstance;
 
 public class CoAPServer implements RESTServerInstance {
 
-  protected CoapServer server;
-  protected Thread t;
-  
-  public CoAPServer(int port, RESTHandler root)
+	protected IndexResource root;
+	protected CoapServer server;
+	protected Thread t;
+	
+	private int port;
+
+  public CoAPServer(int port)
   {
-    server = new CoapServer(port) {
-      @Override
-      protected Resource createRoot()
-      {
-        return new CoAPRESTResource(root);
-      }
-    };
-  }
-  
-  public void init(Map<String, RESTHandler> resources)
-  {
-    Map<String, String> tree = new HashMap<>(); // map of parent relations
-    Map<String, Resource> map = new HashMap<>();
-    
-    // create the resource tree based on path
-    for (String path : resources.keySet()) {
-      map.put(path, new CoAPRESTResource(resources.get(path)));
-      String lowest = null;
-      String highest = null;
-      for (String p : tree.keySet()) {
-        if (path.contains(p) && (lowest == null || p.contains(lowest))) {
-          lowest = p;
-        }
-        if (p.contains(path) && (highest == null || highest.contains(p))) {
-          highest = p;
-        }
-      }
-      tree.put(path, lowest);
-      if (highest != null) {
-        tree.put(highest, path);
-      }
-    }
-    
-    // add resources to their parent in the resource tree
-    for (String path : resources.keySet()) {
-      if (tree.get(path) == null) {
-        server.add(map.get(path));
-      } else {
-        map.get(tree.get(path)).add(map.get(path));
-      }
-    }
+	  this.port = port;
   }
   
   @Override
-  public void add(String path, RESTHandler handler) {
-    // TODO currently assumes resources are added after their parents
-    addRec(path, new CoAPRESTResource(handler), server.getRoot());
-  }
+	public void onCreate(RESTResource resource) {
+	    // TODO currently assumes resources are added after their parents
+	    addRec(resource.getPath(), new CoAPResourceContainer(resource), server.getRoot());
+	    
+	    resource.addListener(this);
+	}
   
   @Override
-  public void delete(String path) {
-    deleteRec(path, server.getRoot());
-  }
+	public void onDelete(RESTResource resource) {
+	    deleteRec(resource.getPath(), server.getRoot());
+	}
+  
+	@Override
+	public void setIndex(IndexResource index) {
+		root = index;
+		server = new CoapServer(port) {
+			@Override
+			protected Resource createRoot() {
+				return new CoAPResourceContainer(root);
+			}
+		};
+		index.addListener(this);
+	}
   
   @Override
   public void start() {
+	  
+	  	// TODO server can only be started after setIndex() is called
     t = new Thread(new Runnable()
     {
       @Override

@@ -14,27 +14,25 @@ import javax.servlet.http.HttpServletResponse;
 import de.thingweb.directory.ThingDirectory;
 import de.thingweb.directory.rest.BadRequestException;
 import de.thingweb.directory.rest.RESTException;
-import de.thingweb.directory.rest.RESTHandler;
 import de.thingweb.directory.rest.RESTResource;
 
-public class HTTPRESTResource extends HttpServlet {
+public class HTTPResourceContainer extends HttpServlet {
 
   private static final long serialVersionUID = 8480825672944956465L;
   
-  protected RESTHandler handler;
+  private RESTResource resource;
   
-  public HTTPRESTResource(RESTHandler handler) {
+  public HTTPResourceContainer(RESTResource resource) {
     super();
-    this.handler = handler;
+    this.resource = resource;
   }
 
   @Override
   protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException
   {
     try {
-      RESTResource res = handler.get(uri(req.getRequestURI()), params(req));
-      resp.setContentType(res.contentType);
-      resp.getWriter().write(res.content);
+      resource.get(params(req), resp.getOutputStream());
+    resp.setContentType(resource.getContentType());
     } catch (BadRequestException e) {
       resp.sendError(400);
     } catch (RESTException e) {
@@ -46,9 +44,9 @@ public class HTTPRESTResource extends HttpServlet {
   protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException
   {
     try {
-      RESTResource res = handler.post(uri(req.getRequestURI()), params(req), req.getInputStream());
+      RESTResource child = resource.post(params(req), req.getInputStream());
       resp.setStatus(201);
-      resp.setHeader("Location", res.path);
+      resp.setHeader("Location", child.getPath());
     } catch (BadRequestException e) {
       resp.sendError(400);
     } catch (RESTException e) {
@@ -60,7 +58,7 @@ public class HTTPRESTResource extends HttpServlet {
   protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException
   {
     try {
-      handler.put(uri(req.getRequestURI()), params(req), req.getInputStream());
+        resource.put(params(req), req.getInputStream());
     } catch (BadRequestException e) {
       resp.sendError(400);
     } catch (RESTException e) {
@@ -72,7 +70,7 @@ public class HTTPRESTResource extends HttpServlet {
   protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException
   {
     try {
-      handler.delete(uri(req.getRequestURI()), params(req), req.getInputStream());
+        resource.delete(params(req));
     } catch (BadRequestException e) {
       resp.sendError(400);
     } catch (RESTException e) {
@@ -80,17 +78,17 @@ public class HTTPRESTResource extends HttpServlet {
     }
   }
   
-  protected Map<String, String> params(HttpServletRequest req) {
+  private Map<String, String> params(HttpServletRequest req) {
 	  Map<String, String> p = new HashMap<>();
 	  
 	  // content negotiation headers
 	  String accept = req.getHeader("Accept");
 	  if (accept != null && !accept.isEmpty()) {
-		  p.put(RESTHandler.PARAMETER_ACCEPT, req.getHeader("Accept"));
+		  p.put(RESTResource.PARAMETER_ACCEPT, req.getHeader("Accept"));
 	  }
 	  String ct = req.getHeader("Content-Type");
 	  if (ct != null && !ct.isEmpty()) {
-		  p.put(RESTHandler.PARAMETER_CONTENT_TYPE, req.getHeader("Content-Type"));
+		  p.put(RESTResource.PARAMETER_CONTENT_TYPE, req.getHeader("Content-Type"));
 	  }
 
 	  // query parameters
@@ -106,8 +104,8 @@ public class HTTPRESTResource extends HttpServlet {
 	  return p;
   }
   
-  protected URI uri(String path) {
-    return URI.create(ThingDirectory.get().baseURI + path);
+  private URI uri(String path) {
+    return URI.create(ThingDirectory.get().getBaseURI() + path);
   }
   
   

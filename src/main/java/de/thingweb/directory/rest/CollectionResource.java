@@ -1,13 +1,10 @@
 package de.thingweb.directory.rest;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.URI;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -51,8 +48,26 @@ public class CollectionResource extends RESTResource {
 	@Override
 	public RESTResource post(Map<String, String> parameters, InputStream payload) throws RESTException {
 		RESTResource child = factory.create(path + "/" + generateChildID(), parameters, payload);
+		
 		children.add(child);
+		for (RESTResourceListener l : listeners) {
+			l.onCreate(child);
+		}
+		
 		return child;
+	}
+	
+	@Override
+	public void addListener(RESTResourceListener listener) {
+		super.addListener(listener);
+		
+		for (RESTResource child : children) {
+			listener.onCreate(child);
+		}
+	}
+	
+	public Set<RESTResource> getChildren() {
+		return children;
 	}
 	
 	protected String generateChildID() {

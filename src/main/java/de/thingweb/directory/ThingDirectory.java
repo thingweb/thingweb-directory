@@ -1,65 +1,31 @@
 package de.thingweb.directory;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URI;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
-import java.util.PriorityQueue;
 import java.util.Set;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.Map.Entry;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
-import org.apache.commons.logging.Log;
-import org.apache.jena.query.Dataset;
-import org.apache.jena.query.DatasetFactory;
-import org.apache.jena.query.ReadWrite;
-import org.apache.jena.query.text.EntityDefinition;
-import org.apache.jena.query.text.TextDatasetFactory;
-import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdfconnection.RDFConnection;
-import org.apache.jena.rdfconnection.RDFConnectionFactory;
-import org.apache.jena.sparql.function.FunctionRegistry;
-import org.apache.jena.tdb.TDB;
-import org.apache.jena.tdb.TDBFactory;
-import org.apache.jena.tdb.base.file.Location;
-import org.apache.jena.vocabulary.RDFS;
 import org.apache.log4j.Logger;
-import org.apache.lucene.analysis.standard.StandardAnalyzer;
-import org.apache.lucene.queryparser.flexible.standard.parser.ParseException;
-import org.apache.lucene.store.Directory;
-import org.apache.lucene.store.FSDirectory;
-import org.apache.lucene.util.Version;
-import org.eclipse.californium.core.CaliforniumLogger;
 
 import de.thingweb.directory.coap.CoAPServer;
 import de.thingweb.directory.http.HTTPServer;
-import de.thingweb.directory.rest.RESTException;
-import de.thingweb.directory.rest.RESTHandler;
+import de.thingweb.directory.resources.WelcomePageResource;
 import de.thingweb.directory.rest.RESTServerInstance;
+import de.thingweb.directory.sparql.client.Connector;
 import de.thingweb.directory.sparql.server.Functions;
 
 public class ThingDirectory {
 	
 	public static final Logger LOG = Logger.getRootLogger();
     
-	// TODO make it private
-    public Dataset dataset;
-    public String baseURI;
-    public static List<RESTServerInstance> servers;
-    public PriorityQueue<ThingDescription> tdQueue;
-    public Timer timer;
+	// TODO get HTTP URI?
+    private String baseURI = "http://localhost";
+
+    private Set<RESTServerInstance> servers = new HashSet<>();
     
     private static ThingDirectory singleton;
     
@@ -71,124 +37,22 @@ public class ThingDirectory {
     }
     
     private ThingDirectory() {
-    	// default constructor
-    }
-    
-    public void init(String db, String uri, String lucene) {
-
-    	Dataset ds = TDBFactory.createDataset(db);
-        
-        // Lucene configuration
-        try {
-            Directory luceneDir = FSDirectory.open(new File(lucene));
-            EntityDefinition entDef = new EntityDefinition("comment", "text", RDFS.comment);
-            // Set uid in order to remove index entries automatically
-            entDef.setUidField("uid");
-            StandardAnalyzer stAn = new StandardAnalyzer(Version.LUCENE_4_9);
-            dataset = TextDatasetFactory.createLucene(ds, luceneDir, entDef, stAn);
-            
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        
-        baseURI = uri;
-        servers = new ArrayList<>();
-        tdQueue = new PriorityQueue<ThingDescription>();
-//        loadTDQueue();
+    	// constructor is private and should only be called once
     }
     
     public RDFConnection getStoreConnection() {
-    	return RDFConnectionFactory.connect(dataset);
+    	return Connector.getConnection();
+    }
+    
+    public String getBaseURI() {
+    	return baseURI;
     }
     
     private void terminate() {
-        dataset.close();
+        // TODO anything to do?
     }
-    
-    private static List<String> listThingDescriptions() {
-        List<String> tds = new ArrayList<>();
 
-        for (String uri : ThingDescriptionUtils.listThingDescriptions("?s ?p ?o")) {
-            tds.add(uri.substring(uri.lastIndexOf("/") + 1));
-        }
-
-        return tds;
-    }
-    
-    private static Set<String> listVocabularies() {
-        Set<String> vocabs = new HashSet<>();
-
-        for (String uri : VocabularyUtils.listVocabularies()) {
-            vocabs.add(uri.substring(uri.lastIndexOf("/") + 1));
-        }
-
-        return vocabs;
-    }
-    
-    private void loadTDQueue() {
-    	
-    	ThingDescription td;
-    	for (Entry<String, String> pair : ThingDescriptionUtils.listThingDescriptionsLifetime()) {
-    		td = new ThingDescription(pair.getKey(), pair.getValue());
-    		tdQueue.add(td);
-    	}
-    	setTimer();
-    }
-    
-    /**
-     * Updates the timer with the lifetime of the
-     * TD in the head of tdQueue.
-     * 
-     * @param newTime New delay of the timer in milliseconds.
-     */
-    public void setTimer(long newTime) {
-    	
-    	Calendar current = Calendar.getInstance();
-    	long dif = newTime - current.getTimeInMillis();
-    	// Must do this because the delay can't be negative
-    	if ( dif <= 0) { // time already expired
-    		newTime = 1;
-    	} else {
-    		newTime = dif;
-    	}
-    	
-    	if (timer != null) {
-    		timer.cancel();
-    	}
-    	
-    	timer = new Timer();
-    	timer.schedule(new TimerTask() {
-    		@Override
-    		public void run() {
-    			
-    			// Remove TD from queue and database
-    			ThingDescription td = tdQueue.poll();
-    			String uri = td.getId();
-    			String id = uri.substring(uri.lastIndexOf("/") + 1);
-    			ThingDescriptionHandler h = new ThingDescriptionHandler(id, servers);
-    			try {
-					h.delete(URI.create(uri), null, null);
-				} catch (RESTException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-    		}
-    	}, newTime); // in milliseconds
-    	
-    }
-    
-    /**
-     * Called every time tdQueue is updated.
-     */
-    public void setTimer() {
-    	
-    	// Set timer to head of queue if exists
-    	ThingDescription t = tdQueue.peek();
-    	if (t != null) {
-    		setTimer(t.getLifetime().getTimeInMillis());
-    	}
-    }
+    // TODO periodically remove resources whose lifetime expired
     
     public static void main(String[] args) throws Exception {
 
@@ -232,38 +96,28 @@ public class ThingDirectory {
         
         // ##############################
 
-        // TODO get http URI
-        ThingDirectory.get().init(loc, "http://www.example.com", lucene);
-        
+        // initiate SPARQL client
+        Connector.init(loc, lucene);
+
+        // configure SPARQL engine (server)
         Functions.registerAll();
         
-        RESTHandler root = new WelcomePageHandler(servers); // FIXME circular reference here...
-        servers.add(new CoAPServer(portCoAP, root));
-        servers.add(new HTTPServer(portHTTP, root));
+        // create and start REST server instances
+        ThingDirectory directory = ThingDirectory.get();
+        directory.servers.add(new CoAPServer(portCoAP));
+        directory.servers.add(new HTTPServer(portHTTP));
 
-        for (RESTServerInstance i : servers) {
-            i.add("/" + OpenAPISpecHandler.FILENAME, new OpenAPISpecHandler(servers));
-            
-            i.add("/td-lookup", new TDLookUpHandler(servers));
-            i.add("/td-lookup/ep", new TDLookUpEPHandler(servers));
-            i.add("/td-lookup/sem", new TDLookUpSEMHandler(servers));
-            
-            i.add("/td", new ThingDescriptionCollectionHandler(servers));
-            for (String td : listThingDescriptions()) {
-                i.add("/td/" + td, new ThingDescriptionHandler(td, servers));
-            }
-            
-            i.add("/vocab", new VocabularyCollectionHandler(servers));
-            for (String vocab : listVocabularies()) {
-                i.add("/vocab/" + vocab, new VocabularyHandler(vocab, servers));
-            }
-      
-            i.start();
-        }        
-    
-        for (RESTServerInstance i : servers) {
+        WelcomePageResource index = new WelcomePageResource();
+
+        for (RESTServerInstance s : directory.servers) {
+        	s.setIndex(index);
+        	s.start();
+        }
+
+        for (RESTServerInstance i : directory.servers) {
             i.join();
         }
+        
         ThingDirectory.get().terminate();
     }
     

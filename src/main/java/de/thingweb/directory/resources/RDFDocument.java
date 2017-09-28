@@ -24,7 +24,6 @@ import org.apache.jena.update.UpdateRequest;
 import de.thingweb.directory.ThingDirectory;
 import de.thingweb.directory.rest.NotFoundException;
 import de.thingweb.directory.rest.RESTException;
-import de.thingweb.directory.rest.RESTHandler;
 import de.thingweb.directory.rest.RESTResource;
 import de.thingweb.directory.rest.RESTResourceFactory;
 import de.thingweb.directory.sparql.client.Queries;
@@ -160,7 +159,7 @@ public class RDFDocument extends DirectoryResource {
 		}
 		
 		Model m = ModelFactory.createDefaultModel();
-		m.read(payload, "", format);
+		m.read(payload, ThingDirectory.get().getBaseURI(), format);
 		
 		return m;
 	}
@@ -172,7 +171,7 @@ public class RDFDocument extends DirectoryResource {
 		} else {
 			// TODO guess RDF specific type from generic media type (CoAP)
 			ThingDirectory.LOG.debug("No RDF format for media type: " + mediaType + ". Assuming JSON-LD.");
-			return null;
+			return DEFAULT_FORMAT;
 		}
 	}
 

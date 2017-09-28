@@ -33,6 +33,8 @@ public class TDCollectionResource extends CollectionResource {
 
 	public TDCollectionResource(String path) {
 		super(path, TDResource.factory());
+		
+		// TODO create child resources for all graphs already in the RDF store.
 	}
 	
 	@Override
@@ -50,6 +52,11 @@ public class TDCollectionResource extends CollectionResource {
 		InfModel inf = ModelFactory.createInfModel(ReasonerRegistry.getOWLMicroReasoner(), schema, graph);
 
 		List<RESTResource> resources = new ArrayList<>();
+		
+		if (parameters.containsKey(RESTResource.PARAMETER_CONTENT_TYPE)) {
+			// forces default RDF format
+			parameters.remove(RESTResource.PARAMETER_CONTENT_TYPE);
+		}
 		
 		ResIterator it = inf.listResourcesWithProperty(RDF.type, TD.Thing);
 		while (it.hasNext()) {

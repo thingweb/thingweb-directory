@@ -8,10 +8,20 @@ import java.io.OutputStream;
 import java.io.StringWriter;
 import java.net.URI;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import de.thingweb.directory.ThingDirectory;
 
+/**
+ * Note: this resource cannot be deleted. It is the responsibility of the subclasses
+ * allowing the DELETE operation to notify listeners.
+ *
+ * @author z003dp6d
+ * @creation 28.09.2017
+ *
+ */
 public class RESTResource {
 	
 	/**
@@ -19,6 +29,8 @@ public class RESTResource {
 	 */
 	public final static String PARAMETER_ACCEPT = "accept";
 	public final static String PARAMETER_CONTENT_TYPE = "ct";
+	
+	protected final Set<RESTResourceListener> listeners = new HashSet<>();
 	
 	protected final String name;
 	protected final String path;
@@ -73,6 +85,14 @@ public class RESTResource {
 	
 	public void setContentType(String ct) {
 		contentType = ct;
+	}
+	
+	public void addListener(RESTResourceListener listener) {
+		listeners.add(listener);
+	}
+	
+	public void removeListener(RESTResourceListener listener) {
+		listeners.remove(listener);
 	}
 	
 	public void get(Map<String, String> parameters, OutputStream out) throws RESTException {
