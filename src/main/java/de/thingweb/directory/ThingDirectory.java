@@ -1,5 +1,6 @@
 package de.thingweb.directory;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -14,6 +15,7 @@ import org.apache.log4j.Logger;
 import de.thingweb.directory.coap.CoAPServer;
 import de.thingweb.directory.http.HTTPServer;
 import de.thingweb.directory.resources.WelcomePageResource;
+import de.thingweb.directory.rest.IndexResource;
 import de.thingweb.directory.rest.RESTServerInstance;
 import de.thingweb.directory.sparql.client.Connector;
 import de.thingweb.directory.sparql.server.Functions;
@@ -21,11 +23,16 @@ import de.thingweb.directory.sparql.server.Functions;
 public class ThingDirectory {
 	
 	public static final Logger LOG = Logger.getRootLogger();
+	
+	public static final int DEFAULT_COAP_PORT = 5683;
+	public static final int DEFAULT_HTTP_PORT = 8080;
     
 	// TODO get HTTP URI?
-    private String baseURI = "http://localhost";
+    private final String baseURI = "http://localhost";
 
-    private Set<RESTServerInstance> servers = new HashSet<>();
+    private final Set<RESTServerInstance> servers = new HashSet<>();
+    
+    private final IndexResource index = new WelcomePageResource();
     
     private static ThingDirectory singleton;
     
@@ -41,6 +48,7 @@ public class ThingDirectory {
     }
     
     public RDFConnection getStoreConnection() {
+    	// TODO not needed, use Connector directly
     	return Connector.getConnection();
     }
     
@@ -48,7 +56,26 @@ public class ThingDirectory {
     	return baseURI;
     }
     
-    private void terminate() {
+    public Set<RESTServerInstance> getInstances() {
+    	return servers;
+    }
+    
+    public void run(Collection<RESTServerInstance> instances) {       
+        servers.addAll(instances);
+
+        for (RESTServerInstance s : servers) {
+        	s.setIndex(index);
+        	s.start();
+        }
+
+//        for (RESTServerInstance i : servers) {
+//            i.join();
+//        }
+        
+        ThingDirectory.get().terminate();
+    }
+    
+    public void terminate() {
         // TODO anything to do?
     }
 
@@ -57,10 +84,10 @@ public class ThingDirectory {
     public static void main(String[] args) throws Exception {
 
     	// Default values
-        int portCoAP = 5683;
-        int portHTTP = 8080;
+        int portCoAP = DEFAULT_COAP_PORT;
+        int portHTTP = DEFAULT_HTTP_PORT;
         String loc = "db"; // directory to store the database //"jena-config.ttl";
-        String lucene = "Lucene"; // directory to store lucene index
+        String lucene = "lucene"; // directory to store lucene index
         
         //####### Handle input ##########
         Options options = new Options();
@@ -103,22 +130,11 @@ public class ThingDirectory {
         Functions.registerAll();
         
         // create and start REST server instances
-        ThingDirectory directory = ThingDirectory.get();
-        directory.servers.add(new CoAPServer(portCoAP));
-        directory.servers.add(new HTTPServer(portHTTP));
-
-        WelcomePageResource index = new WelcomePageResource();
-
-        for (RESTServerInstance s : directory.servers) {
-        	s.setIndex(index);
-        	s.start();
-        }
-
-        for (RESTServerInstance i : directory.servers) {
-            i.join();
-        }
+        Set<RESTServerInstance> servers = new HashSet<>();
+        servers.add(new CoAPServer(portCoAP));
+        servers.add(new HTTPServer(portHTTP));
         
-        ThingDirectory.get().terminate();
+        ThingDirectory.get().run(servers);
     }
     
 }

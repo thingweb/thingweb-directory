@@ -29,17 +29,18 @@ public class Connector {
 	public static void init(String db, String lucene) {
     	Dataset ds = TDBFactory.createDataset(db);
         
-        // Lucene configuration
-        try {
-            Directory luceneDir = FSDirectory.open(new File(lucene));
-            EntityDefinition entDef = new EntityDefinition("comment", "text", RDFS.comment);
-            // Set uid in order to remove index entries automatically
-            entDef.setUidField("uid");
-            StandardAnalyzer stAn = new StandardAnalyzer(Version.LUCENE_4_9);
-            dataset = TextDatasetFactory.createLucene(ds, luceneDir, entDef, stAn);
-        } catch (IOException e) {
-        	ThingDirectory.LOG.error("Cannot create RDF dataset", e);
-        }
+    	dataset = ds; // TODO config below
+//        // Lucene configuration
+//        try {
+//            Directory luceneDir = FSDirectory.open(new File(lucene));
+//            EntityDefinition entDef = new EntityDefinition("comment", "text", RDFS.comment);
+//            // Set uid in order to remove index entries automatically
+//            entDef.setUidField("uid");
+//            StandardAnalyzer stAn = new StandardAnalyzer(Version.LUCENE_4_9);
+//            dataset = TextDatasetFactory.createLucene(ds, luceneDir, entDef, stAn);
+//        } catch (IOException e) {
+//        	ThingDirectory.LOG.error("Cannot create RDF dataset", e);
+//        }
 	}
 	
 	public static RDFConnection getConnection() {

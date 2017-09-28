@@ -63,7 +63,7 @@ public class CoAPResourceContainer extends CoapResource {
 		try {
 			RESTResource child = resource.post(params(exchange), payload(exchange));
 			Response response = new Response(ResponseCode.CREATED);
-			response.setOptions(new OptionSet().addLocationPath(trim(child.getPath())));
+			response.setOptions(new OptionSet().addLocationPath(child.getPath()));
 			exchange.respond(response);
 		} catch (BadRequestException e) {
 			exchange.respond(ResponseCode.BAD_REQUEST);
@@ -136,13 +136,6 @@ public class CoAPResourceContainer extends CoapResource {
 	
 	private InputStream payload(CoapExchange exchange) {
 	  return new ByteArrayInputStream(exchange.getRequestPayload());
-	}
-	
-	private String trim(String path) {
-	  if (path.charAt(0) == '/') {
-		return path.substring(1);
-	  }
-	  return path;
 	}
 
 	private int toContentFormatCode(String contentType) {

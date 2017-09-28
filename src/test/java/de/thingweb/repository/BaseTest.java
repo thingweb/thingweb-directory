@@ -1,5 +1,6 @@
 package de.thingweb.repository;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,29 +15,36 @@ import org.junit.BeforeClass;
 
 
 
+
+
 import de.thingweb.directory.ThingDirectory;
 import de.thingweb.directory.sparql.client.Connector;
 
+/**
+ * configuration common to all unit tests
+ */
 public class BaseTest {
 	
-	static ThingDirectory directory = ThingDirectory.get();
+	public final static String DB_LOCATION  = "DB-test";
+	public final static String SEARCH_INDEX_LOCATION = "Lucene-test";
+	
+	protected static ThingDirectory directory = ThingDirectory.get();
 	
 	protected final ClassLoader cl = ThingDirectory.get().getClass().getClassLoader();
 	
 	@BeforeClass
-	public static void setUpBeforeClass() throws Exception {
-		directory.init(ThingDirectoryTest.DB_LOCATION,
-				ThingDirectoryTest.BASE_URI,
-				ThingDirectoryTest.SEARCH_INDEX_LOCATION);
+	public static void setUpRDFStore() throws Exception {
+		Connector.init(DB_LOCATION, SEARCH_INDEX_LOCATION);
 	}
 
 	@AfterClass
-	public static void tearDownAfterClass() throws Exception {
-		// TODO delete DB and Lucene folders
+	public static void destroyRDFStore() throws Exception {
+		deleteAll(DB_LOCATION); // FIXME returns false?
+//		deleteAll(SEARCH_INDEX_LOCATION);
 	}
 
 	@Before
-	public void setUp() throws Exception {
+	public void cleanRDFStore() throws Exception {
 		try (RDFConnection conn = directory.getStoreConnection()) {
 			Txn.executeWrite(conn, () -> {
 				conn.delete();
@@ -50,9 +58,15 @@ public class BaseTest {
 			});
 		}
 	}
-
-	@After
-	public void tearDown() throws Exception {
+	
+	private static boolean deleteAll(String dirPath) {
+		File dir = new File(dirPath);
+		
+		for (File f : dir.listFiles()) {
+			f.delete();
+		}
+		
+		return dir.delete();
 	}
 
 }

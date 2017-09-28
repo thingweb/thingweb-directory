@@ -53,6 +53,7 @@ dependencies {
 	
 	compile 'org.eclipse.californium:californium-core:1.0.0-M3'
 	compile 'org.apache.jena:apache-jena-libs:3.4.0'
+	compile 'log4j:log4j:1.2.17'
 	compile 'org.eclipse.jetty:jetty-maven-plugin:9.3.6.v20151106'
 	compile group: 'org.eclipse.jetty', name: 'jetty-servlets', version: '9.3.6.v20151106'
 
