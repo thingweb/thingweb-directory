@@ -27,7 +27,7 @@ import de.thingweb.directory.rest.BadRequestException;
 import de.thingweb.directory.rest.CollectionResource;
 import de.thingweb.directory.rest.RESTException;
 import de.thingweb.directory.rest.RESTResource;
-import de.thingweb.repository.vocabulary.TD;
+import de.thingweb.directory.vocabulary.TD;
 
 public class TDCollectionResource extends CollectionResource {
 

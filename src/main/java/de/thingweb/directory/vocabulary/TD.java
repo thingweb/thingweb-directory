@@ -1,4 +1,4 @@
-package de.thingweb.repository.vocabulary;
+package de.thingweb.directory.vocabulary;
 
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.ResourceFactory;
