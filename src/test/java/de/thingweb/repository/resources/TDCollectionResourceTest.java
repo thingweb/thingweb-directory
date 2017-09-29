@@ -30,7 +30,7 @@ public class TDCollectionResourceTest extends BaseTest {
 
 	@Test
 	public void testPostMultipleTDs() throws JsonParseException, IOException {
-		TDCollectionResource res = new TDCollectionResource("/");
+		TDCollectionResource res = new TDCollectionResource();
 		
 		InputStream td = cl.getResourceAsStream("samples/fanTD+temperatureSensorTD.jsonld");
 		res.post(new HashMap<>(), td);
@@ -45,7 +45,7 @@ public class TDCollectionResourceTest extends BaseTest {
 	
 	@Test
 	public void testPostDuplicateTD() throws Exception {
-		TDCollectionResource res = new TDCollectionResource("/");
+		TDCollectionResource res = new TDCollectionResource();
 		
 		InputStream td = cl.getResourceAsStream("samples/fanTD.jsonld");
 		RESTResource child = res.post(new HashMap<>(), td);

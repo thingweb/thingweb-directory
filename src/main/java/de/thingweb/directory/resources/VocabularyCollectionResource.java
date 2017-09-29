@@ -28,8 +28,8 @@ import de.thingweb.directory.vocabulary.TD;
 
 public class VocabularyCollectionResource extends CollectionResource {
 
-	public VocabularyCollectionResource(String path) {
-		super(path, RDFDocument.factory());
+	public VocabularyCollectionResource() {
+		super("/vocab", RDFDocument.factory());
 		
 		// TODO create child resources for all graphs already in the RDF store.
 	}

@@ -1,5 +1,13 @@
 package de.thingweb.directory;
 
+import io.swagger.annotations.Contact;
+import io.swagger.annotations.Info;
+import io.swagger.annotations.License;
+import io.swagger.annotations.SwaggerDefinition;
+import io.swagger.annotations.Tag;
+import io.swagger.jackson.SwaggerAnnotationIntrospector;
+import io.swagger.models.Swagger;
+
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -20,6 +28,19 @@ import de.thingweb.directory.rest.RESTServerInstance;
 import de.thingweb.directory.sparql.client.Connector;
 import de.thingweb.directory.sparql.server.Functions;
 
+@SwaggerDefinition(tags = {
+	@Tag(name = "thing_description",
+         description = "WoT Thing Description management interface"),
+    @Tag(name = "vocabulary",
+         description = "Vocabulary (OWL Ontology) management interface")
+                   }, info =
+    @Info(version = "0.7",
+          title = "thingweb-directory",
+          description = "W3C WoT Thing Directory implementation. Also available over CoAP.",
+          contact = @Contact(name = "Victor Charpenay",
+                             email = "victor.charpenay@siemens.com"),
+          license = @License(name = "MIT",
+                             url = "https://spdx.org/licenses/MIT.html")))
 public class ThingDirectory {
 	
 	public static final Logger LOG = Logger.getRootLogger();

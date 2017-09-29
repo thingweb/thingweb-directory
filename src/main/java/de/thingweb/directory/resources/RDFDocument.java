@@ -32,6 +32,8 @@ public class RDFDocument extends DirectoryResource {
 	
 	public final static String DEFAULT_FORMAT = "JSON-LD";
 	
+	public final static String DEFAULT_MEDIA_TYPE = "application/ld+json";
+	
 	public RDFDocument(String path, InputStream in) {
 		this(path, new HashMap<>(), in);
 	}
@@ -63,9 +65,15 @@ public class RDFDocument extends DirectoryResource {
 				}
 
 				String format = DEFAULT_FORMAT;
+				contentType = DEFAULT_MEDIA_TYPE;
 				if (parameters.containsKey(RESTResource.PARAMETER_ACCEPT)) {
 					String mediaType = parameters.get(RESTResource.PARAMETER_ACCEPT);
 					format = getFormat(mediaType);
+					
+					if (format != DEFAULT_FORMAT) {
+						// FIXME not thread-safe
+						contentType = mediaType;
+					}
 				}
 				
 				m.write(out, format);

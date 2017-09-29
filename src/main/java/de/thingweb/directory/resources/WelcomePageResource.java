@@ -1,5 +1,8 @@
 package de.thingweb.directory.resources;
 
+import io.swagger.annotations.SwaggerDefinition;
+import io.swagger.annotations.Tag;
+
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Map;
@@ -14,8 +17,8 @@ public class WelcomePageResource extends IndexResource {
 	public WelcomePageResource() {
 		super(null);
 		
-		children.add(new TDCollectionResource("/td"));
-		children.add(new VocabularyCollectionResource("/vocab"));
+		children.add(new TDCollectionResource());
+		children.add(new VocabularyCollectionResource());
 		// TODO ns-lookup
 		// TODO Open API Spec.
 	}

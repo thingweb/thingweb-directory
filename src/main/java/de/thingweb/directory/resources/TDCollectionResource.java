@@ -1,9 +1,18 @@
 package de.thingweb.directory.resources;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ResponseHeader;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -29,22 +38,39 @@ import de.thingweb.directory.rest.RESTException;
 import de.thingweb.directory.rest.RESTResource;
 import de.thingweb.directory.vocabulary.TD;
 
+@Api(value = "thing_description")
 public class TDCollectionResource extends CollectionResource {
 
-	public TDCollectionResource(String path) {
-		super(path, TDResource.factory());
+	public TDCollectionResource() {
+		super("/td", TDResource.factory());
 		
 		// TODO create child resources for all graphs already in the RDF store.
 	}
-	
+
 	@Override
+	@ApiOperation(value = "Lists all TDs in the repository.",
+	              httpMethod = "GET",
+	              produces = "application/json")
+	@ApiImplicitParams({
+		@ApiImplicitParam(name = "query",
+	                      value = "SPARQL graph pattern (URI-encoded)"),
+		@ApiImplicitParam(name = "text",
+		                  value = "Keyword for boolean text search query")
+	})
 	public void get(Map<String, String> parameters, OutputStream out) throws RESTException {
 		super.get(parameters, out);
-		
+
 		// TODO include TDs?
+		
+		// TODO SPARQL querying, free text search
 	}
 	
 	@Override
+	@ApiOperation(value = "Creates (adds) a TD to the repository.",
+	              httpMethod = "POST",
+	              consumes = "application/ld+json, application/rdf+xml, text/turtle, application/n-triples",
+	              responseHeaders = @ResponseHeader(name = "Location",
+	                                                description = "Relative URI to the created resource"))
 	public RESTResource post(Map<String, String> parameters, InputStream payload) throws RESTException {
 		Model graph = RDFDocument.read(parameters, payload);
 		Model schema = VocabularyUtils.mergeVocabularies();

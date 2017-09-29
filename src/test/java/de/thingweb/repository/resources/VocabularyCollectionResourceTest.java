@@ -18,7 +18,7 @@ public class VocabularyCollectionResourceTest extends BaseTest {
 
 	@Test
 	public void testPost() throws RESTException {
-		VocabularyCollectionResource coll = new VocabularyCollectionResource("/");
+		VocabularyCollectionResource coll = new VocabularyCollectionResource();
 		
 		InputStream in = cl.getResourceAsStream("onto/sosa.ttl");
 		Map<String, String> parameters = new HashMap<>();
