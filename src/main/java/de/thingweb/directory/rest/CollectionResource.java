@@ -14,20 +14,53 @@ import de.thingweb.directory.ThingDirectory;
 public class CollectionResource extends RESTResource {
 
 	protected final RESTResourceFactory factory;
-	protected Set<RESTResource> children = new HashSet<>();
+	protected final CollectionFilterFactory filterFactory;
+	protected final Set<RESTResource> children = new HashSet<>();
+	
+	protected static class KeepAllFilter implements CollectionFilter {
+		
+		public KeepAllFilter() {
+			// public constructor
+		}
+		
+		@Override
+		public boolean keep(RESTResource child) {
+			return true;
+		}
+		
+	}
 
 	public CollectionResource(String path, RESTResourceFactory f) {
+		this(path, f, new CollectionFilterFactory() {			
+			@Override
+			public CollectionFilter create(Map<String, String> parameters) {
+				return new KeepAllFilter();
+			}
+		});
+	}
+
+	public CollectionResource(String path, RESTResourceFactory f, CollectionFilterFactory ff) {
 		super(path);
 		factory = f;
+		filterFactory = ff;
 		contentType = "application/json";
 	}
 
 	@Override
 	public void get(Map<String, String> parameters, OutputStream out) throws RESTException {
+		CollectionFilter f = filterFactory.create(parameters);
+		
+		Set<RESTResource> filtered = new HashSet<>();
+		for (RESTResource child : children) {
+			if (f.keep(child)) {
+				filtered.add(child);
+			}
+		}
+		
 		try {
 			out.write('[');
 			
-			Iterator<RESTResource> it = children.iterator();
+			Iterator<RESTResource> it = filtered.iterator();
 			while (it.hasNext()) {
 				RESTResource res = it.next();
 				out.write('"');

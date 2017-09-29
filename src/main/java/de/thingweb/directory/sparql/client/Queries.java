@@ -39,6 +39,9 @@ import org.apache.jena.update.UpdateFactory;
 import org.apache.jena.update.UpdateRequest;
 import org.apache.jena.util.iterator.ExtendedIterator;
 import org.apache.jena.vocabulary.DCTerms;
+import org.apache.jena.vocabulary.RDF;
+
+import de.thingweb.directory.vocabulary.TD;
 
 public class Queries {
 
@@ -226,6 +229,47 @@ public class Queries {
 		return new UpdateRequest().add(delete).add(drop);
 	}
 
+	/**
+	 * SELECT ?id WHERE {
+	 *   GRAPH ?union {
+	 *     ...pattern...
+	 *   }
+	 *   GRAPH ?id {
+	 *     ?thing a td:Thing
+	 *   }
+	 * }
+	 * 
+	 * @param pattern should include at least a variable ?thing
+	 * @return
+	 */
+	public static Query filterGraphs(Element pattern) {
+		Query q = QueryFactory.create();
+		q.setQuerySelectType();
+		
+		Node union = NodeFactory.createURI(UNION_GRAPH_URI);
+		Node id = Var.alloc("id");
+		Node thing = Var.alloc("thing");
+		Triple t = new Triple(thing, RDF.type.asNode(), TD.Thing.asNode());
+
+		// GRAPH ?union
+		Element inUnionGraph = new ElementNamedGraph(union, pattern);
+
+		// GRAPH ?id
+		ElementGroup isThing = new ElementGroup();
+		isThing.addTriplePattern(t);
+		Element inIdGraph = new ElementNamedGraph(id, isThing);
+		
+		ElementGroup all = new ElementGroup();
+		all.addElement(inUnionGraph);
+		all.addElement(inIdGraph);
+		q.setQueryPattern(all);
+		
+		q.getResultVars().add("id"); // TODO better integration?
+//		q.setResultVars();
+		
+		return q;
+	}
+
 	private static Literal getDateTime(int lifetime) {
 		LocalDateTime d = LocalDateTime.now();
 		d = d.plusSeconds(lifetime);
@@ -233,4 +277,5 @@ public class Queries {
 		// ISO 8601 string format
 		return ResourceFactory.createTypedLiteral(d.toString(), XSDDateTimeType.XSDdateTime);
 	}
+	
 }

@@ -114,7 +114,7 @@ public class HTTPServer implements RESTServerInstance {
 	  holder.setInitParameter("allowedMethods", "GET,POST,PUT,DELETE,HEAD,OPTIONS");
 	  holder.setInitParameter("allowedCredentials", "true");
 	  
-	  this.handler.addFilterWithMapping(holder, "/*", EnumSet.of(DispatcherType.REQUEST));
+	  handler.addFilterWithMapping(holder, "/*", EnumSet.of(DispatcherType.REQUEST));
   }
   
 }

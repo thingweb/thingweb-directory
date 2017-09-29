@@ -6,6 +6,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.jena.reasoner.rulesys.builtins.AssertDisjointPairs;
 import org.junit.Test;
@@ -14,6 +15,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import de.thingweb.directory.rest.CollectionFilter;
+import de.thingweb.directory.rest.CollectionFilterFactory;
 import de.thingweb.directory.rest.CollectionResource;
 import de.thingweb.directory.rest.RESTException;
 import de.thingweb.directory.rest.RESTResource;
@@ -46,6 +49,30 @@ public class CollectionResourceTest {
 		RESTResource res2 = coll.post(new HashMap<>(), in);
 		
 		assertNotSame("Generated resource IDs collide", res1.getName(), res2.getName());
+	}
+	
+	@Test
+	public void testCollectionFilter() throws Exception {
+		CollectionFilter f = new CollectionFilter() {
+			@Override
+			public boolean keep(RESTResource child) {
+				return false;
+			}
+		};
+		
+		CollectionResource coll = new CollectionResource("/", RESTResource.factory(), new CollectionFilterFactory() {
+			@Override
+			public CollectionFilter create(Map<String, String> parameters) {
+				return f;
+			}
+		});
+		
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		coll.get(new HashMap<>(), out);
+		
+		ObjectMapper mapper = new ObjectMapper();
+		JsonNode node = mapper.readTree(out.toByteArray());
+		assertEquals("'keep none' filter was not applied", 0, node.size());
 	}
 
 }
