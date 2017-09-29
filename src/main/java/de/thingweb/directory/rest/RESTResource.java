@@ -131,7 +131,7 @@ public class RESTResource {
 		throw new MethodNotAllowedException();
 	}
 
-	private String streamToString(InputStream s) throws IOException {
+	protected String streamToString(InputStream s) throws IOException {
 		StringWriter w = new StringWriter();
 		InputStreamReader r = new InputStreamReader(s, "UTF-8");
 		char[] buf = new char[512];
