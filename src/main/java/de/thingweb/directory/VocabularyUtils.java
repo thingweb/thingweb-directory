@@ -46,6 +46,8 @@ import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.sparql.util.QueryExecUtils;
 import org.apache.jena.system.Txn;
 
+import de.thingweb.directory.sparql.client.Connector;
+
 public class VocabularyUtils {
 
 //	public static boolean containsVocabulary(String uri) {
@@ -92,7 +94,7 @@ public class VocabularyUtils {
 	public static Model mergeVocabularies() {
 		// TODO move to Queries
 		// TODO add argument to scope the operation
-		try (RDFConnection conn = ThingDirectory.get().getStoreConnection()) {
+		try (RDFConnection conn = Connector.getConnection()) {
 			Model m = Txn.calculateRead(conn, () -> {
 				String q = "CONSTRUCT { ?s ?p ?o } WHERE { GRAPH ?g { ?ontology a <http://www.w3.org/2002/07/owl#Ontology> . ?s ?p ?o } }";
 				return conn.queryConstruct(q);

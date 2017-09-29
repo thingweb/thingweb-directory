@@ -1,4 +1,4 @@
-package de.thingweb.repository.resources;
+package de.thingweb.directory.resources;
 
 import static org.junit.Assert.*;
 
@@ -18,13 +18,13 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import de.thingweb.directory.BaseTest;
 import de.thingweb.directory.ThingDirectory;
+import de.thingweb.directory.ThingDirectoryTest;
 import de.thingweb.directory.resources.DirectoryResource;
 import de.thingweb.directory.rest.NotFoundException;
 import de.thingweb.directory.rest.RESTException;
 import de.thingweb.directory.rest.RESTResource;
-import de.thingweb.repository.BaseTest;
-import de.thingweb.repository.ThingDirectoryTest;
 
 public class DirectoryResourceTest extends BaseTest {
 

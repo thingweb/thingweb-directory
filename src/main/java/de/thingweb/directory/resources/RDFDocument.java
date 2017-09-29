@@ -4,9 +4,15 @@ import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 
 
+
+
+
+
+import org.apache.jena.query.Query;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.RDFErrorHandler;
@@ -21,11 +27,16 @@ import org.apache.jena.update.Update;
 import org.apache.jena.update.UpdateRequest;
 
 
+
+
+
+
 import de.thingweb.directory.ThingDirectory;
 import de.thingweb.directory.rest.NotFoundException;
 import de.thingweb.directory.rest.RESTException;
 import de.thingweb.directory.rest.RESTResource;
 import de.thingweb.directory.rest.RESTResourceFactory;
+import de.thingweb.directory.sparql.client.Connector;
 import de.thingweb.directory.sparql.client.Queries;
 
 public class RDFDocument extends DirectoryResource {
@@ -33,6 +44,26 @@ public class RDFDocument extends DirectoryResource {
 	public final static String DEFAULT_FORMAT = "JSON-LD";
 	
 	public final static String DEFAULT_MEDIA_TYPE = "application/ld+json";
+	
+	public RDFDocument(String path) {
+		this(path, new HashMap<>());
+	}
+	
+	public RDFDocument(String path, Map<String, String> parameters) {
+		super(path, parameters);
+		
+		try (RDFConnection conn = Connector.getConnection()) {
+			boolean exists = Txn.calculateRead(conn, () -> {
+				Resource res = ResourceFactory.createResource(uri);
+				Query q = Queries.exists(res);
+				return conn.queryAsk(q);
+			});
+			
+			if (!exists) {
+				ThingDirectory.LOG.warn("Trying to create an empty, not persisted RDF document resource");
+			}
+		}
+	}
 	
 	public RDFDocument(String path, InputStream in) {
 		this(path, new HashMap<>(), in);
@@ -42,7 +73,7 @@ public class RDFDocument extends DirectoryResource {
 		super(path, parameters);
 
 		Model td = read(parameters, in);
-		try (RDFConnection conn = ThingDirectory.get().getStoreConnection()) {
+		try (RDFConnection conn = Connector.getConnection()) {
 			Txn.executeWrite(conn, () -> {
 				addDocument(uri, td, conn);
 			});
@@ -56,7 +87,7 @@ public class RDFDocument extends DirectoryResource {
 		OutputStream sink = new ByteArrayOutputStream();
 		super.get(parameters, sink); // in case an exception is thrown
 		
-		try (RDFConnection conn = ThingDirectory.get().getStoreConnection()) {
+		try (RDFConnection conn = Connector.getConnection()) {
 			boolean found = Txn.calculateRead(conn, () -> {
 				Model m = conn.fetch(uri);
 				
@@ -98,7 +129,7 @@ public class RDFDocument extends DirectoryResource {
 		Model m = ModelFactory.createDefaultModel();
 		m.read(payload, "", format);
 		
-		try (RDFConnection conn = ThingDirectory.get().getStoreConnection()) {
+		try (RDFConnection conn = Connector.getConnection()) {
 			Txn.executeWrite(conn, () -> {
 				removeDocument(uri, conn);
 				addDocument(uri, m, conn);
@@ -112,7 +143,7 @@ public class RDFDocument extends DirectoryResource {
 	public void delete(Map<String, String> parameters) throws RESTException {
 		super.delete(parameters);
 		
-		try (RDFConnection conn = ThingDirectory.get().getStoreConnection()) {
+		try (RDFConnection conn = Connector.getConnection()) {
 			Txn.executeWrite(conn, () -> {
 				removeDocument(uri, conn);
 			});
@@ -138,12 +169,12 @@ public class RDFDocument extends DirectoryResource {
 			
 			@Override
 			public RESTResource create(String path) {
-				return null; // TODO throw exception?
+				return new RDFDocument(path);
 			}
 			
 			@Override
 			public RESTResource create(String path, Map<String, String> parameters) {
-				return null; // TODO throw exception?
+				return new RDFDocument(path, parameters);
 			}
 			
 			@Override
@@ -167,7 +198,7 @@ public class RDFDocument extends DirectoryResource {
 		}
 		
 		Model m = ModelFactory.createDefaultModel();
-		m.read(payload, ThingDirectory.get().getBaseURI(), format);
+		m.read(payload, "", format); // TODO take ep into account
 		
 		return m;
 	}

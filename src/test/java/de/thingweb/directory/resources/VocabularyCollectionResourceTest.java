@@ -1,4 +1,4 @@
-package de.thingweb.repository.resources;
+package de.thingweb.directory.resources;
 
 import static org.junit.Assert.*;
 
@@ -9,10 +9,10 @@ import java.util.Map;
 import org.junit.AfterClass;
 import org.junit.Test;
 
+import de.thingweb.directory.BaseTest;
 import de.thingweb.directory.resources.VocabularyCollectionResource;
 import de.thingweb.directory.rest.RESTException;
 import de.thingweb.directory.rest.RESTResource;
-import de.thingweb.repository.BaseTest;
 
 public class VocabularyCollectionResourceTest extends BaseTest {
 

@@ -1,4 +1,4 @@
-package de.thingweb.repository.resources;
+package de.thingweb.directory.resources;
 
 import static org.junit.Assert.*;
 

@@ -67,7 +67,7 @@ public class TDCollectionResource extends CollectionResource {
 		
 		public SPARQLFilter(String q) {
 			Element pattern = QueryFactory.createElement("{" + q + "}");
-			Query query = Queries.filterGraphs(pattern);
+			Query query = Queries.filterTDs(pattern);
 			
 			try (RDFConnection conn = Connector.getConnection()) {
 				names = Txn.calculateWrite(conn, () -> {
@@ -87,6 +87,10 @@ public class TDCollectionResource extends CollectionResource {
 		@Override
 		public boolean keep(RESTResource child) {
 			return names.contains(child.getName());
+		}
+		
+		public Set<String> getNames() {
+			return names;
 		}
 		
 	}
@@ -114,7 +118,7 @@ public class TDCollectionResource extends CollectionResource {
 					String q = parameters.get(PARAMETER_QUERY);
 					return new SPARQLFilter(q);
 				} else if (parameters.containsKey(PARAMETER_TEXT_SEARCH)) {
-					String keywords = parameters.get(PARAMETER_QUERY);
+					String keywords = parameters.get(PARAMETER_TEXT_SEARCH);
 					return new FreeTextFilter(keywords);
 				} else {
 					return new CollectionResource.KeepAllFilter();
@@ -122,7 +126,10 @@ public class TDCollectionResource extends CollectionResource {
 			}
 		});
 		
-		// TODO create child resources for all graphs already in the RDF store.
+		SPARQLFilter filter = new SPARQLFilter("?s ?p ?o");
+		for (String name : filter.getNames()) {
+			repost(name);
+		}
 	}
 
 	@ApiOperation(value = "Lists all TDs in the repository.",
@@ -169,7 +176,7 @@ public class TDCollectionResource extends CollectionResource {
 			boolean duplicate = false;
 			if (root.isURIResource()) {
 				String query = "ASK WHERE { GRAPH <%s> { ?s ?p ?o } }";
-				RDFConnection conn = ThingDirectory.get().getStoreConnection();
+				RDFConnection conn = Connector.getConnection();
 				duplicate = conn.queryAsk(String.format(query, root.getURI()));
 			}
 

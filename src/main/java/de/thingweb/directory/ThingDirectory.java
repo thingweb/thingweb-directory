@@ -55,22 +55,17 @@ public class ThingDirectory {
     
     private final IndexResource index = new WelcomePageResource();
     
-    private static ThingDirectory singleton;
+    private static ThingDirectory singleton = null;
     
     public static ThingDirectory get() {
-        if (singleton == null) {
-            singleton = new ThingDirectory();
-        }
+    	if (singleton == null) {
+    		singleton = new ThingDirectory();
+    	}
         return singleton;
     }
     
     private ThingDirectory() {
     	// constructor is private and should only be called once
-    }
-    
-    public RDFConnection getStoreConnection() {
-    	// TODO not needed, use Connector directly
-    	return Connector.getConnection();
     }
     
     public String getBaseURI() {

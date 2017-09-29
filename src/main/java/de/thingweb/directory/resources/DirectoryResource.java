@@ -18,6 +18,7 @@ import java.util.Map;
 
 
 
+
 import org.apache.jena.datatypes.RDFDatatype;
 import org.apache.jena.datatypes.xsd.XSDDateTime;
 import org.apache.jena.datatypes.xsd.impl.XSDDateTimeType;
@@ -49,6 +50,7 @@ import org.joda.time.DateTime;
 
 
 
+
 import de.thingweb.directory.ThingDescriptionUtils;
 import de.thingweb.directory.ThingDirectory;
 import de.thingweb.directory.rest.BadRequestException;
@@ -57,6 +59,7 @@ import de.thingweb.directory.rest.RESTException;
 import de.thingweb.directory.rest.RESTResource;
 import de.thingweb.directory.rest.RESTResourceFactory;
 import de.thingweb.directory.rest.RESTResourceListener;
+import de.thingweb.directory.sparql.client.Connector;
 import de.thingweb.directory.sparql.client.Queries;
 
 /**
@@ -102,7 +105,11 @@ public class DirectoryResource extends RESTResource {
 			lt = Integer.parseInt(parameters.get(PARAMETER_LIFETIME));
 		}
 		
-		uri = ThingDirectory.get().getBaseURI() + path;
+		if (parameters.containsKey(PARAMETER_ENDPOINT)) {
+			// TODO
+		}
+		
+		uri = path; // relative URI
 		lifetime = lt;
 		
 		updateTimeout(uri, true);
@@ -136,7 +143,7 @@ public class DirectoryResource extends RESTResource {
 	private boolean hasExpired(String uri) {
 		Resource res = ResourceFactory.createResource(uri);
 		
-		try (RDFConnection conn = ThingDirectory.get().getStoreConnection()) {
+		try (RDFConnection conn = Connector.getConnection()) {
 			return Txn.calculateRead(conn, () -> {
 				Query q = Queries.hasExpired(res);
 				return conn.queryAsk(q);
@@ -147,7 +154,7 @@ public class DirectoryResource extends RESTResource {
 	private void updateTimeout(String uri, boolean firstTime) {
 		Resource res = ResourceFactory.createResource(uri);
 		
-		try (RDFConnection conn = ThingDirectory.get().getStoreConnection()) {
+		try (RDFConnection conn = Connector.getConnection()) {
 			Txn.executeWrite(conn, () -> {
 				Update up = firstTime ? Queries.createTimeout(res, lifetime) : Queries.updateTimeout(res, lifetime);
 				conn.update(up);

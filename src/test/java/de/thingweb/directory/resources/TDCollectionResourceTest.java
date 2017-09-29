@@ -1,4 +1,4 @@
-package de.thingweb.repository.resources;
+package de.thingweb.directory.resources;
 
 import static org.junit.Assert.*;
 
@@ -9,6 +9,12 @@ import java.io.OutputStream;
 import java.util.HashMap;
 
 import org.apache.jena.atlas.json.JsonBuilder;
+import org.apache.jena.query.Query;
+import org.apache.jena.rdf.model.Model;
+import org.apache.jena.rdf.model.ModelFactory;
+import org.apache.jena.rdf.model.Resource;
+import org.apache.jena.rdf.model.ResourceFactory;
+import org.apache.jena.rdfconnection.RDFConnection;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -21,10 +27,11 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import de.thingweb.directory.BaseTest;
 import de.thingweb.directory.resources.TDCollectionResource;
 import de.thingweb.directory.rest.RESTException;
 import de.thingweb.directory.rest.RESTResource;
-import de.thingweb.repository.BaseTest;
+import de.thingweb.directory.sparql.client.Queries;
 
 public class TDCollectionResourceTest extends BaseTest {
 
@@ -81,6 +88,11 @@ public class TDCollectionResourceTest extends BaseTest {
 		ObjectMapper mapper = new ObjectMapper();
 		JsonNode node = mapper.readTree(out.toByteArray());
 		assertEquals("SPARQL filter was not applied", 1, node.size());
+	}
+	
+	@Test
+	public void testRepost() throws Exception {
+		// TODO
 	}
 
 }

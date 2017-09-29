@@ -99,10 +99,6 @@ public class CoAPResourceContainer extends CoapResource {
 		this.hasChanged();
 	}
 	
-	private URI uri() {
-		return URI.create(ThingDirectory.get().getBaseURI() + getURI());
-	}
-	
 	private Map<String, String> params(CoapExchange exchange) {
 		Map<String, String> params = new HashMap<>();
 		try {

@@ -32,6 +32,7 @@ import org.apache.jena.sparql.syntax.Element;
 import org.apache.jena.sparql.syntax.ElementFilter;
 import org.apache.jena.sparql.syntax.ElementGroup;
 import org.apache.jena.sparql.syntax.ElementNamedGraph;
+import org.apache.jena.sparql.syntax.Template;
 import org.apache.jena.sparql.util.ExprUtils;
 import org.apache.jena.update.Update;
 import org.apache.jena.update.UpdateAction;
@@ -228,6 +229,62 @@ public class Queries {
 		
 		return new UpdateRequest().add(delete).add(drop);
 	}
+	
+	/**
+	 * ASK WHERE {
+	 *   GRAPH ?id {
+	 *     ?s ?p ?o
+	 *   }
+	 * }
+	 * @param id
+	 * @return
+	 */
+	public static Query exists(Resource id) {
+		Query q = QueryFactory.create();
+		q.setQueryAskType();
+		
+		Triple t = new Triple(Var.alloc("s"), Var.alloc("p"), Var.alloc("o"));
+
+		// GRAPH ?id { ?s ?o ?p }
+		ElementGroup element = new ElementGroup();
+		element.addTriplePattern(t);
+		Element inGraph = new ElementNamedGraph(id.asNode(), element);
+		q.setQueryPattern(inGraph);
+		
+		return q;
+	}
+	
+	/**
+	 * CONSTRUCT {
+	 *   ?s ?p ?o
+	 * } WHERE {
+	 *   GRAPH ?id {
+	 *     ?s ?p ?o
+	 *   }
+	 * }
+	 * 
+	 * @param id
+	 * @return
+	 */
+	public static Query getGraph(Resource id) {
+		Query q = QueryFactory.create();
+		q.setQueryConstructType();
+		
+		Triple t = new Triple(Var.alloc("s"), Var.alloc("p"), Var.alloc("o"));
+		
+		// CONSTRUCT { ?s ?p ?o }
+		QuadAcc qa = new QuadAcc();
+		qa.addTriple(t);
+		q.setConstructTemplate(new Template(qa));
+
+		// GRAPH ?id { ?s ?o ?p }
+		ElementGroup element = new ElementGroup();
+		element.addTriplePattern(t);
+		Element inGraph = new ElementNamedGraph(id.asNode(), element);
+		q.setQueryPattern(inGraph);
+		
+		return q;
+	}
 
 	/**
 	 * SELECT ?id WHERE {
@@ -239,10 +296,10 @@ public class Queries {
 	 *   }
 	 * }
 	 * 
-	 * @param pattern should include at least a variable ?thing
+	 * @param pattern should include at least the variable ?thing
 	 * @return
 	 */
-	public static Query filterGraphs(Element pattern) {
+	public static Query filterTDs(Element pattern) {
 		Query q = QueryFactory.create();
 		q.setQuerySelectType();
 		
@@ -265,7 +322,6 @@ public class Queries {
 		q.setQueryPattern(all);
 		
 		q.getResultVars().add("id"); // TODO better integration?
-//		q.setResultVars();
 		
 		return q;
 	}

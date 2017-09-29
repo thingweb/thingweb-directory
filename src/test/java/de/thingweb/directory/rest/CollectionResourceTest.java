@@ -1,4 +1,4 @@
-package de.thingweb.repository.rest;
+package de.thingweb.directory.rest;
 
 import static org.junit.Assert.*;
 

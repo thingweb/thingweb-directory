@@ -1,4 +1,4 @@
-package de.thingweb.repository;
+package de.thingweb.directory;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -45,7 +45,7 @@ public class BaseTest {
 
 	@Before
 	public void cleanRDFStore() throws Exception {
-		try (RDFConnection conn = directory.getStoreConnection()) {
+		try (RDFConnection conn = Connector.getConnection()) {
 			Txn.executeWrite(conn, () -> {
 				conn.delete();
 				List<String> uris = new ArrayList<>();

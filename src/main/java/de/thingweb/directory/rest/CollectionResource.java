@@ -89,7 +89,7 @@ public class CollectionResource extends RESTResource {
 		
 		return child;
 	}
-	
+
 	@Override
 	public void addListener(RESTResourceListener listener) {
 		super.addListener(listener);
@@ -101,6 +101,15 @@ public class CollectionResource extends RESTResource {
 	
 	public Set<RESTResource> getChildren() {
 		return children;
+	}
+	
+	protected void repost(String id) {
+		RESTResource child = factory.create(path + "/" + id);
+		
+		children.add(child);
+		for (RESTResourceListener l : listeners) {
+			l.onCreate(child);
+		}
 	}
 	
 	protected String generateChildID() {

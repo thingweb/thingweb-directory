@@ -104,10 +104,6 @@ public class HTTPResourceContainer extends HttpServlet {
 	  return p;
   }
   
-  private URI uri(String path) {
-    return URI.create(ThingDirectory.get().getBaseURI() + path);
-  }
-  
   
   
 }
