@@ -18,40 +18,42 @@
     {
       "@type": ["Property", "Temperature"],
       "name": "myThreshold",
-      "valueType": "number",
+      "outputData": {
+        "type": "number"
+      },
       "unit": "celsius",
       "writable": true,
       "geo:location":"room_4",
-      "link": {
+      "link": [{
         "href": "threshold",
         "mediaType": "application/json"
-      }
+      }]
     },
     {
       "@type": ["Action", "Toggle"],
       "name": "fanOnOff",
       "inputData": {
         "@type": "OnOff",
-        "valueType": "xsd:boolean"
+        "type": "boolean"
       },
-      "link": {
+      "link": [{
         "href": "toggle",
         "mediaType": "application/json"
-      }
+      }]
     },
     {
       "@type": ["Action", "Toggle"],
       "name": "fanOnOffTempAction",
       "inputData": {
         "@type": "Temperature",
-        "valueType": "xsd:float",
+        "type": "number",
         "unit": "celsius"
       },
       "geo:location": "room_4",
-      "link": {
+      "link": [{
         "href": "fanOnOffTempAction",
         "mediaType": "application/json"
-      }
+      }]
     }
   ]
 }
