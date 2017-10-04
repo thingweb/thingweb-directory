@@ -18,42 +18,50 @@
 			"unit": "celsius",
 			"reference": "threshold",
 			"name": "myTemp",
-			"valueType": "number",
+			"outputData": {
+				"type": "number"
+			},
 			"writable": false,
-			"link": {
+			"link": [{
 				"href": "val",
 				"mediaType": "application/json"
-			}
+			}]
 		},
 		{
 			"@type": ["Property", "Temperature"],
 			"unit": "celsius",
 			"name": "myThreshold",
-			"valueType": "number",
+			"outputData": {
+				"type": "number"
+			},
 			"writable": true,
-			"link": {
+			"link": [{
 				"href": "threshold",
 				"mediaType": "application/json"
-			}
+			}]
 		},
 		{
 			"@type": ["Event"],
-			"valueType": "number",
+			"outputData": {
+				"type": "number"
+			},
 			"name": "myChange",
 			"property": "temp",
-			"link": {
+			"link": [{
 				"href": "val/changed",
 				"mediaType": "application/json"
-			}
+			}]
 		},
 		{
 			"@type": ["Event"],
-			"valueType": "number",
+			"outputData": {
+				"type": "number"
+			},
 			"name": "myWarning",
-			"link": {
+			"link": [{
 				"href": "val/high",
 				"mediaType": "application/json"
-			}
+			}]
 		}
 	]
 }
