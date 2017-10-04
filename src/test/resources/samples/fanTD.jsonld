@@ -18,7 +18,9 @@
     {
       "@type": ["Property", "Temperature"],
       "name": "myThreshold",
-      "valueType": "number",
+      "outputData": {
+        "type": "number"
+      },
       "unit": "celsius",
       "writable": true,
       "geo:location":"room_4",
@@ -32,7 +34,7 @@
       "name": "fanOnOff",
       "inputData": {
         "@type": "OnOff",
-        "valueType": "xsd:boolean"
+        "type": "boolean"
       },
       "link": [{
         "href": "toggle",
@@ -44,7 +46,7 @@
       "name": "fanOnOffTempAction",
       "inputData": {
         "@type": "Temperature",
-        "valueType": "xsd:float",
+        "type": "number",
         "unit": "celsius"
       },
       "geo:location": "room_4",
