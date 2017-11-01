@@ -34,6 +34,20 @@ import de.thingweb.directory.rest.RESTResource;
 import de.thingweb.directory.sparql.client.Queries;
 
 public class TDCollectionResourceTest extends BaseTest {
+	
+	@Test
+	public void testIDGeneration() throws Exception {
+		TDCollectionResource res = new TDCollectionResource();
+
+		InputStream td = cl.getResourceAsStream("samples/fanTD.jsonld");
+		RESTResource child = res.post(new HashMap<>(), td);
+		
+		assertEquals("Child resource name should be the TD @id", child.getName(), "urn:Fan");
+
+		td = cl.getResourceAsStream("samples/temperatureSensorTD.jsonld");
+		child = res.post(new HashMap<>(), td);
+		assertTrue("Child resource name should be a random 4-byte hex number", child.getName().matches("[0123456789abcdef]{8}"));
+	}
 
 	@Test
 	public void testPostMultipleTDs() throws JsonParseException, IOException {
@@ -61,7 +75,7 @@ public class TDCollectionResourceTest extends BaseTest {
 		td = cl.getResourceAsStream("samples/fanTD.jsonld");
 		RESTResource duplicate = res.post(new HashMap<>(), td);
 		
-		assertNotSame("Duplicated TD not detected", duplicate.getName(), child.getName());
+		assertSame("Duplicated TD not detected", duplicate.getName(), child.getName());
 	}
 	
 	@Test

@@ -28,17 +28,22 @@ public class BaseTest {
 	public final static String DB_LOCATION  = "DB-test";
 	public final static String SEARCH_INDEX_LOCATION = "Lucene-test";
 	
-	protected static ThingDirectory directory = ThingDirectory.get();
+	protected static ThingDirectory directory;
 	
 	protected final ClassLoader cl = ThingDirectory.get().getClass().getClassLoader();
 	
 	@BeforeClass
 	public static void setUpRDFStore() throws Exception {
+		// Note: ThingDirectory needs a proper connection to the RDF store to retrieve existing resources
+		// Connector thus must be initialized before getting the ThingDirectory singleton
 		Connector.init(DB_LOCATION, SEARCH_INDEX_LOCATION);
+		directory = ThingDirectory.get();
 	}
 
 	@AfterClass
 	public static void destroyRDFStore() throws Exception {
+		// "On Microsoft Windows, "mapped" databases can not be deleted while the JVM is running on MS Windows. This is a known issue with Java."
+		// http://jena.apache.org/documentation/tdb/store-parameters.html
 		deleteAll(DB_LOCATION); // FIXME returns false?
 //		deleteAll(SEARCH_INDEX_LOCATION);
 	}

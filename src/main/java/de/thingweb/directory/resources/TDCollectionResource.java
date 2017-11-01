@@ -10,17 +10,24 @@ import io.swagger.annotations.ResponseHeader;
 
 
 
+
+
+
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Array;
+import java.net.URLEncoder;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
 
+import java.util.Queue;
 import java.util.Set;
 
 import org.apache.jena.graph.Triple;
@@ -39,6 +46,10 @@ import org.apache.jena.reasoner.ReasonerRegistry;
 import org.apache.jena.sparql.syntax.Element;
 import org.apache.jena.system.Txn;
 import org.apache.jena.vocabulary.RDF;
+
+
+
+
 
 
 
@@ -109,6 +120,11 @@ public class TDCollectionResource extends CollectionResource {
 		}
 		
 	}
+	
+	/**
+	 * used to temporarily store the IDs of the next resources being added to the collection
+	 */
+	protected Queue<Resource> nextIDs;
 
 	public TDCollectionResource() {
 		super("/td", TDResource.factory(), new CollectionFilterFactory() {
@@ -130,6 +146,8 @@ public class TDCollectionResource extends CollectionResource {
 		for (String name : filter.getNames()) {
 			repost(name);
 		}
+		
+		nextIDs = new ArrayDeque<Resource>(1);
 	}
 
 	@ApiOperation(value = "Lists all TDs in the repository.",
@@ -175,7 +193,7 @@ public class TDCollectionResource extends CollectionResource {
 			// TODO isomorphic TDs too
 			boolean duplicate = false;
 			if (root.isURIResource()) {
-				String query = "ASK WHERE { GRAPH <%s> { ?s ?p ?o } }";
+				String query = "ASK WHERE { GRAPH ?g { <%s> ?p ?o } }";
 				RDFConnection conn = Connector.getConnection();
 				duplicate = conn.queryAsk(String.format(query, root.getURI()));
 			}
@@ -187,11 +205,20 @@ public class TDCollectionResource extends CollectionResource {
 				ByteArrayOutputStream out = new ByteArrayOutputStream();
 				td.write(out, RDFDocument.DEFAULT_FORMAT);
 				ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
-				
+
+				nextIDs.add(root);
 				RESTResource res = super.post(parameters, in);
 				resources.add(res);
 			} else {
-				ThingDirectory.LOG.info("Registering invalid TD, no instance of td:Thing: " + graph);
+				String name = getChildID(root);
+				
+				for (RESTResource res : children) {
+					if (res.getName().equals(name)) {
+						// TODO will return 201 but it shouldn't
+						resources.add(res);
+					}
+				}
+				ThingDirectory.LOG.info("TD already registered: " + root);
 			}
 		}
 		
@@ -201,6 +228,21 @@ public class TDCollectionResource extends CollectionResource {
 		} else {
 			return resources.get(0);
 		}
+	}
+	
+	@Override
+	protected String generateChildID() {
+		Resource next = nextIDs.poll();
+		
+		if (next == null || next.isAnon()) {
+			return super.generateChildID();
+		}
+
+		return getChildID(next);
+	}
+	
+	private String getChildID(Resource res) {
+		return URLEncoder.encode(res.getURI());
 	}
 	
 	private static Model extractTD(Resource root) {

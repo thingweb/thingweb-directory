@@ -2,58 +2,16 @@ package de.thingweb.directory.resources;
 
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-
-
-
-
-
-
-
-
-
-import org.apache.jena.datatypes.RDFDatatype;
-import org.apache.jena.datatypes.xsd.XSDDateTime;
-import org.apache.jena.datatypes.xsd.impl.XSDDateTimeType;
-import org.apache.jena.graph.Triple;
 import org.apache.jena.query.Query;
-import org.apache.jena.rdf.model.Literal;
-import org.apache.jena.rdf.model.Model;
-import org.apache.jena.rdf.model.Property;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.ResourceFactory;
 import org.apache.jena.rdfconnection.RDFConnection;
-import org.apache.jena.rdfconnection.RDFConnectionFactory;
-import org.apache.jena.sparql.function.library.leviathan.factorial;
-import org.apache.jena.sparql.modify.request.QuadDataAcc;
-import org.apache.jena.sparql.modify.request.UpdateDataInsert;
-import org.apache.jena.sparql.modify.request.UpdateDeleteInsert;
 import org.apache.jena.system.Txn;
 import org.apache.jena.update.Update;
-import org.apache.jena.vocabulary.DCTerms;
-import org.apache.jena.vocabulary.XSD;
-import org.eclipse.californium.core.coap.OptionNumberRegistry.optionFormats;
-import org.joda.time.DateTime;
 
-
-
-
-
-
-
-
-
-
-import de.thingweb.directory.ThingDescriptionUtils;
-import de.thingweb.directory.ThingDirectory;
-import de.thingweb.directory.rest.BadRequestException;
 import de.thingweb.directory.rest.NotFoundException;
 import de.thingweb.directory.rest.RESTException;
 import de.thingweb.directory.rest.RESTResource;

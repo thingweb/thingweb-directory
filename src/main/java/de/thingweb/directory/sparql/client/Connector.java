@@ -6,8 +6,11 @@ import java.io.IOException;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.text.EntityDefinition;
 import org.apache.jena.query.text.TextDatasetFactory;
+import org.apache.jena.rdf.model.InfModel;
+import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdfconnection.RDFConnection;
 import org.apache.jena.rdfconnection.RDFConnectionFactory;
+import org.apache.jena.reasoner.ReasonerRegistry;
 import org.apache.jena.system.Txn;
 import org.apache.jena.tdb.TDBFactory;
 import org.apache.jena.vocabulary.RDFS;
@@ -28,7 +31,7 @@ public class Connector {
 	
 	public static void init(String db, String lucene) {
     	Dataset ds = TDBFactory.createDataset(db);
-        
+
     	dataset = ds; // TODO config below
 //        // Lucene configuration
 //        try {
