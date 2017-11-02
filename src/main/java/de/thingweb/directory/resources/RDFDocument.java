@@ -12,6 +12,7 @@ import java.util.Map;
 
 
 
+
 import org.apache.jena.query.Query;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
@@ -30,6 +31,8 @@ import org.apache.jena.update.UpdateRequest;
 
 
 
+
+import org.apache.jena.vocabulary.RDFS;
 
 import de.thingweb.directory.ThingDirectory;
 import de.thingweb.directory.rest.NotFoundException;
@@ -73,8 +76,9 @@ public class RDFDocument extends DirectoryResource {
 		super(path, parameters);
 
 		Model td = read(parameters, in);
+		
 		try (RDFConnection conn = Connector.getConnection()) {
-			Txn.executeWrite(conn, () -> {
+			Txn.executeWrite(conn, () -> {				
 				addDocument(uri, td, conn);
 			});
 		}

@@ -15,6 +15,8 @@ import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.ResourceFactory;
 import org.apache.jena.rdfconnection.RDFConnection;
+import org.apache.jena.sparql.core.Transactional;
+import org.apache.jena.system.Txn;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -29,8 +31,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import de.thingweb.directory.BaseTest;
 import de.thingweb.directory.resources.TDCollectionResource;
+import de.thingweb.directory.rest.BadRequestException;
 import de.thingweb.directory.rest.RESTException;
 import de.thingweb.directory.rest.RESTResource;
+import de.thingweb.directory.sparql.client.Connector;
 import de.thingweb.directory.sparql.client.Queries;
 
 public class TDCollectionResourceTest extends BaseTest {
@@ -42,7 +46,7 @@ public class TDCollectionResourceTest extends BaseTest {
 		InputStream td = cl.getResourceAsStream("samples/fanTD.jsonld");
 		RESTResource child = res.post(new HashMap<>(), td);
 		
-		assertEquals("Child resource name should be the TD @id", child.getName(), "urn:Fan");
+		assertEquals("Child resource name should be the TD @id", child.getName(), "urn%3AFan");
 
 		td = cl.getResourceAsStream("samples/temperatureSensorTD.jsonld");
 		child = res.post(new HashMap<>(), td);
@@ -83,6 +87,16 @@ public class TDCollectionResourceTest extends BaseTest {
 		TDCollectionResource res = new TDCollectionResource();
 		
 		HashMap<String, String> parameters = new HashMap<>();
+
+		parameters.put("query", "?s ?p ?o");
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		
+		try {
+			res.get(parameters, out);
+			fail("Malformed SPARQL filter was not detected");
+		} catch (BadRequestException e) {
+			// expected behaviour
+		}
 		
 		InputStream td = cl.getResourceAsStream("samples/fanTD.jsonld");
 		res.post(parameters, td);
@@ -94,9 +108,10 @@ public class TDCollectionResourceTest extends BaseTest {
 				+ "  ?thing <http://iot.linkeddata.es/def/wot#providesInteractionPattern> ?i .\n"
 				+ "  ?i a <http://uri.etsi.org/m2m/saref#ToggleCommand> .\n"
 				+ "}";
+//		String q = "?thing ?p ?o";
 		
 		parameters.put("query", q);
-		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		out = new ByteArrayOutputStream();
 		res.get(parameters, out);
 		
 		ObjectMapper mapper = new ObjectMapper();

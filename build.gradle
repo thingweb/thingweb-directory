@@ -54,6 +54,11 @@ dependencies {
 	compile 'io.swagger:swagger-core:1.5.16'
 	compile 'org.eclipse.jetty:jetty-maven-plugin:9.3.6.v20151106'
 	compile group: 'org.eclipse.jetty', name: 'jetty-servlets', version: '9.3.6.v20151106'
+	
+	// compiled from https://github.com/stardog-union/pellet (note: 3 tests failed)
+	// TODO not compatible with Jena 3
+	//compile files('lib/pellet-core-2.4.0-SNAPSHOT.jar')
+	//compile files('lib/pellet-jena-2.4.0-SNAPSHOT.jar')
 
 	// dependencies for jena-text
 	compile group: 'commons-codec', name: 'commons-codec', version: '1.9'
@@ -64,7 +69,6 @@ dependencies {
 	compile group: 'org.apache.jena', name: 'jena-text', version: '3.0.0', ext: "jar"
 	
 	testCompile group: 'junit', name: 'junit', version: '4.8'
-
 }
 
 version = '0.7'

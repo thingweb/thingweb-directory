@@ -14,6 +14,9 @@ import io.swagger.annotations.ResponseHeader;
 
 
 
+
+
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
@@ -23,6 +26,7 @@ import java.net.URLEncoder;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -53,6 +57,9 @@ import org.apache.jena.vocabulary.RDF;
 
 
 
+import org.apache.jena.vocabulary.RDFS;
+import org.mindswap.pellet.jena.PelletReasonerFactory;
+
 import de.thingweb.directory.ThingDirectory;
 import de.thingweb.directory.VocabularyUtils;
 import de.thingweb.directory.rest.BadRequestException;
@@ -76,13 +83,19 @@ public class TDCollectionResource extends CollectionResource {
 		
 		private final Set<String> names;
 		
-		public SPARQLFilter(String q) {
+		public SPARQLFilter(String q) throws BadRequestException {
+			if (!q.contains("?thing")) {
+				ThingDirectory.LOG.info("SPARQL filter does not contain the mandatory ?thing variable");
+				throw new BadRequestException();
+			}
+			
 			Element pattern = QueryFactory.createElement("{" + q + "}");
 			Query query = Queries.filterTDs(pattern);
 			
-			try (RDFConnection conn = Connector.getConnection()) {
-				names = Txn.calculateWrite(conn, () -> {
+			try (RDFConnection conn = Connector.getConnection(true)) {
+				names = Txn.calculateRead(conn, () -> {
 					Set<String> tds = new HashSet<>();
+					
 					conn.querySelect(query, (qs) -> {
 						String uri = qs.getResource("id").getURI();
 						if (uri.contains("td/")) {
@@ -90,6 +103,7 @@ public class TDCollectionResource extends CollectionResource {
 							tds.add(id);
 						}
 					});
+					
 					return tds;
 				});
 			}
@@ -120,34 +134,35 @@ public class TDCollectionResource extends CollectionResource {
 		}
 		
 	}
-	
-	/**
-	 * used to temporarily store the IDs of the next resources being added to the collection
-	 */
-	protected Queue<Resource> nextIDs;
 
 	public TDCollectionResource() {
 		super("/td", TDResource.factory(), new CollectionFilterFactory() {
 			@Override
-			public CollectionFilter create(Map<String, String> parameters) {
-				if (parameters.containsKey(PARAMETER_QUERY)) {
-					String q = parameters.get(PARAMETER_QUERY);
-					return new SPARQLFilter(q);
-				} else if (parameters.containsKey(PARAMETER_TEXT_SEARCH)) {
-					String keywords = parameters.get(PARAMETER_TEXT_SEARCH);
-					return new FreeTextFilter(keywords);
-				} else {
-					return new CollectionResource.KeepAllFilter();
+			public CollectionFilter create(Map<String, String> parameters) throws BadRequestException {
+				try {
+					if (parameters.containsKey(PARAMETER_QUERY)) {
+						String q = parameters.get(PARAMETER_QUERY);
+						return new SPARQLFilter(q);
+					} else if (parameters.containsKey(PARAMETER_TEXT_SEARCH)) {
+						String keywords = parameters.get(PARAMETER_TEXT_SEARCH);
+						return new FreeTextFilter(keywords);
+					} else {
+						return new CollectionResource.KeepAllFilter();
+					}
+				} catch (BadRequestException e) {
+					throw e;
 				}
 			}
 		});
 		
-		SPARQLFilter filter = new SPARQLFilter("?s ?p ?o");
-		for (String name : filter.getNames()) {
-			repost(name);
+		try {
+			SPARQLFilter filter = new SPARQLFilter("?thing ?p ?o");
+			for (String name : filter.getNames()) {
+				repost(name);
+			}
+		} catch (Exception e) {
+			ThingDirectory.LOG.error("Cannot fetch existing TDs from the RDF store", e);
 		}
-		
-		nextIDs = new ArrayDeque<Resource>(1);
 	}
 
 	@ApiOperation(value = "Lists all TDs in the repository.",
@@ -174,9 +189,6 @@ public class TDCollectionResource extends CollectionResource {
 	@Override
 	public RESTResource post(Map<String, String> parameters, InputStream payload) throws RESTException {
 		Model graph = RDFDocument.read(parameters, payload);
-		Model schema = VocabularyUtils.mergeVocabularies();
-		// FIXME reasoning on the union dataset!
-		InfModel inf = ModelFactory.createInfModel(ReasonerRegistry.getOWLMicroReasoner(), schema, graph);
 
 		List<RESTResource> resources = new ArrayList<>();
 		
@@ -185,9 +197,11 @@ public class TDCollectionResource extends CollectionResource {
 			parameters.remove(RESTResource.PARAMETER_CONTENT_TYPE);
 		}
 		
-		ResIterator it = inf.listResourcesWithProperty(RDF.type, TD.Thing);
+		// TODO include inferred type statements (RDFS)
+		ResIterator it = graph.listResourcesWithProperty(RDF.type, TD.Thing);
 		while (it.hasNext()) {
 			Resource root = it.next();
+			String name = getChildID(root);
 
 			// duplicate detection
 			// TODO isomorphic TDs too
@@ -202,16 +216,22 @@ public class TDCollectionResource extends CollectionResource {
 				// TODO keyword extraction
 				
 				Model td = extractTD(root);
+				
+				// includes a reference to the Directory resource being created
+				// FIXME resolve URI resolution issues...
+				Resource ref = ResourceFactory.createResource("http://example.org" + path + "/" + name);
+				td.add(root, RDFS.isDefinedBy, ref);
+				
 				ByteArrayOutputStream out = new ByteArrayOutputStream();
 				td.write(out, RDFDocument.DEFAULT_FORMAT);
 				ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
 
-				nextIDs.add(root);
+				// child resource ID will be set to 'name'
+				idQueue.add(name);
+				
 				RESTResource res = super.post(parameters, in);
 				resources.add(res);
 			} else {
-				String name = getChildID(root);
-				
 				for (RESTResource res : children) {
 					if (res.getName().equals(name)) {
 						// TODO will return 201 but it shouldn't
@@ -230,19 +250,12 @@ public class TDCollectionResource extends CollectionResource {
 		}
 	}
 	
-	@Override
-	protected String generateChildID() {
-		Resource next = nextIDs.poll();
-		
-		if (next == null || next.isAnon()) {
+	private String getChildID(Resource res) {
+		if (res.isURIResource()) {
+			return URLEncoder.encode(res.getURI());
+		} else {
 			return super.generateChildID();
 		}
-
-		return getChildID(next);
-	}
-	
-	private String getChildID(Resource res) {
-		return URLEncoder.encode(res.getURI());
 	}
 	
 	private static Model extractTD(Resource root) {

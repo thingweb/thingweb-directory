@@ -3,11 +3,15 @@ package de.thingweb.directory.rest;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayDeque;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Queue;
 import java.util.Set;
 import java.util.UUID;
+
+import org.apache.jena.rdf.model.Resource;
 
 import de.thingweb.directory.ThingDirectory;
 
@@ -15,7 +19,7 @@ public class CollectionResource extends RESTResource {
 
 	protected final RESTResourceFactory factory;
 	protected final CollectionFilterFactory filterFactory;
-	protected final Set<RESTResource> children = new HashSet<>();
+	protected final Set<RESTResource> children;
 	
 	protected static class KeepAllFilter implements CollectionFilter {
 		
@@ -29,6 +33,12 @@ public class CollectionResource extends RESTResource {
 		}
 		
 	}
+	
+	/**
+	 * Resources being added to the collection get their ID on the Directory from this queue.
+	 * If the queue is empty, an ID is generated.
+	 */
+	protected Queue<String> idQueue;
 
 	public CollectionResource(String path, RESTResourceFactory f) {
 		this(path, f, new CollectionFilterFactory() {			
@@ -44,11 +54,18 @@ public class CollectionResource extends RESTResource {
 		factory = f;
 		filterFactory = ff;
 		contentType = "application/json";
+		children = new HashSet<>();
+		idQueue = new ArrayDeque<String>(1);
 	}
 
 	@Override
 	public void get(Map<String, String> parameters, OutputStream out) throws RESTException {
-		CollectionFilter f = filterFactory.create(parameters);
+		CollectionFilter f;
+		try {
+			f = filterFactory.create(parameters);
+		} catch (BadRequestException e) {
+			throw e;
+		}
 		
 		Set<RESTResource> filtered = new HashSet<>();
 		for (RESTResource child : children) {
@@ -80,7 +97,9 @@ public class CollectionResource extends RESTResource {
 
 	@Override
 	public RESTResource post(Map<String, String> parameters, InputStream payload) throws RESTException {
-		RESTResource child = factory.create(path + "/" + generateChildID(), parameters, payload);
+		String id = idQueue.poll();
+		String childPath = path + "/" + (id != null ? id : generateChildID());
+		RESTResource child = factory.create(childPath, parameters, payload);
 		
 		children.add(child);
 		for (RESTResourceListener l : listeners) {

@@ -41,6 +41,7 @@ import org.apache.jena.update.UpdateRequest;
 import org.apache.jena.util.iterator.ExtendedIterator;
 import org.apache.jena.vocabulary.DCTerms;
 import org.apache.jena.vocabulary.RDF;
+import org.apache.jena.vocabulary.RDFS;
 
 import de.thingweb.directory.vocabulary.TD;
 
@@ -288,12 +289,9 @@ public class Queries {
 
 	/**
 	 * SELECT ?id WHERE {
-	 *   GRAPH ?union {
-	 *     ...pattern...
-	 *   }
-	 *   GRAPH ?id {
-	 *     ?thing a td:Thing
-	 *   }
+	 *   ?thing a td:Thing ;
+	 *          rdfs:isDefinedBy ?id .
+	 *   ...
 	 * }
 	 * 
 	 * @param pattern should include at least the variable ?thing
@@ -302,26 +300,21 @@ public class Queries {
 	public static Query filterTDs(Element pattern) {
 		Query q = QueryFactory.create();
 		q.setQuerySelectType();
+		q.setDistinct(true);
 		
-		Node union = NodeFactory.createURI(UNION_GRAPH_URI);
 		Node id = Var.alloc("id");
 		Node thing = Var.alloc("thing");
-		Triple t = new Triple(thing, RDF.type.asNode(), TD.Thing.asNode());
-
-		// GRAPH ?union
-		Element inUnionGraph = new ElementNamedGraph(union, pattern);
-
-		// GRAPH ?id
-		ElementGroup isThing = new ElementGroup();
-		isThing.addTriplePattern(t);
-		Element inIdGraph = new ElementNamedGraph(id, isThing);
+		Triple type = new Triple(thing, RDF.type.asNode(), TD.Thing.asNode());
+		Triple definedBy = new Triple(thing, RDFS.isDefinedBy.asNode(), id);
 		
+		// ?thing a td:Thing ; rdfs:isDefinedBy ?id .
 		ElementGroup all = new ElementGroup();
-		all.addElement(inUnionGraph);
-		all.addElement(inIdGraph);
+		all.addElement(pattern);
+		all.addTriplePattern(type);
+		all.addTriplePattern(definedBy);
 		q.setQueryPattern(all);
 		
-		q.getResultVars().add("id"); // TODO better integration?
+		q.addResultVar("id"); // TODO better integration?
 		
 		return q;
 	}

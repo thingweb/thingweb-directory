@@ -4,6 +4,6 @@ import java.util.Map;
 
 public interface CollectionFilterFactory {
 	
-	public CollectionFilter create(Map<String, String> parameters);
+	public CollectionFilter create(Map<String, String> parameters) throws BadRequestException;
 
 }

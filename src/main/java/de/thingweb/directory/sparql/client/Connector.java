@@ -4,20 +4,27 @@ import java.io.File;
 import java.io.IOException;
 
 import org.apache.jena.query.Dataset;
+import org.apache.jena.query.DatasetFactory;
 import org.apache.jena.query.text.EntityDefinition;
 import org.apache.jena.query.text.TextDatasetFactory;
 import org.apache.jena.rdf.model.InfModel;
+import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdfconnection.RDFConnection;
 import org.apache.jena.rdfconnection.RDFConnectionFactory;
+import org.apache.jena.reasoner.Reasoner;
 import org.apache.jena.reasoner.ReasonerRegistry;
 import org.apache.jena.system.Txn;
 import org.apache.jena.tdb.TDBFactory;
+import org.apache.jena.tdb.TDBLoader;
 import org.apache.jena.vocabulary.RDFS;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.util.Version;
+import org.mindswap.pellet.jena.PelletReasoner;
+
+import com.sun.glass.ui.Size;
 
 import de.thingweb.directory.ThingDirectory;
 
@@ -47,7 +54,28 @@ public class Connector {
 	}
 	
 	public static RDFConnection getConnection() {
-		return RDFConnectionFactory.connect(dataset);
+		return getConnection(false);
+	}
+	
+	public static RDFConnection getConnection(boolean withInference) {
+		Dataset ds = dataset;
+		
+		if (withInference) {
+			Model m = ModelFactory.createDefaultModel();
+			RDFConnection conn = RDFConnectionFactory.connect(ds);
+			Txn.executeRead(conn, () -> {
+				// loads copy of union graph into main memory
+				Model union = dataset.getNamedModel(Queries.UNION_GRAPH_URI);
+				m.add(union);
+			});
+
+			 // TODO include Pellet instead?
+	    	Reasoner reasoner = ReasonerRegistry.getOWLMiniReasoner();
+	    	InfModel inf = ModelFactory.createInfModel(reasoner, m);
+	    	ds = DatasetFactory.create(inf);
+		}
+		
+		return RDFConnectionFactory.connect(ds);
 	}
 	
 }
