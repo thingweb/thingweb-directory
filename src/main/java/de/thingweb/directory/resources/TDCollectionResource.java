@@ -17,6 +17,7 @@ import io.swagger.annotations.ResponseHeader;
 
 
 
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
@@ -40,6 +41,7 @@ import org.apache.jena.query.QueryFactory;
 import org.apache.jena.rdf.model.InfModel;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
+import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.rdf.model.ResIterator;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.ResourceFactory;
@@ -156,10 +158,22 @@ public class TDCollectionResource extends CollectionResource {
 		});
 		
 		try {
-			SPARQLFilter filter = new SPARQLFilter("?thing ?p ?o");
-			for (String name : filter.getNames()) {
-				repost(name);
-			}
+			Set<String> names = new HashSet<>();
+			
+			RDFConnection conn = Connector.getConnection();
+			Txn.executeRead(conn, () -> {
+				Query q = Queries.listGraphs(TD.Thing);
+				
+				conn.querySelect(q, (qs) -> {
+					String uri = qs.getResource("id").getURI();
+					if (uri.contains("td/")) {
+						String id = uri.substring(uri.lastIndexOf("td/") + 3);
+						names.add(id);
+					}
+				});
+			});
+
+			names.forEach(name -> repost(name));
 		} catch (Exception e) {
 			ThingDirectory.LOG.error("Cannot fetch existing TDs from the RDF store", e);
 		}

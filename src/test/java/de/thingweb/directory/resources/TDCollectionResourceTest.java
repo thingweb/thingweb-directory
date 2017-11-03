@@ -40,6 +40,23 @@ import de.thingweb.directory.sparql.client.Queries;
 public class TDCollectionResourceTest extends BaseTest {
 	
 	@Test
+	public void testTDRepost() throws Exception {
+		TDCollectionResource res = new TDCollectionResource();
+
+		InputStream td = cl.getResourceAsStream("samples/fanTD.jsonld");
+		res.post(new HashMap<>(), td);
+		
+		res = new TDCollectionResource();
+
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		res.get(new HashMap<>(), out);
+		
+		ObjectMapper mapper = new ObjectMapper();
+		JsonNode node = mapper.readTree(out.toByteArray());
+		assertEquals("TD already in the RDF store should have been reposted", 1, node.size());
+	}
+	
+	@Test
 	public void testIDGeneration() throws Exception {
 		TDCollectionResource res = new TDCollectionResource();
 
@@ -50,7 +67,7 @@ public class TDCollectionResourceTest extends BaseTest {
 
 		td = cl.getResourceAsStream("samples/temperatureSensorTD.jsonld");
 		child = res.post(new HashMap<>(), td);
-		assertTrue("Child resource name should be a random 4-byte hex number", child.getName().matches("[0123456789abcdef]{8}"));
+		assertTrue("Child resource name should have been a random 4-byte hex number", child.getName().matches("[0123456789abcdef]{8}"));
 	}
 
 	@Test

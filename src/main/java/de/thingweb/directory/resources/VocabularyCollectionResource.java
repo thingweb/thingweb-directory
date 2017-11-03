@@ -76,12 +76,6 @@ public class VocabularyCollectionResource extends CollectionResource {
 			return root;
 		}
 	}
-
-	@Override
-	protected String generateChildID() {
-		// TODO transmit prefix as resource name to parent
-		return super.generateChildID();
-	}
 	
 	private boolean isRootOntology(String uri, OntModel m) {
 		return !m.contains(null, OWL.imports, ResourceFactory.createResource(uri));

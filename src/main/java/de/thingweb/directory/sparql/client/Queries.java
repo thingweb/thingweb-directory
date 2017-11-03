@@ -237,6 +237,7 @@ public class Queries {
 	 *     ?s ?p ?o
 	 *   }
 	 * }
+	 * 
 	 * @param id
 	 * @return
 	 */
@@ -283,6 +284,38 @@ public class Queries {
 		element.addTriplePattern(t);
 		Element inGraph = new ElementNamedGraph(id.asNode(), element);
 		q.setQueryPattern(inGraph);
+		
+		return q;
+	}
+	
+	/**
+	 * SELECT ?id WHERE {
+	 *   GRAPH ?id {
+	 *     ?res a type .
+	 *   }
+	 * }
+	 * 
+	 * @param type
+	 * @return
+	 */
+	public static Query listGraphs(Resource type) {
+		Query q = QueryFactory.create();
+		q.setQuerySelectType();
+		q.setDistinct(true);
+		
+		Node id = Var.alloc("id");
+		Node res = Var.alloc("res");
+		Triple t = new Triple(res, RDF.type.asNode(), type.asNode());
+		
+		// ?res a type .
+		ElementGroup element = new ElementGroup();
+		element.addTriplePattern(t);
+		
+		// GRAPH ?id
+		Element inGraph = new ElementNamedGraph(id, element);
+		q.setQueryPattern(inGraph);
+		
+		q.addResultVar("id"); // TODO better integration?
 		
 		return q;
 	}
