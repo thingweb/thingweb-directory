@@ -152,6 +152,8 @@ public class RDFDocument extends DirectoryResource {
 				removeDocument(uri, conn);
 			});
 		}
+		
+		ThingDirectory.LOG.info("Deleted RDF document: " + path);
 	}
 	
 	private void addDocument(String uri, Model m, RDFConnection conn) {

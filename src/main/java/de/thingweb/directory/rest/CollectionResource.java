@@ -106,6 +106,18 @@ public class CollectionResource extends RESTResource {
 			l.onCreate(child);
 		}
 		
+		child.addListener(new RESTResourceListener() {
+			@Override
+			public void onDelete(RESTResource resource) {
+				children.remove(resource);
+			}
+			
+			@Override
+			public void onCreate(RESTResource resource) {
+				// do nothing
+			}
+		});
+		
 		return child;
 	}
 
