@@ -166,8 +166,8 @@ public class TDCollectionResource extends CollectionResource {
 				
 				conn.querySelect(q, (qs) -> {
 					String uri = qs.getResource("id").getURI();
-					if (uri.contains("td/")) {
-						String id = uri.substring(uri.lastIndexOf("td/") + 3);
+					if (uri.contains(name)) {
+						String id = uri.substring(uri.lastIndexOf("/") + 1);
 						names.add(id);
 					}
 				});

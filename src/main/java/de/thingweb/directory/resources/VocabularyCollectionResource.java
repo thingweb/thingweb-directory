@@ -4,12 +4,15 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.jena.ontology.OntModel;
 import org.apache.jena.ontology.OntModelSpec;
 import org.apache.jena.ontology.Ontology;
+import org.apache.jena.query.Query;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.ResIterator;
@@ -27,6 +30,7 @@ import de.thingweb.directory.rest.CollectionResource;
 import de.thingweb.directory.rest.RESTException;
 import de.thingweb.directory.rest.RESTResource;
 import de.thingweb.directory.sparql.client.Connector;
+import de.thingweb.directory.sparql.client.Queries;
 import de.thingweb.directory.vocabulary.TD;
 
 public class VocabularyCollectionResource extends CollectionResource {
@@ -34,7 +38,26 @@ public class VocabularyCollectionResource extends CollectionResource {
 	public VocabularyCollectionResource() {
 		super("/vocab", RDFDocument.factory());
 		
-		// TODO create child resources for all graphs already in the RDF store.
+		try {
+			Set<String> prefixes = new HashSet<>();
+			
+			RDFConnection conn = Connector.getConnection();
+			Txn.executeRead(conn, () -> {
+				Query q = Queries.listGraphs(OWL.Ontology);
+				
+				conn.querySelect(q, (qs) -> {
+					String uri = qs.getResource("id").getURI();
+					if (uri.contains(name)) {
+						String id = uri.substring(uri.lastIndexOf("/") + 1);
+						prefixes.add(id);
+					}
+				});
+			});
+
+			prefixes.forEach(name -> repost(name));
+		} catch (Exception e) {
+			ThingDirectory.LOG.error("Cannot fetch existing vocabularies from the RDF store", e);
+		}
 	}
 	
 	@Override
