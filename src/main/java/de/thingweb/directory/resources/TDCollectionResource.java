@@ -229,7 +229,7 @@ public class TDCollectionResource extends CollectionResource {
 			if (!duplicate) {
 				// TODO keyword extraction
 				
-				Model td = extractTD(root);
+				Model td = extractTD(root, new HashSet<>());
 				
 				// includes a reference to the Directory resource being created
 				// FIXME resolve URI resolution issues...
@@ -272,18 +272,26 @@ public class TDCollectionResource extends CollectionResource {
 		}
 	}
 	
-	private static Model extractTD(Resource root) {
+	/**
+	 * breadth-first traversal of the RDF model
+	 * 
+	 * @param root starting point of the traversal
+	 * @param visited set of visited nodes (should be empty)
+	 * @return
+	 */
+	private static Model extractTD(Resource root, Set<Resource> visited) {
 		Model td = ModelFactory.createDefaultModel();
-		  
+		
+		visited.add(root);
+
 		StmtIterator it = root.listProperties();
 		while (it.hasNext()) {
 			Statement st = it.next();
 			td.add(st);
 			if (!st.getPredicate().equals(RDF.type) && st.getObject().isResource()) {
 				Resource node = st.getObject().asResource();
-				if (!node.hasProperty(RDF.type, TD.Thing)) {
-					// FIXME cycle detection (if interaction patterns reference each other)
-					td.add(extractTD(node));
+				if (!node.hasProperty(RDF.type, TD.Thing) && !visited.contains(node)) {
+					td.add(extractTD(node, visited));
 				}
 			}
 		}
