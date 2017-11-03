@@ -141,6 +141,8 @@ public class CollectionResource extends RESTResource {
 		for (RESTResourceListener l : listeners) {
 			l.onCreate(child);
 		}
+		
+		ThingDirectory.LOG.info("Reposting existing resource to the collection: " + child.getPath());
 	}
 	
 	protected String generateChildID() {
