@@ -4,10 +4,6 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.jena.rdfconnection.RDFConnection;
-
-import de.thingweb.directory.ThingDirectory;
-
 public class VocabularyResource extends RDFDocument {
 	
 	public VocabularyResource(String path, InputStream in) {

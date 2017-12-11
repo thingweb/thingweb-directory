@@ -1,7 +1,6 @@
 package de.thingweb.directory.http;
 
 import java.util.EnumSet;
-import java.util.Map;
 
 import javax.servlet.DispatcherType;
 import javax.servlet.http.HttpServlet;
@@ -13,7 +12,6 @@ import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.servlet.ServletMapping;
 import org.eclipse.jetty.servlets.CrossOriginFilter;
 
-import de.thingweb.directory.ThingDirectory;
 import de.thingweb.directory.rest.CollectionResource;
 import de.thingweb.directory.rest.IndexResource;
 import de.thingweb.directory.rest.RESTResource;

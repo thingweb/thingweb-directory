@@ -75,7 +75,7 @@ public class DirectoryResource extends RESTResource {
 	
 	@Override
 	public void get(Map<String, String> parameters, OutputStream out) throws RESTException {		
-		if (hasExpired(uri)) {
+		if (hasExpired()) {
 			// resource is out-dated
 			delete(parameters);
 			throw new NotFoundException();
@@ -98,7 +98,7 @@ public class DirectoryResource extends RESTResource {
 		}
 	}
 	
-	private boolean hasExpired(String uri) {
+	boolean hasExpired() {
 		Resource res = ResourceFactory.createResource(uri);
 		
 		try (RDFConnection conn = Connector.getConnection()) {

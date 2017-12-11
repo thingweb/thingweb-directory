@@ -2,8 +2,6 @@ package de.thingweb.directory.rest;
 
 import java.util.Map;
 
-import de.thingweb.directory.ThingDirectory;
-
 /**
  * 
  * API Entry point.

@@ -11,8 +11,6 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.UUID;
 
-import org.apache.jena.rdf.model.Resource;
-
 import de.thingweb.directory.ThingDirectory;
 
 public class CollectionResource extends RESTResource {

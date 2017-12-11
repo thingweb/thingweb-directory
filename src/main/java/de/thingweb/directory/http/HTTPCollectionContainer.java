@@ -1,15 +1,9 @@
 package de.thingweb.directory.http;
 
-import java.io.IOException;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import de.thingweb.directory.rest.CollectionResource;
 import de.thingweb.directory.rest.NotFoundException;
-import de.thingweb.directory.rest.RESTException;
 import de.thingweb.directory.rest.RESTResource;
 
 public class HTTPCollectionContainer extends HTTPResourceContainer {

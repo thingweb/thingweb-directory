@@ -125,7 +125,6 @@ public class TDCollectionResourceTest extends BaseTest {
 				+ "  ?thing <http://iot.linkeddata.es/def/wot#providesInteractionPattern> ?i .\n"
 				+ "  ?i a <http://uri.etsi.org/m2m/saref#ToggleCommand> .\n"
 				+ "}";
-//		String q = "?thing ?p ?o";
 		
 		parameters.put("query", q);
 		out = new ByteArrayOutputStream();
@@ -134,11 +133,6 @@ public class TDCollectionResourceTest extends BaseTest {
 		ObjectMapper mapper = new ObjectMapper();
 		JsonNode node = mapper.readTree(out.toByteArray());
 		assertEquals("SPARQL filter was not applied", 1, node.size());
-	}
-	
-	@Test
-	public void testRepost() throws Exception {
-		// TODO
 	}
 
 }

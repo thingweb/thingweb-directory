@@ -5,8 +5,6 @@ import io.swagger.annotations.Info;
 import io.swagger.annotations.License;
 import io.swagger.annotations.SwaggerDefinition;
 import io.swagger.annotations.Tag;
-import io.swagger.jackson.SwaggerAnnotationIntrospector;
-import io.swagger.models.Swagger;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -17,7 +15,6 @@ import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
-import org.apache.jena.rdfconnection.RDFConnection;
 import org.apache.log4j.Logger;
 
 import de.thingweb.directory.coap.CoAPServer;

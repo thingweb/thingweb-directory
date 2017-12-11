@@ -3,9 +3,7 @@ package de.thingweb.directory.resources;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -15,25 +13,20 @@ import org.apache.jena.ontology.Ontology;
 import org.apache.jena.query.Query;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
-import org.apache.jena.rdf.model.ResIterator;
-import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.ResourceFactory;
 import org.apache.jena.rdfconnection.RDFConnection;
 import org.apache.jena.system.Txn;
 import org.apache.jena.util.iterator.ExtendedIterator;
 import org.apache.jena.vocabulary.OWL;
-import org.apache.jena.vocabulary.RDF;
 
 import de.thingweb.directory.ThingDirectory;
 import de.thingweb.directory.rest.BadRequestException;
-import de.thingweb.directory.rest.CollectionResource;
 import de.thingweb.directory.rest.RESTException;
 import de.thingweb.directory.rest.RESTResource;
 import de.thingweb.directory.sparql.client.Connector;
 import de.thingweb.directory.sparql.client.Queries;
-import de.thingweb.directory.vocabulary.TD;
 
-public class VocabularyCollectionResource extends CollectionResource {
+public class VocabularyCollectionResource extends DirectoryCollectionResource {
 
 	public VocabularyCollectionResource() {
 		super("/vocab", RDFDocument.factory());

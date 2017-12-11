@@ -1,8 +1,5 @@
 package de.thingweb.directory.resources;
 
-import io.swagger.annotations.SwaggerDefinition;
-import io.swagger.annotations.Tag;
-
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Map;

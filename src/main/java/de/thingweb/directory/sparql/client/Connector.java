@@ -1,12 +1,7 @@
 package de.thingweb.directory.sparql.client;
 
-import java.io.File;
-import java.io.IOException;
-
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.DatasetFactory;
-import org.apache.jena.query.text.EntityDefinition;
-import org.apache.jena.query.text.TextDatasetFactory;
 import org.apache.jena.rdf.model.InfModel;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
@@ -16,17 +11,6 @@ import org.apache.jena.reasoner.Reasoner;
 import org.apache.jena.reasoner.ReasonerRegistry;
 import org.apache.jena.system.Txn;
 import org.apache.jena.tdb.TDBFactory;
-import org.apache.jena.tdb.TDBLoader;
-import org.apache.jena.vocabulary.RDFS;
-import org.apache.lucene.analysis.standard.StandardAnalyzer;
-import org.apache.lucene.store.Directory;
-import org.apache.lucene.store.FSDirectory;
-import org.apache.lucene.util.Version;
-import org.mindswap.pellet.jena.PelletReasoner;
-
-import com.sun.glass.ui.Size;
-
-import de.thingweb.directory.ThingDirectory;
 
 public class Connector {
 	

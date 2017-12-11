@@ -3,67 +3,36 @@ package de.thingweb.directory.resources;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
-import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ResponseHeader;
-
-
-
-
-
-
-
-
-
-
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.lang.reflect.Array;
 import java.net.URLEncoder;
-import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
-
-import java.util.Queue;
 import java.util.Set;
 
-import org.apache.jena.graph.Triple;
 import org.apache.jena.query.Query;
 import org.apache.jena.query.QueryFactory;
-import org.apache.jena.rdf.model.InfModel;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
-import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.rdf.model.ResIterator;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.ResourceFactory;
 import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.rdf.model.StmtIterator;
 import org.apache.jena.rdfconnection.RDFConnection;
-import org.apache.jena.reasoner.ReasonerRegistry;
 import org.apache.jena.sparql.syntax.Element;
 import org.apache.jena.system.Txn;
 import org.apache.jena.vocabulary.RDF;
-
-
-
-
-
-
-
 import org.apache.jena.vocabulary.RDFS;
-import org.mindswap.pellet.jena.PelletReasonerFactory;
 
 import de.thingweb.directory.ThingDirectory;
-import de.thingweb.directory.VocabularyUtils;
 import de.thingweb.directory.rest.BadRequestException;
 import de.thingweb.directory.rest.CollectionFilter;
 import de.thingweb.directory.rest.CollectionFilterFactory;
@@ -75,7 +44,7 @@ import de.thingweb.directory.sparql.client.Queries;
 import de.thingweb.directory.vocabulary.TD;
 
 @Api(value = "thing_description")
-public class TDCollectionResource extends CollectionResource {
+public class TDCollectionResource extends DirectoryCollectionResource {
 	
 	public static final String PARAMETER_QUERY = "query";
 	
