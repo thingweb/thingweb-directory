@@ -21,10 +21,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
- 
-plugins {
-    id "com.jfrog.bintray" version "1.7"
-}
 
 apply plugin: 'java'
 apply plugin: 'java-library-distribution'
@@ -41,8 +37,6 @@ sourceSets {
 }
 
 repositories {
-	maven { url "https://jitpack.io" }
-	maven { url "http://dl.bintray.com/thingweb/maven" }
 	mavenCentral()
 	jcenter()
 }
@@ -54,11 +48,6 @@ dependencies {
 	compile 'io.swagger:swagger-core:1.5.16'
 	compile 'org.eclipse.jetty:jetty-maven-plugin:9.3.6.v20151106'
 	compile group: 'org.eclipse.jetty', name: 'jetty-servlets', version: '9.3.6.v20151106'
-	
-	// compiled from https://github.com/stardog-union/pellet (note: 3 tests failed)
-	// TODO not compatible with Jena 3
-	//compile files('lib/pellet-core-2.4.0-SNAPSHOT.jar')
-	//compile files('lib/pellet-jena-2.4.0-SNAPSHOT.jar')
 
 	// dependencies for jena-text
 	compile group: 'commons-codec', name: 'commons-codec', version: '1.9'
@@ -106,18 +95,4 @@ jar {
 	
 	// include service files from the buildDir
 	from fileTree(buildDir).matching{ include 'META-INF/services/*' }
-}
-
-bintray {
-    user = System.getenv('BINTRAY_USER')
-    key = System.getenv('BINTRAY_KEY')
-    publications  = ['mavenJava']
-    publish = true
-    pkg {
-    	version { name = version }
-        repo = 'maven'
-        name = 'thingweb-directory'
-        licenses = ['MIT']
-        vcsUrl = 'https://github.com/thingweb/thingweb-directory.git'
-    }
 }
