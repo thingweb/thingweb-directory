@@ -49,7 +49,11 @@ public class CoAPResourceContainer extends CoapResource {
 			resource.get(params(exchange), out);
 			exchange.respond(ResponseCode.VALID, out.toByteArray(), toContentFormatCode(resource.getContentType()));
 		} catch (BadRequestException e) {
-			exchange.respond(ResponseCode.BAD_REQUEST);
+			if (e.getMessage() != null) {
+				exchange.respond(ResponseCode.BAD_REQUEST, e.getMessage());
+			} else {
+				exchange.respond(ResponseCode.BAD_REQUEST);
+			}
 		} catch (NotFoundException e) {
 			exchange.respond(ResponseCode.NOT_FOUND);
 		} catch (RESTException e) {
@@ -64,7 +68,11 @@ public class CoAPResourceContainer extends CoapResource {
 			response.setOptions(new OptionSet().addLocationPath(child.getPath()));
 			exchange.respond(response);
 		} catch (BadRequestException e) {
-			exchange.respond(ResponseCode.BAD_REQUEST);
+			if (e.getMessage() != null) {
+				exchange.respond(ResponseCode.BAD_REQUEST, e.getMessage());
+			} else {
+				exchange.respond(ResponseCode.BAD_REQUEST);
+			}
 		} catch (RESTException e) {
 			exchange.respond(ResponseCode.INTERNAL_SERVER_ERROR);
 		}
@@ -77,7 +85,11 @@ public class CoAPResourceContainer extends CoapResource {
 			resource.put(params(exchange), payload(exchange));
 			exchange.respond(ResponseCode.CHANGED);
 		} catch (BadRequestException e) {
-			exchange.respond(ResponseCode.BAD_REQUEST);
+			if (e.getMessage() != null) {
+				exchange.respond(ResponseCode.BAD_REQUEST, e.getMessage());
+			} else {
+				exchange.respond(ResponseCode.BAD_REQUEST);
+			}
 		} catch (RESTException e) {
 			exchange.respond(ResponseCode.INTERNAL_SERVER_ERROR);
 		}
@@ -90,7 +102,11 @@ public class CoAPResourceContainer extends CoapResource {
 			resource.delete(params(exchange));
 			exchange.respond(ResponseCode.DELETED);
 		} catch (BadRequestException e) {
-			exchange.respond(ResponseCode.BAD_REQUEST);
+			if (e.getMessage() != null) {
+				exchange.respond(ResponseCode.BAD_REQUEST, e.getMessage());
+			} else {
+				exchange.respond(ResponseCode.BAD_REQUEST);
+			}
 		} catch (RESTException e) {
 			exchange.respond(ResponseCode.INTERNAL_SERVER_ERROR);
 		}

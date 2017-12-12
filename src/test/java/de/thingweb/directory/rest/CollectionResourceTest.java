@@ -24,7 +24,7 @@ import de.thingweb.directory.rest.RESTResource;
 public class CollectionResourceTest {
 
 	@Test
-	public void testPost() throws JsonProcessingException, IOException {
+	public void testPost() throws JsonProcessingException, IOException, RESTException {
 		CollectionResource coll = new CollectionResource("/", RESTResource.factory());
 		ByteArrayInputStream in = new ByteArrayInputStream(new byte[0]);
 		

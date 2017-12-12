@@ -87,7 +87,9 @@ public class VocabularyCollectionResource extends DirectoryCollectionResource {
 		}
 
 		if (root == null) {
-			throw new BadRequestException();
+			String reason = "Registering invalid vocabulary, no instance of owl:Ontology: " + vocab;
+			ThingDirectory.LOG.error(reason);
+			throw new BadRequestException(reason);
 		} else {
 			return root;
 		}

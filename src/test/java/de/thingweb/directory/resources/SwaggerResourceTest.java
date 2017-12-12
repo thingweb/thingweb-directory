@@ -19,7 +19,7 @@ import de.thingweb.directory.rest.RESTResource;
 public class SwaggerResourceTest {
 
 	@Test
-	public void testGet() throws JsonProcessingException, IOException {
+	public void testGet() throws JsonProcessingException, IOException, RESTException {
 		RESTResource res = new SwaggerResource();
 		
 		ByteArrayOutputStream out = new ByteArrayOutputStream();

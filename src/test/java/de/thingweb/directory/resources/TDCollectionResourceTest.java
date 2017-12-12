@@ -71,7 +71,7 @@ public class TDCollectionResourceTest extends BaseTest {
 	}
 
 	@Test
-	public void testPostMultipleTDs() throws JsonParseException, IOException {
+	public void testPostMultipleTDs() throws JsonParseException, IOException, RESTException {
 		TDCollectionResource res = new TDCollectionResource();
 		
 		InputStream td = cl.getResourceAsStream("samples/fanTD+temperatureSensorTD.jsonld");

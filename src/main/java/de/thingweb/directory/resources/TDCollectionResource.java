@@ -56,8 +56,9 @@ public class TDCollectionResource extends DirectoryCollectionResource {
 		
 		public SPARQLFilter(String q) throws BadRequestException {
 			if (!q.contains("?thing")) {
-				ThingDirectory.LOG.info("SPARQL filter does not contain the mandatory ?thing variable");
-				throw new BadRequestException();
+				String reason = "SPARQL filter does not contain the mandatory ?thing variable";
+				ThingDirectory.LOG.info(reason);
+				throw new BadRequestException(reason);
 			}
 			
 			Element pattern = QueryFactory.createElement("{" + q + "}");
@@ -226,8 +227,9 @@ public class TDCollectionResource extends DirectoryCollectionResource {
 		}
 		
 		if (resources.isEmpty()) {
-			ThingDirectory.LOG.info("Registering invalid TD, no instance of td:Thing: " + graph);
-			throw new BadRequestException();
+			String reason = "Registering invalid TD, no instance of td:Thing: " + graph;
+			ThingDirectory.LOG.info(reason);
+			throw new BadRequestException(reason);
 		} else {
 			return resources.get(0);
 		}

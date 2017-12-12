@@ -34,7 +34,11 @@ public class HTTPResourceContainer extends HttpServlet {
 		res.get(params(req), resp.getOutputStream());
 	resp.setContentType(res.getContentType());
 	} catch (BadRequestException e) {
-	  resp.sendError(400);
+		if (e.getMessage() != null) {
+			resp.sendError(400, e.getMessage());
+		} else {
+			resp.sendError(400);
+		}
 	} catch (NotFoundException e) {
 		resp.sendError(404);
 	} catch (RESTException e) {
@@ -51,7 +55,11 @@ public class HTTPResourceContainer extends HttpServlet {
       resp.setStatus(201);
       resp.setHeader("Location", child.getPath());
     } catch (BadRequestException e) {
-      resp.sendError(400);
+		if (e.getMessage() != null) {
+			resp.sendError(400, e.getMessage());
+		} else {
+			resp.sendError(400);
+		}
     } catch (NotFoundException e) {
 		resp.sendError(404);
 	} catch (RESTException e) {
@@ -66,7 +74,11 @@ public class HTTPResourceContainer extends HttpServlet {
 		RESTResource res = select(req);
         res.put(params(req), req.getInputStream());
     } catch (BadRequestException e) {
-      resp.sendError(400);
+		if (e.getMessage() != null) {
+			resp.sendError(400, e.getMessage());
+		} else {
+			resp.sendError(400);
+		}
     } catch (NotFoundException e) {
 		resp.sendError(404);
 	} catch (RESTException e) {
@@ -81,7 +93,11 @@ public class HTTPResourceContainer extends HttpServlet {
 		RESTResource res = select(req);
         res.delete(params(req));
     } catch (BadRequestException e) {
-      resp.sendError(400);
+		if (e.getMessage() != null) {
+			resp.sendError(400, e.getMessage());
+		} else {
+			resp.sendError(400);
+		}
     } catch (NotFoundException e) {
 		resp.sendError(404);
 	} catch (RESTException e) {
