@@ -99,14 +99,16 @@ public class ThingDirectory {
     	// Default values
         int portCoAP = DEFAULT_COAP_PORT;
         int portHTTP = DEFAULT_HTTP_PORT;
-        String loc = "db"; // directory to store the database //"jena-config.ttl";
+        String loc = "db"; // directory to store the database
         String lucene = "lucene"; // directory to store lucene index
+        String endpoint = null; // SPARQL endpoint URI for remote storage
         
         //####### Handle input ##########
         Options options = new Options();
         
         options.addOption("d", true, "Directory to store the database. Default is ./db.");
-        options.addOption("l", true, "Directory to store the lucene index. Default is ./Lucene.");
+        options.addOption("e", true, "SPARQL endpoint URI for remote storage (not compatible with -d).");
+        options.addOption("l", true, "Directory to store the lucene index. Default is ./lucene.");
         options.addOption("c", true, "CoAP port number. Default is 5683.");
         options.addOption("h", true, "HTTP port number. Default is 8080.");
         options.addOption("help", false, "This help message.");
@@ -121,7 +123,9 @@ public class ThingDirectory {
         if (cmd.hasOption("h")) {
         	portHTTP = Integer.parseInt(cmd.getOptionValue("h"));
         }
-        if (cmd.hasOption("d")) {
+        if (cmd.hasOption("e")) {
+        	endpoint = cmd.getOptionValue("e");
+        } else if (cmd.hasOption("d")) {
         	loc = cmd.getOptionValue("d");
         }
         if (cmd.hasOption("l")) {
@@ -137,7 +141,11 @@ public class ThingDirectory {
         // ##############################
 
         // initiate SPARQL client
-        Connector.init(loc, lucene);
+        if (endpoint != null) {
+            Connector.init(loc, lucene);        	
+        } else {
+            Connector.init(endpoint);
+        }
 
         // configure SPARQL engine (server)
         Functions.registerAll();

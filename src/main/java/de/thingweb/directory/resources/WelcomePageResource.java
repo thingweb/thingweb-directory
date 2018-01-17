@@ -17,7 +17,7 @@ public class WelcomePageResource extends IndexResource {
 		children.add(new TDCollectionResource());
 		children.add(new VocabularyCollectionResource());
 		children.add(new SwaggerResource());
-		// TODO ns-lookup
+		children.add(new TDLookUpCollectionResource());
 	}
 	
 	@Override
