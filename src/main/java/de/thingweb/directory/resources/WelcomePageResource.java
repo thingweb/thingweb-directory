@@ -14,10 +14,12 @@ public class WelcomePageResource extends IndexResource {
 	public WelcomePageResource() {
 		super(null);
 		
-		children.add(new TDCollectionResource());
+		TDCollectionResource tds = new TDCollectionResource();
+		
+		children.add(tds);
+		children.add(new TDLookUpCollectionResource(tds));
 		children.add(new VocabularyCollectionResource());
 		children.add(new SwaggerResource());
-		children.add(new TDLookUpCollectionResource());
 	}
 	
 	@Override

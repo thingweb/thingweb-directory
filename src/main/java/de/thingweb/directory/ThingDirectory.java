@@ -142,9 +142,9 @@ public class ThingDirectory {
 
         // initiate SPARQL client
         if (endpoint != null) {
-            Connector.init(loc, lucene);        	
+            Connector.init(endpoint);       	
         } else {
-            Connector.init(endpoint);
+            Connector.init(loc, lucene); 
         }
 
         // configure SPARQL engine (server)

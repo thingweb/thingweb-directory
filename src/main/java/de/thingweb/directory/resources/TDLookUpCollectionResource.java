@@ -12,12 +12,12 @@ import de.thingweb.directory.rest.RESTResource;
 
 public class TDLookUpCollectionResource extends CollectionResource {
 	
-	public TDLookUpCollectionResource() {
+	public TDLookUpCollectionResource(TDCollectionResource tds) {
 		super("/td-lookup", null);
 		
 		children.add(new TDLookUpResResource());
 		children.add(new TDLookUpEpResource());
-		children.add(new TDLookUpSemResource());
+		children.add(new TDLookUpSemResource(tds));
 	}
 	
 	@Override
