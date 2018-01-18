@@ -14,10 +14,12 @@ import org.apache.jena.tdb.TDBFactory;
 
 public class Connector {
 	
-	private static Dataset dataset;
+	private static Dataset dataset = null;
 	
-	public static void init(String endpoint) {
-		// TODO connection to remote SPARQL endpoint
+	private static String endpoint = null;
+	
+	public static void init(String ep) {
+		endpoint = ep;
 	}
 	
 	public static void init(String db, String lucene) {
@@ -31,24 +33,30 @@ public class Connector {
 	}
 	
 	public static RDFConnection getConnection(boolean withInference) {
-		Dataset ds = dataset;
-		
-		if (withInference) {
-			Model m = ModelFactory.createDefaultModel();
-			RDFConnection conn = RDFConnectionFactory.connect(ds);
-			Txn.executeRead(conn, () -> {
-				// loads copy of union graph into main memory
-				Model union = dataset.getNamedModel(Queries.UNION_GRAPH_URI);
-				m.add(union);
-			});
-
-			 // TODO include Pellet instead?
-	    	Reasoner reasoner = ReasonerRegistry.getOWLMiniReasoner();
-	    	InfModel inf = ModelFactory.createInfModel(reasoner, m);
-	    	ds = DatasetFactory.create(inf);
+		if (dataset != null) {
+			Dataset ds = dataset;
+			
+			if (withInference) {
+				Model m = ModelFactory.createDefaultModel();
+				RDFConnection conn = RDFConnectionFactory.connect(ds);
+				Txn.executeRead(conn, () -> {
+					// loads copy of union graph into main memory
+					Model union = dataset.getNamedModel(Queries.UNION_GRAPH_URI);
+					m.add(union);
+				});
+	
+				 // TODO include Pellet instead?
+		    	Reasoner reasoner = ReasonerRegistry.getOWLMiniReasoner();
+		    	InfModel inf = ModelFactory.createInfModel(reasoner, m);
+		    	ds = DatasetFactory.create(inf);
+			}
+			
+			return RDFConnectionFactory.connect(ds);
+		} else if (endpoint != null) {
+			return RDFConnectionFactory.connect(endpoint);
 		}
 		
-		return RDFConnectionFactory.connect(ds);
+		throw new RuntimeException("No RDF connection available");
 	}
 	
 }

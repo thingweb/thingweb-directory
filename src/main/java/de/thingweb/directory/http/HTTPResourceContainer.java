@@ -32,7 +32,7 @@ public class HTTPResourceContainer extends HttpServlet {
 	try {
 		RESTResource res = select(req);
 		res.get(params(req), resp.getOutputStream());
-	resp.setContentType(res.getContentType());
+		resp.setContentType(res.getContentType());
 	} catch (BadRequestException e) {
 		if (e.getMessage() != null) {
 			resp.sendError(400, e.getMessage());

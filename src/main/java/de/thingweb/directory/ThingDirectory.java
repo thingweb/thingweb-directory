@@ -45,14 +45,18 @@ public class ThingDirectory {
 	public static final int DEFAULT_COAP_PORT = 5683;
 	public static final int DEFAULT_HTTP_PORT = 8080;
     
-	// TODO get HTTP URI?
-    private final String baseURI = "http://localhost";
+	// TODO fix addressing
+    private final static String baseURI = "http://localhost";
 
     private final Set<RESTServerInstance> servers = new HashSet<>();
     
     private final IndexResource index = new WelcomePageResource();
     
     private static ThingDirectory singleton = null;
+    
+    public static String getBaseURI() {
+    	return baseURI;
+    }
     
     public static ThingDirectory get() {
     	if (singleton == null) {
@@ -63,10 +67,6 @@ public class ThingDirectory {
     
     private ThingDirectory() {
     	// constructor is private and should only be called once
-    }
-    
-    public String getBaseURI() {
-    	return baseURI;
     }
     
     public Set<RESTServerInstance> getInstances() {

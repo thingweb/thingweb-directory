@@ -12,6 +12,7 @@ import org.apache.jena.rdfconnection.RDFConnection;
 import org.apache.jena.system.Txn;
 import org.apache.jena.update.Update;
 
+import de.thingweb.directory.ThingDirectory;
 import de.thingweb.directory.rest.NotFoundException;
 import de.thingweb.directory.rest.RESTException;
 import de.thingweb.directory.rest.RESTResource;
@@ -67,7 +68,7 @@ public class DirectoryResource extends RESTResource {
 			// TODO
 		}
 		
-		uri = path; // relative URI
+		uri = ThingDirectory.getBaseURI() + path;
 		lifetime = lt;
 		
 		updateTimeout(uri, true);

@@ -77,7 +77,9 @@ public class RDFDocument extends DirectoryResource {
 		
 		try (RDFConnection conn = Connector.getConnection()) {
 			boolean found = Txn.calculateRead(conn, () -> {
-				Model m = conn.fetch(uri);
+				// note: URL-encoded ID decoded first inside RDFConnection.fetch():
+				// double encoding required
+				Model m = conn.fetch(uri.replace("%", "%25"));
 				
 				if (m.isEmpty()) {
 					return false; // resource not found
