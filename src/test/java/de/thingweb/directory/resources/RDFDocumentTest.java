@@ -1,33 +1,21 @@
 package de.thingweb.directory.resources;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.fail;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.URI;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
-import org.apache.jena.reasoner.rulesys.builtins.AssertDisjointPairs;
 import org.apache.jena.riot.RiotException;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import de.thingweb.directory.BaseTest;
-import de.thingweb.directory.ThingDescriptionUtils;
-import de.thingweb.directory.ThingDirectory;
-import de.thingweb.directory.resources.DirectoryResource;
-import de.thingweb.directory.resources.RDFDocument;
 import de.thingweb.directory.rest.NotFoundException;
 import de.thingweb.directory.rest.RESTException;
 import de.thingweb.directory.rest.RESTResource;
