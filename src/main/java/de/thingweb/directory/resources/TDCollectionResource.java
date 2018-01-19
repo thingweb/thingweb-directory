@@ -8,6 +8,7 @@ import io.swagger.annotations.ResponseHeader;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URLEncoder;
@@ -17,20 +18,24 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.jena.query.Query;
 import org.apache.jena.query.QueryFactory;
-import org.apache.jena.rdf.model.Model;
-import org.apache.jena.rdf.model.ModelFactory;
-import org.apache.jena.rdf.model.ResIterator;
-import org.apache.jena.rdf.model.Resource;
-import org.apache.jena.rdf.model.ResourceFactory;
-import org.apache.jena.rdf.model.Statement;
-import org.apache.jena.rdf.model.StmtIterator;
-import org.apache.jena.rdfconnection.RDFConnection;
+import org.apache.jena.query.Syntax;
 import org.apache.jena.sparql.syntax.Element;
-import org.apache.jena.system.Txn;
-import org.apache.jena.vocabulary.RDF;
-import org.apache.jena.vocabulary.RDFS;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Model;
+import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
+import org.eclipse.rdf4j.model.util.ModelBuilder;
+import org.eclipse.rdf4j.model.vocabulary.RDF;
+import org.eclipse.rdf4j.model.vocabulary.RDFS;
+import org.eclipse.rdf4j.query.BooleanQuery;
+import org.eclipse.rdf4j.query.TupleQuery;
+import org.eclipse.rdf4j.query.TupleQueryResult;
+import org.eclipse.rdf4j.repository.RepositoryConnection;
+import org.eclipse.rdf4j.rio.RDFParseException;
+import org.eclipse.rdf4j.rio.Rio;
+import org.eclipse.rdf4j.rio.UnsupportedRDFormatException;
 
 import de.thingweb.directory.ThingDirectory;
 import de.thingweb.directory.rest.BadRequestException;
@@ -61,24 +66,25 @@ public class TDCollectionResource extends DirectoryCollectionResource {
 				throw new BadRequestException(reason);
 			}
 			
-			Element pattern = QueryFactory.createElement("{" + q + "}");
-			Query query = Queries.filterTDs(pattern);
+			HashSet<String> tds = new HashSet<>();
 			
-			try (RDFConnection conn = Connector.getConnection(true)) {
-				names = Txn.calculateRead(conn, () -> {
-					Set<String> tds = new HashSet<>();
-					
-					conn.querySelect(query, (qs) -> {
-						String uri = qs.getResource("id").getURI();
-						if (uri.contains("td/")) {
-							String id = uri.substring(uri.lastIndexOf("td/") + 3);
-							tds.add(id);
-						}
-					});
-					
-					return tds;
-				});
+			Element pattern = QueryFactory.createElement("{" + q + "}");
+			String select = Queries.filterTDs(pattern).toString(Syntax.syntaxSPARQL_11);
+			
+			RepositoryConnection conn = Connector.getRepositoryConnection();
+			TupleQuery query = conn.prepareTupleQuery(select);
+			
+			try (TupleQueryResult res = query.evaluate()) {
+				while (res.hasNext()) {
+					String uri = res.next().getValue("id").stringValue();
+					if (uri.contains("td/")) {
+						String id = uri.substring(uri.lastIndexOf("td/") + 3);
+						tds.add(id);
+					}
+				}
 			}
+			
+			names = tds;
 		}
 		
 		@Override
@@ -130,18 +136,20 @@ public class TDCollectionResource extends DirectoryCollectionResource {
 		try {
 			Set<String> names = new HashSet<>();
 			
-			RDFConnection conn = Connector.getConnection();
-			Txn.executeRead(conn, () -> {
-				Query q = Queries.listGraphs(TD.Thing);
-				
-				conn.querySelect(q, (qs) -> {
-					String uri = qs.getResource("id").getURI();
+			RepositoryConnection conn = Connector.getRepositoryConnection();
+			String select = Queries.listGraphs(TD.Thing).toString(Syntax.syntaxSPARQL_11);
+			TupleQuery q = conn.prepareTupleQuery(select);
+			
+			try (TupleQueryResult res = q.evaluate()) {
+				while (res.hasNext()) {
+					String uri = res.next().getValue("id").stringValue();
+					
 					if (uri.contains(name)) {
 						String id = uri.substring(uri.lastIndexOf("/") + 1);
 						names.add(id);
 					}
-				});
-			});
+				}
+			}
 
 			names.forEach(name -> repost(name));
 		} catch (Exception e) {
@@ -172,7 +180,12 @@ public class TDCollectionResource extends DirectoryCollectionResource {
 	                                                description = "Relative URI to the created resource"))
 	@Override
 	public RESTResource post(Map<String, String> parameters, InputStream payload) throws RESTException {
-		Model graph = RDFDocument.read(parameters, payload);
+		Model graph;
+		try {
+			graph = RDFDocument.read(parameters, payload);
+		} catch (RDFParseException | UnsupportedRDFormatException | IOException e) {
+			throw new BadRequestException(e);
+		}
 
 		List<RESTResource> resources = new ArrayList<>();
 		
@@ -181,33 +194,30 @@ public class TDCollectionResource extends DirectoryCollectionResource {
 			parameters.remove(RESTResource.PARAMETER_CONTENT_TYPE);
 		}
 		
-		// TODO include inferred type statements (RDFS)
-		ResIterator it = graph.listResourcesWithProperty(RDF.type, TD.Thing);
-		while (it.hasNext()) {
-			Resource root = it.next();
+		// TODO RDFS inference to get all td:Things
+		Set<Resource> things = graph.filter(null, RDF.TYPE, SimpleValueFactory.getInstance().createIRI(TD.Thing.getURI())).subjects();
+		for (Resource root : things) {
 			String name = getChildID(root);
 
 			// duplicate detection
 			// TODO isomorphic TDs too
 			boolean duplicate = false;
-			if (root.isURIResource()) {
-				String query = "ASK WHERE { GRAPH ?g { <%s> ?p ?o } }";
-				RDFConnection conn = Connector.getConnection();
-				duplicate = conn.queryAsk(String.format(query, root.getURI()));
+			if (root instanceof IRI) {
+				RepositoryConnection conn = Connector.getRepositoryConnection();
+				String ask = String.format("ASK WHERE { GRAPH ?g { <%s> ?p ?o } }", root);
+				BooleanQuery q = conn.prepareBooleanQuery(ask);
+				duplicate = q.evaluate();
 			}
-
+			
 			if (!duplicate) {
-				// TODO keyword extraction
-				
-				Model td = extractTD(root, new HashSet<>());
+				Model td = extractTD(graph, root, new HashSet<>());
 				
 				// includes a reference to the Directory resource being created
-				// FIXME resolve URI resolution issues...
-				Resource ref = ResourceFactory.createResource("http://example.org" + path + "/" + name);
-				td.add(root, RDFS.isDefinedBy, ref);
+				Resource ref = SimpleValueFactory.getInstance().createIRI(ThingDirectory.getBaseURI() + path + "/" + name);
+				td.add(root, RDFS.ISDEFINEDBY, ref);
 				
 				ByteArrayOutputStream out = new ByteArrayOutputStream();
-				td.write(out, RDFDocument.DEFAULT_FORMAT);
+				Rio.write(td, out, RDFDocument.DEFAULT_RDF_FORMAT);
 				ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
 
 				// child resource ID will be set to 'name'
@@ -236,8 +246,8 @@ public class TDCollectionResource extends DirectoryCollectionResource {
 	}
 	
 	private String getChildID(Resource res) {
-		if (res.isURIResource()) {
-			return URLEncoder.encode(res.getURI());
+		if (res instanceof IRI) {
+			return URLEncoder.encode(res.toString());
 		} else {
 			return super.generateChildID();
 		}
@@ -250,23 +260,26 @@ public class TDCollectionResource extends DirectoryCollectionResource {
 	 * @param visited set of visited nodes (should be empty)
 	 * @return
 	 */
-	private static Model extractTD(Resource root, Set<Resource> visited) {
-		Model td = ModelFactory.createDefaultModel();
+	private static Model extractTD(Model m, Resource root, Set<Resource> visited) {
+		Model td = new ModelBuilder().build();
 		
 		visited.add(root);
-
-		StmtIterator it = root.listProperties();
-		while (it.hasNext()) {
-			Statement st = it.next();
-			td.add(st);
-			if (!st.getPredicate().equals(RDF.type) && st.getObject().isResource()) {
-				Resource node = st.getObject().asResource();
-				if (!node.hasProperty(RDF.type, TD.Thing) && !visited.contains(node)) {
-					td.add(extractTD(node, visited));
+		
+		m.filter(root, null, null).forEach(stm -> {
+			IRI p = stm.getPredicate();
+			Value o = stm.getObject();
+			td.add(stm);
+			if (!p.equals(RDF.TYPE) && o instanceof Resource) {
+				Resource node = (Resource) o;
+				if (!m.contains(node, RDF.TYPE, SimpleValueFactory.getInstance().createIRI(TD.Thing.getURI())) && !visited.contains(node)) {
+					Model submodel = extractTD(m, node, visited);
+					submodel.forEach(substm -> {
+						td.add(substm);
+					});
 				}
 			}
-		}
-		  
+		});
+		
 		return td;
 	}
 

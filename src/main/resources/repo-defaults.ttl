@@ -1,0 +1,53 @@
+#
+# Sesame configuration template for a GraphDB-SE Monitor repository
+#
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
+@prefix rep: <http://www.openrdf.org/config/repository#>.
+@prefix sr: <http://www.openrdf.org/config/repository/sail#>.
+@prefix sail: <http://www.openrdf.org/config/sail#>.
+@prefix owlim: <http://www.ontotext.com/trree/owlim#>.
+
+[] a rep:Repository ;
+#    rep:repositoryID "" ;
+#    rdfs:label "" ;
+    rep:repositoryImpl [
+        rep:repositoryType "graphdb:FreeSailRepository" ;
+        sr:sailImpl [
+            sail:sailType "graphdb:FreeSail" ;
+       
+            owlim:base-URL "http://example.ontotext.com/graphdb#" ;
+            owlim:defaultNS "" ;
+            owlim:entity-index-size "10000000" ;
+            owlim:entity-id-size  "32" ;
+            owlim:imports "" ;
+        	owlim:repository-type "file-repository" ;
+            owlim:ruleset "owl-horst-optimized" ;
+            owlim:storage-folder "storage" ;
+ 
+            owlim:enable-context-index "true" ;
+            owlim:cache-memory "256m" ;
+            owlim:tuple-index-memory "224m" ;
+
+            owlim:enablePredicateList "true" ;
+            owlim:predicate-memory "32m" ;
+
+            owlim:fts-memory "0" ;
+            owlim:ftsIndexPolicy "never" ;
+            owlim:ftsLiteralsOnly "true" ;
+
+            owlim:in-memory-literal-properties "true" ;
+            owlim:enable-literal-index "true" ;
+            owlim:index-compression-ratio "-1" ;
+            
+            owlim:check-for-inconsistencies "false" ;
+            owlim:disable-sameAs "false" ;
+            owlim:enable-optimization "true" ;
+            owlim:transaction-mode "safe" ;
+            owlim:transaction-isolation "true" ;
+            owlim:query-timeout "0" ;
+            owlim:query-limit-results "0" ;
+            owlim:throw-QueryEvaluationException-on-timeout "false" ;
+            owlim:useShutdownHooks "true" ;
+            owlim:read-only "false" ;
+        ]
+    ].

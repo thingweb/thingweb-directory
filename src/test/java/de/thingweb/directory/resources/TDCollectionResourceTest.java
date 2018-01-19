@@ -98,41 +98,5 @@ public class TDCollectionResourceTest extends BaseTest {
 		
 		assertSame("Duplicated TD not detected", duplicate.getName(), child.getName());
 	}
-	
-	@Test
-	public void testSPARQLFilter() throws Exception {
-		TDCollectionResource res = new TDCollectionResource();
-		
-		HashMap<String, String> parameters = new HashMap<>();
-
-		parameters.put("query", "?s ?p ?o");
-		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		
-		try {
-			res.get(parameters, out);
-			fail("Malformed SPARQL filter was not detected");
-		} catch (BadRequestException e) {
-			// expected behaviour
-		}
-		
-		InputStream td = cl.getResourceAsStream("samples/fanTD.jsonld");
-		res.post(parameters, td);
-		td = cl.getResourceAsStream("samples/temperatureSensorTD.jsonld");
-		res.post(parameters, td);
-		
-		String q = "?thing a <http://uri.etsi.org/m2m/saref#Sensor> .\n"
-				+ "NOT EXISTS {"
-				+ "  ?thing <http://iot.linkeddata.es/def/wot#providesInteractionPattern> ?i .\n"
-				+ "  ?i a <http://uri.etsi.org/m2m/saref#ToggleCommand> .\n"
-				+ "}";
-		
-		parameters.put("query", q);
-		out = new ByteArrayOutputStream();
-		res.get(parameters, out);
-		
-		ObjectMapper mapper = new ObjectMapper();
-		JsonNode node = mapper.readTree(out.toByteArray());
-		assertEquals("SPARQL filter was not applied", 1, node.size());
-	}
 
 }

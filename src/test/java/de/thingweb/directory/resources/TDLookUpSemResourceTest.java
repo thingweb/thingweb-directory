@@ -62,7 +62,7 @@ public class TDLookUpSemResourceTest extends BaseTest {
 		td.post(parameters, in);
 		
 		String q = "?thing a <http://uri.etsi.org/m2m/saref#Sensor> .\n"
-				+ "NOT EXISTS {"
+				+ "FILTER NOT EXISTS {"
 				+ "  ?thing <http://iot.linkeddata.es/def/wot#providesInteractionPattern> ?i .\n"
 				+ "  ?i a <http://uri.etsi.org/m2m/saref#ToggleCommand> .\n"
 				+ "}";

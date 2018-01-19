@@ -99,13 +99,11 @@ public class ThingDirectory {
     	// Default values
         int portCoAP = DEFAULT_COAP_PORT;
         int portHTTP = DEFAULT_HTTP_PORT;
-        String loc = "db"; // directory to store the database
         String endpoint = null; // SPARQL endpoint URI for remote storage
         
         //####### Handle input ##########
         Options options = new Options();
         
-        options.addOption("d", true, "Directory to store the database. Default is ./db.");
         options.addOption("e", true, "SPARQL endpoint URI for remote storage (not compatible with -d).");
         options.addOption("c", true, "CoAP port number. Default is 5683.");
         options.addOption("h", true, "HTTP port number. Default is 8080.");
@@ -123,8 +121,6 @@ public class ThingDirectory {
         }
         if (cmd.hasOption("e")) {
         	endpoint = cmd.getOptionValue("e");
-        } else if (cmd.hasOption("d")) {
-        	loc = cmd.getOptionValue("d");
         }
         if (cmd.hasOption("help")) {
         	// Automatically generate help statement
@@ -139,7 +135,7 @@ public class ThingDirectory {
         if (endpoint != null) {
             Connector.init(endpoint);       	
         } else {
-            Connector.init(loc, null); 
+            Connector.init();
         }
 
         // configure SPARQL engine (server)

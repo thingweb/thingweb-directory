@@ -6,11 +6,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.jena.query.Query;
+import org.apache.jena.query.Syntax;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.ResourceFactory;
 import org.apache.jena.rdfconnection.RDFConnection;
 import org.apache.jena.system.Txn;
-import org.apache.jena.update.Update;
+import org.eclipse.rdf4j.query.BooleanQuery;
+import org.eclipse.rdf4j.query.Update;
+import org.eclipse.rdf4j.repository.RepositoryConnection;
 
 import de.thingweb.directory.ThingDirectory;
 import de.thingweb.directory.rest.NotFoundException;
@@ -102,23 +105,19 @@ public class DirectoryResource extends RESTResource {
 	boolean hasExpired() {
 		Resource res = ResourceFactory.createResource(uri);
 		
-		try (RDFConnection conn = Connector.getConnection()) {
-			return Txn.calculateRead(conn, () -> {
-				Query q = Queries.hasExpired(res);
-				return conn.queryAsk(q);
-			});
-		}
+		RepositoryConnection conn = Connector.getRepositoryConnection();
+		String ask = Queries.hasExpired(res).toString(Syntax.syntaxSPARQL_11);
+		BooleanQuery q = conn.prepareBooleanQuery(ask);
+		return q.evaluate();
 	}
 	
 	private void updateTimeout(String uri, boolean firstTime) {
 		Resource res = ResourceFactory.createResource(uri);
 		
-		try (RDFConnection conn = Connector.getConnection()) {
-			Txn.executeWrite(conn, () -> {
-				Update up = firstTime ? Queries.createTimeout(res, lifetime) : Queries.updateTimeout(res, lifetime);
-				conn.update(up);
-			});
-		}
+		RepositoryConnection conn = Connector.getRepositoryConnection();
+		String up = firstTime ? Queries.createTimeout(res, lifetime).toString() : Queries.updateTimeout(res, lifetime).toString();
+		Update u = conn.prepareUpdate(up);
+		u.execute();
 	}
 	
 	public static RESTResourceFactory factory() {
