@@ -45,16 +45,6 @@ public class TDLookUpSemResourceTest extends BaseTest {
 		TDLookUpSemResource sem = new TDLookUpSemResource(td);
 		
 		HashMap<String, String> parameters = new HashMap<>();
-
-		parameters.put("query", "?s ?p ?o");
-		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		
-		try {
-			sem.get(parameters, out);
-			fail("Malformed SPARQL filter was not detected");
-		} catch (BadRequestException e) {
-			// expected behaviour
-		}
 		
 		InputStream in = cl.getResourceAsStream("samples/fanTD.jsonld");
 		td.post(parameters, in);
@@ -68,7 +58,7 @@ public class TDLookUpSemResourceTest extends BaseTest {
 				+ "}";
 		
 		parameters.put("query", q);
-		out = new ByteArrayOutputStream();
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		sem.get(parameters, out);
 		
 		ObjectMapper mapper = new ObjectMapper();

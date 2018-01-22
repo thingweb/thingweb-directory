@@ -35,13 +35,11 @@ public class VocabularyCollectionResource extends DirectoryCollectionResource {
 		try {
 			Set<String> prefixes = new HashSet<>();
 			
-			RepositoryConnection conn = Connector.getRepositoryConnection();
-			String select = Queries.listGraphs(org.apache.jena.vocabulary.OWL.Ontology).toString(Syntax.syntaxSPARQL_11);
-			TupleQuery q = conn.prepareTupleQuery(select);
+			String pattern = String.format("?vocab a <%s>", OWL.ONTOLOGY);
 			
-			try (TupleQueryResult res = q.evaluate()) {
+			try (TupleQueryResult res = Queries.listResources(pattern)) {
 				while (res.hasNext()) {
-					String uri = res.next().getValue("id").stringValue();
+					String uri = res.next().getValue("res").stringValue();
 					
 					if (uri.contains(name)) {
 						String id = uri.substring(uri.lastIndexOf("/") + 1);

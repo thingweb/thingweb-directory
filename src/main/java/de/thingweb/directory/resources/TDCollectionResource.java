@@ -59,24 +59,13 @@ public class TDCollectionResource extends DirectoryCollectionResource {
 		
 		private final Set<String> names;
 		
-		public SPARQLFilter(String q) throws BadRequestException {
-			if (!q.contains("?thing")) {
-				String reason = "SPARQL filter does not contain the mandatory ?thing variable";
-				ThingDirectory.LOG.info(reason);
-				throw new BadRequestException(reason);
-			}
-			
+		public SPARQLFilter(String q) throws BadRequestException {			
 			HashSet<String> tds = new HashSet<>();
 			
-			Element pattern = QueryFactory.createElement("{" + q + "}");
-			String select = Queries.filterTDs(pattern).toString(Syntax.syntaxSPARQL_11);
-			
-			RepositoryConnection conn = Connector.getRepositoryConnection();
-			TupleQuery query = conn.prepareTupleQuery(select);
-			
-			try (TupleQueryResult res = query.evaluate()) {
+			// TODO exclude non-TD documents
+			try (TupleQueryResult res = Queries.listResources(q)) {
 				while (res.hasNext()) {
-					String uri = res.next().getValue("id").stringValue();
+					String uri = res.next().getValue("res").stringValue();
 					if (uri.contains("td/")) {
 						String id = uri.substring(uri.lastIndexOf("td/") + 3);
 						tds.add(id);
@@ -135,14 +124,12 @@ public class TDCollectionResource extends DirectoryCollectionResource {
 		
 		try {
 			Set<String> names = new HashSet<>();
+
+			String pattern = String.format("?td a <%s>", TD.Thing.getURI());
 			
-			RepositoryConnection conn = Connector.getRepositoryConnection();
-			String select = Queries.listGraphs(TD.Thing).toString(Syntax.syntaxSPARQL_11);
-			TupleQuery q = conn.prepareTupleQuery(select);
-			
-			try (TupleQueryResult res = q.evaluate()) {
+			try (TupleQueryResult res = Queries.listResources(pattern)) {
 				while (res.hasNext()) {
-					String uri = res.next().getValue("id").stringValue();
+					String uri = res.next().getValue("res").stringValue();
 					
 					if (uri.contains(name)) {
 						String id = uri.substring(uri.lastIndexOf("/") + 1);

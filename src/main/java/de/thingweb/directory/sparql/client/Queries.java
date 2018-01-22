@@ -2,44 +2,70 @@ package de.thingweb.directory.sparql.client;
 
 import java.time.LocalDateTime;
 
-import org.apache.jena.datatypes.xsd.impl.XSDDateTimeType;
-import org.apache.jena.graph.Node;
-import org.apache.jena.graph.NodeFactory;
-import org.apache.jena.graph.Triple;
-import org.apache.jena.query.Query;
-import org.apache.jena.query.QueryFactory;
-import org.apache.jena.rdf.model.Literal;
-import org.apache.jena.rdf.model.Model;
-import org.apache.jena.rdf.model.Resource;
-import org.apache.jena.rdf.model.ResourceFactory;
-import org.apache.jena.sparql.core.Quad;
-import org.apache.jena.sparql.core.Var;
-import org.apache.jena.sparql.expr.E_GreaterThan;
-import org.apache.jena.sparql.expr.Expr;
-import org.apache.jena.sparql.modify.request.QuadAcc;
-import org.apache.jena.sparql.modify.request.QuadDataAcc;
-import org.apache.jena.sparql.modify.request.UpdateDataInsert;
-import org.apache.jena.sparql.modify.request.UpdateDeleteInsert;
-import org.apache.jena.sparql.modify.request.UpdateDrop;
-import org.apache.jena.sparql.syntax.Element;
-import org.apache.jena.sparql.syntax.ElementFilter;
-import org.apache.jena.sparql.syntax.ElementGroup;
-import org.apache.jena.sparql.syntax.ElementNamedGraph;
-import org.apache.jena.sparql.syntax.Template;
-import org.apache.jena.sparql.util.ExprUtils;
-import org.apache.jena.update.Update;
-import org.apache.jena.update.UpdateRequest;
-import org.apache.jena.util.iterator.ExtendedIterator;
-import org.apache.jena.vocabulary.DCTerms;
-import org.apache.jena.vocabulary.RDF;
-import org.apache.jena.vocabulary.RDFS;
-
-import de.thingweb.directory.vocabulary.TD;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Literal;
+import org.eclipse.rdf4j.model.Model;
+import org.eclipse.rdf4j.model.ValueFactory;
+import org.eclipse.rdf4j.model.vocabulary.XMLSchema;
+import org.eclipse.rdf4j.query.BooleanQuery;
+import org.eclipse.rdf4j.query.GraphQuery;
+import org.eclipse.rdf4j.query.QueryResults;
+import org.eclipse.rdf4j.query.TupleQuery;
+import org.eclipse.rdf4j.query.TupleQueryResult;
+import org.eclipse.rdf4j.query.Update;
+import org.eclipse.rdf4j.repository.RepositoryConnection;
 
 public class Queries {
-
-	public static final String UNION_GRAPH_URI = "/all";
-
+	
+	// TODO replace second parameter by 'now()'?
+	private static final String HAS_EXPIRED_TPL = "ASK WHERE { "
+			+ "<%s> <http://purl.org/dc/terms/valid> ?date "
+			+ "FILTER (%s > ?date) "
+			+ "}";
+	
+	private static final String CREATE_TIMEOUT_TPL = "INSERT DATA { "
+			+ "<%s> <http://purl.org/dc/terms/created> %s ; "
+			+ "<http://purl.org/dc/terms/modified> %s ; "
+			+ "<http://purl.org/dc/terms/valid> %s "
+			+ "}";
+	
+	private static final String UPDATE_TIMEOUT_TPL = "DELETE { "
+			+ "<%s> <http://purl.org/dc/terms/modified> ?modified ; "
+			+ "<http://purl.org/dc/terms/valid> ?valid "
+			+ "} INSERT { "
+			+ "<%s> <http://purl.org/dc/terms/modified> %s ; "
+			+ "<http://purl.org/dc/terms/valid> %s "
+			+ "} WHERE { "
+			+ "<%s> <http://purl.org/dc/terms/modified> ?modified ; "
+			+ "<http://purl.org/dc/terms/valid> ?valid "
+			+ "}";
+	
+	private static final String LOAD_RESOURCE_TPL = "";
+	
+	private static final String UPDATE_RESOURCE_TPL = "";
+	
+	private static final String DELETE_RESOURCE_TPL = "DROP <%s>";
+	
+	private static final String EXISTS_TPL = "ASK WHERE { "
+			+ "GRAPH <%s> { "
+			+ "?s ?p ?o "
+			+ "} "
+			+ "}";
+	
+	private static final String GET_RESOURCE_TPL = "CONSTRUCT { "
+			+ "?s ?p ?o "
+			+ "} WHERE { "
+			+ "GRAPH <%s> { "
+			+ "?s ?p ?o "
+			+ "}"
+			+ "}";
+	
+	private static final String LIST_RESOURCES_TPL = "SELECT ?res WHERE { "
+			+ "GRAPH ?res { "
+			+ "%s " // arbitrary graph pattern
+			+ "} "
+			+ "}";
+	
 	/**
 	 * ASK WHERE {
 	 *   ?res dct:valid ?date
@@ -49,25 +75,14 @@ public class Queries {
 	 * @param res
 	 * @return
 	 */
-	public static Query hasExpired(Resource res) {
-		Query q = QueryFactory.create();
-		q.setQueryAskType();
+	public static boolean hasExpired(String res) {
+		RepositoryConnection conn = Connector.getRepositoryConnection();
 		
-		ElementGroup element = new ElementGroup();
-		q.setQueryPattern(element);
-
-		// ?res dct:valid ?date
-		Node date = Var.alloc("date");
-		Triple valid = new Triple(res.asNode(), DCTerms.valid.asNode(), date);
-		element.addTriplePattern(valid);
+		Literal now = getDateTime(0, conn.getValueFactory());
 		
-		// FILTER (now() > ?date)
-		Node now = getDateTime(0).asNode(); // FIXME now() always returns false?
-		Expr ex = new E_GreaterThan(ExprUtils.nodeToExpr(now), ExprUtils.nodeToExpr(date));
-		ElementFilter filter = new ElementFilter(ex);
-		element.addElement(filter);
+		String q = String.format(HAS_EXPIRED_TPL, res, now);
 		
-		return q;
+		return conn.prepareBooleanQuery(q).evaluate();
 	}
 	
 	/**
@@ -81,21 +96,15 @@ public class Queries {
 	 * @param lifetime
 	 * @return
 	 */
-	public static Update createTimeout(Resource res, int lifetime) {
-		Literal now = getDateTime(0);
-		Literal timeout = getDateTime(lifetime);
-
-		Triple created = new Triple(res.asNode(), DCTerms.created.asNode(), now.asNode());
-		Triple modified = new Triple(res.asNode(), DCTerms.modified.asNode(), now.asNode());
-		Triple valid = new Triple(res.asNode(), DCTerms.valid.asNode(), timeout.asNode());
-
-		// INSERT DATA { ... }
-		QuadDataAcc qd = new QuadDataAcc();
-		qd.addTriple(created);
-		qd.addTriple(modified);
-		qd.addTriple(valid);
+	public static void createTimeout(String res, int lifetime) {
+		RepositoryConnection conn = Connector.getRepositoryConnection();
 		
-		return new UpdateDataInsert(qd);
+		Literal now = getDateTime(0, conn.getValueFactory());
+		Literal timeout = getDateTime(lifetime, conn.getValueFactory());
+
+		String u = String.format(CREATE_TIMEOUT_TPL, res, now, now, timeout);
+		
+		conn.prepareUpdate(u).execute();
 	}
 	
 	/**
@@ -114,40 +123,20 @@ public class Queries {
 	 * @param lifetime
 	 * @return
 	 */
-	public static Update updateTimeout(Resource res, int lifetime) {
-		Literal now = getDateTime(0);
-		Literal timeout = getDateTime(lifetime);
+	public static void updateTimeout(String res, int lifetime) {
+		RepositoryConnection conn = Connector.getRepositoryConnection();
 		
-		UpdateDeleteInsert up = new UpdateDeleteInsert();
+		Literal now = getDateTime(0, conn.getValueFactory());
+		Literal timeout = getDateTime(lifetime, conn.getValueFactory());
 
-		Triple modified = new Triple(res.asNode(), DCTerms.modified.asNode(), Var.alloc("modified"));
-		Triple valid = new Triple(res.asNode(), DCTerms.valid.asNode(), Var.alloc("valid"));
-		Triple modifiedNow = new Triple(res.asNode(), DCTerms.modified.asNode(), now.asNode());
-		Triple validUntilTimeout = new Triple(res.asNode(), DCTerms.valid.asNode(), timeout.asNode());
+		String u = String.format(UPDATE_TIMEOUT_TPL, res, res, now, timeout, res);
 		
-		// DELETE { ... }
-		up.getDeleteAcc().addTriple(modified);
-		up.getDeleteAcc().addTriple(valid);
-
-		// INSERT { ... }
-		up.getInsertAcc().addTriple(modifiedNow);
-		up.getInsertAcc().addTriple(validUntilTimeout);
-
-		// WHERE { ... }
-		ElementGroup element = new ElementGroup();
-		element.addTriplePattern(modified);
-		element.addTriplePattern(valid);
-		up.setElement(element);
-		
-		return up;
+		conn.prepareUpdate(u).execute();
 	}
 	
 	/**
 	 * INSERT DATA {
-	 *   GRAPH ?id {
-	 *     ...
-	 *   }
-	 *   GRAPH ?union {
+	 *   GRAPH ?res {
 	 *     ...
 	 *   }
 	 * }
@@ -156,75 +145,46 @@ public class Queries {
 	 * @param m
 	 * @return
 	 */
-	public static Update loadGraph(Resource id, Model m) {
-		QuadDataAcc qd = new QuadDataAcc();
-		UpdateDataInsert up = new UpdateDataInsert(qd);
-		
-		Node union = NodeFactory.createURI(UNION_GRAPH_URI);
-		ExtendedIterator<Triple> it = m.getGraph().find();
-		while (it.hasNext()) {
-			Triple t = it.next();
-
-			// GRAPH ?id
-			qd.addQuad(new Quad(id.asNode(), t));
-			// GRAPH ?union
-			qd.addQuad(new Quad(union, t));
-		}
-
-		return up;
-	}
-	
-	public static Update replaceGraph(Resource id, Model m) {
-		return null; // TODO
+	public static void loadResource(String res, Model m) {
+		// TODO add rdfs:isDefinedBy statement when loading?
+		RepositoryConnection conn = Connector.getRepositoryConnection();
+		IRI iri = conn.getValueFactory().createIRI(res);
+		conn.add(m, iri);
 	}
 	
 	/**
-	 * DELETE {
-	 *   GRAPH ?id {
-	 *     ?s ?p ?o
-	 *   }
-	 *   GRAPH ?union {
-	 *      ?s ?p ?o
-	 *   }
-	 * } WHERE {
-	 *   GRAPH ?id {
-	 *      ?s ?p ?o
-	 *   }
-	 * };
 	 * DROP ?id
 	 * 
 	 * @param g
 	 * @return
 	 */
-	public static UpdateRequest deleteGraph(Resource id) {
-		// DELETE { ... }
-		UpdateDeleteInsert delete = new UpdateDeleteInsert();
-		delete.setHasInsertClause(false);
-
-		Triple t = new Triple(Var.alloc("s"), Var.alloc("p"), Var.alloc("o"));
-		Node union = NodeFactory.createURI(UNION_GRAPH_URI);
-		
-		// GRAPH ?id
-		delete.getDeleteAcc().addQuad(new Quad(id.asNode(), t));
-		
-		// GRAPH ?union
-		delete.getDeleteAcc().addQuad(new Quad(union, t));
-		
-		// WHERE GRAPH ?id
-		ElementGroup element = new ElementGroup();
-		element.addTriplePattern(t);
-		Element inGraph = new ElementNamedGraph(id.asNode(), element);
-		delete.setElement(inGraph);
-		
-		// DROP ?id
-		UpdateDrop drop = new UpdateDrop(id.asNode());
-		
-		return new UpdateRequest().add(delete).add(drop);
+	public static void deleteResource(String res) {		
+		RepositoryConnection conn = Connector.getRepositoryConnection();
+		IRI iri = conn.getValueFactory().createIRI(res);
+		conn.clear(iri);
+	}
+	
+	/**
+	 * DROP ?res,
+	 * INSERT DATA {
+	 *   GRAPH ?res {
+	 *     ...
+	 *   }
+	 * }
+	 * 
+	 * @param id
+	 * @param m
+	 * @return
+	 */
+	public static void replaceResource(String res, Model m) {
+		// TODO put in single transaction
+		deleteResource(res);
+		loadResource(res, m);
 	}
 	
 	/**
 	 * ASK WHERE {
-	 *   GRAPH ?id {
+	 *   GRAPH ?res {
 	 *     ?s ?p ?o
 	 *   }
 	 * }
@@ -232,123 +192,57 @@ public class Queries {
 	 * @param id
 	 * @return
 	 */
-	public static Query exists(Resource id) {
-		Query q = QueryFactory.create();
-		q.setQueryAskType();
+	public static boolean exists(String res) {
+		String q = String.format(EXISTS_TPL, res);
 		
-		Triple t = new Triple(Var.alloc("s"), Var.alloc("p"), Var.alloc("o"));
-
-		// GRAPH ?id { ?s ?o ?p }
-		ElementGroup element = new ElementGroup();
-		element.addTriplePattern(t);
-		Element inGraph = new ElementNamedGraph(id.asNode(), element);
-		q.setQueryPattern(inGraph);
-		
-		return q;
+		RepositoryConnection conn = Connector.getRepositoryConnection();
+		return conn.prepareBooleanQuery(q).evaluate();
 	}
 	
 	/**
 	 * CONSTRUCT {
 	 *   ?s ?p ?o
 	 * } WHERE {
-	 *   GRAPH ?id {
-	 *     ?s ?p ?o
+	 *   GRAPH ?res {
+	 *     ?s ?p ?o .
 	 *   }
 	 * }
 	 * 
 	 * @param id
 	 * @return
 	 */
-	public static Query getGraph(Resource id) {
-		Query q = QueryFactory.create();
-		q.setQueryConstructType();
+	public static Model getResource(String res) {
+		// TODO filter out rdfs:isDefinedBy?
+		String q = String.format(GET_RESOURCE_TPL, res);
 		
-		Triple t = new Triple(Var.alloc("s"), Var.alloc("p"), Var.alloc("o"));
+		RepositoryConnection conn = Connector.getRepositoryConnection();
+		GraphQuery gq = conn.prepareGraphQuery(q);
 		
-		// CONSTRUCT { ?s ?p ?o }
-		QuadAcc qa = new QuadAcc();
-		qa.addTriple(t);
-		q.setConstructTemplate(new Template(qa));
-
-		// GRAPH ?id { ?s ?o ?p }
-		ElementGroup element = new ElementGroup();
-		element.addTriplePattern(t);
-		Element inGraph = new ElementNamedGraph(id.asNode(), element);
-		q.setQueryPattern(inGraph);
-		
-		return q;
-	}
-	
-	/**
-	 * SELECT ?id WHERE {
-	 *   GRAPH ?id {
-	 *     ?res a type .
-	 *   }
-	 * }
-	 * 
-	 * @param type
-	 * @return
-	 */
-	public static Query listGraphs(Resource type) {
-		Query q = QueryFactory.create();
-		q.setQuerySelectType();
-		q.setDistinct(true);
-		
-		Node id = Var.alloc("id");
-		Node res = Var.alloc("res");
-		Triple t = new Triple(res, RDF.type.asNode(), type.asNode());
-		
-		// ?res a type .
-		ElementGroup element = new ElementGroup();
-		element.addTriplePattern(t);
-		
-		// GRAPH ?id
-		Element inGraph = new ElementNamedGraph(id, element);
-		q.setQueryPattern(inGraph);
-		
-		q.addResultVar("id"); // TODO better integration?
-		
-		return q;
+		return QueryResults.asModel(gq.evaluate());
 	}
 
 	/**
-	 * SELECT ?id WHERE {
-	 *   ?thing a td:Thing ;
-	 *          rdfs:isDefinedBy ?id .
+	 * SELECT ?res WHERE {
 	 *   ...
 	 * }
 	 * 
-	 * @param pattern should include at least the variable ?thing
+	 * @param pattern
 	 * @return
 	 */
-	public static Query filterTDs(Element pattern) {
-		Query q = QueryFactory.create();
-		q.setQuerySelectType();
-		q.setDistinct(true);
+	public static TupleQueryResult listResources(String pattern) {
+		// TODO query against union graph instead?
+		String q = String.format(LIST_RESOURCES_TPL, pattern);
 		
-		Node id = Var.alloc("id");
-		Node thing = Var.alloc("thing");
-		Triple type = new Triple(thing, RDF.type.asNode(), TD.Thing.asNode());
-		Triple definedBy = new Triple(thing, RDFS.isDefinedBy.asNode(), id);
-		
-		// ?thing a td:Thing ; rdfs:isDefinedBy ?id .
-		ElementGroup all = new ElementGroup();
-		all.addElement(pattern);
-		all.addTriplePattern(type);
-		all.addTriplePattern(definedBy);
-		q.setQueryPattern(all);
-		
-		q.addResultVar("id"); // TODO better integration?
-		
-		return q;
+		RepositoryConnection conn = Connector.getRepositoryConnection();
+		return conn.prepareTupleQuery(q).evaluate();
 	}
 
-	private static Literal getDateTime(int lifetime) {
+	private static Literal getDateTime(int lifetime, ValueFactory factory) {
 		LocalDateTime d = LocalDateTime.now();
 		d = d.plusSeconds(lifetime);
 		
 		// ISO 8601 string format
-		return ResourceFactory.createTypedLiteral(d.toString(), XSDDateTimeType.XSDdateTime);
+		return factory.createLiteral(d.toString(), XMLSchema.DATETIME);
 	}
 	
 }

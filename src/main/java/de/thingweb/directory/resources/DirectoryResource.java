@@ -74,12 +74,12 @@ public class DirectoryResource extends RESTResource {
 		uri = ThingDirectory.getBaseURI() + path;
 		lifetime = lt;
 		
-		updateTimeout(uri, true);
+		Queries.createTimeout(uri, lifetime);
 	}
 	
 	@Override
 	public void get(Map<String, String> parameters, OutputStream out) throws RESTException {		
-		if (hasExpired()) {
+		if (Queries.hasExpired(uri)) {
 			// resource is out-dated
 			delete(parameters);
 			throw new NotFoundException();
@@ -90,7 +90,7 @@ public class DirectoryResource extends RESTResource {
 	
 	@Override
 	public void put(Map<String, String> parameters, InputStream payload) throws RESTException {
-		updateTimeout(uri, false);
+		Queries.updateTimeout(uri, lifetime);
 	}
 	
 	@Override
@@ -100,24 +100,6 @@ public class DirectoryResource extends RESTResource {
 		for (RESTResourceListener l : listeners) {
 			l.onDelete(this);
 		}
-	}
-	
-	boolean hasExpired() {
-		Resource res = ResourceFactory.createResource(uri);
-		
-		RepositoryConnection conn = Connector.getRepositoryConnection();
-		String ask = Queries.hasExpired(res).toString(Syntax.syntaxSPARQL_11);
-		BooleanQuery q = conn.prepareBooleanQuery(ask);
-		return q.evaluate();
-	}
-	
-	private void updateTimeout(String uri, boolean firstTime) {
-		Resource res = ResourceFactory.createResource(uri);
-		
-		RepositoryConnection conn = Connector.getRepositoryConnection();
-		String up = firstTime ? Queries.createTimeout(res, lifetime).toString() : Queries.updateTimeout(res, lifetime).toString();
-		Update u = conn.prepareUpdate(up);
-		u.execute();
 	}
 	
 	public static RESTResourceFactory factory() {

@@ -45,13 +45,7 @@ public class RDFDocument extends DirectoryResource {
 	public RDFDocument(String path, Map<String, String> parameters) {
 		super(path, parameters);
 		
-		RepositoryConnection conn = Connector.getRepositoryConnection();
-		Resource res = ResourceFactory.createResource(uri);
-		String ask = Queries.exists(res).serialize(Syntax.syntaxSPARQL_11);
-		BooleanQuery q = conn.prepareBooleanQuery(ask);
-		
-		boolean exists = q.evaluate();
-		if (!exists) {
+		if (!Queries.exists(uri)) {
 			ThingDirectory.LOG.warn("Trying to create an empty, not persisted RDF document resource");
 		}
 	}
@@ -64,11 +58,11 @@ public class RDFDocument extends DirectoryResource {
 		super(path, parameters);
 
 		try {
-			Model td = read(parameters, in);
+			Model m = read(parameters, in);
 			
-			addDocument(uri, td);
+			Queries.loadResource(uri, m);
 
-			ThingDirectory.LOG.info(String.format("Added RDF document: %s (%d triples)", path, td.size()));
+			ThingDirectory.LOG.info(String.format("Added RDF document: %s (%d triples)", path, m.size()));
 		} catch (RDFParseException | UnsupportedRDFormatException | IOException e) {
 			ThingDirectory.LOG.error("Cannot parse RDF document", e);
 		}
@@ -79,12 +73,7 @@ public class RDFDocument extends DirectoryResource {
 		OutputStream sink = new ByteArrayOutputStream();
 		super.get(parameters, sink); // in case an exception is thrown
 		
-		RepositoryConnection c = Connector.getRepositoryConnection();
-		// TODO shorter call?
-		String construct = String.format("CONSTRUCT { ?s ?p ?o } WHERE { GRAPH <%s> { ?s ?p ?o } }", uri);
-		GraphQuery q = c.prepareGraphQuery(construct);
-		
-		Model m = QueryResults.asModel(q.evaluate());
+		Model m = Queries.getResource(uri);
 		
 		if (!m.isEmpty()) {			
 			RDFFormat format = DEFAULT_RDF_FORMAT;
@@ -106,9 +95,7 @@ public class RDFDocument extends DirectoryResource {
 		try {
 			Model m = read(parameters, payload);
 			
-			// TODO single transaction
-			removeDocument(uri);
-			addDocument(uri, m);
+			Queries.replaceResource(uri, m);
 			
 			super.put(parameters, payload);
 		} catch (RDFParseException | UnsupportedRDFormatException | IOException e) {
@@ -120,23 +107,9 @@ public class RDFDocument extends DirectoryResource {
 	public void delete(Map<String, String> parameters) throws RESTException {
 		super.delete(parameters);
 		
-		removeDocument(uri);
+		Queries.deleteResource(uri);
 		
 		ThingDirectory.LOG.info("Deleted RDF document: " + path);
-	}
-	
-	private void addDocument(String uri, Model m) {
-		// TODO remove method		
-		RepositoryConnection conn = Connector.getRepositoryConnection();
-		IRI res = conn.getValueFactory().createIRI(uri);
-		conn.add(m, res);
-	}
-
-	private void removeDocument(String uri) {
-		// TODO remove method
-		RepositoryConnection conn = Connector.getRepositoryConnection();
-		IRI res = conn.getValueFactory().createIRI(uri);
-		conn.clear(res);
 	}
 	
 	public static RESTResourceFactory factory() {

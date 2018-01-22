@@ -4,6 +4,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import de.thingweb.directory.ThingDirectory;
 import de.thingweb.directory.rest.BadRequestException;
 import de.thingweb.directory.rest.CollectionFilter;
 import de.thingweb.directory.rest.CollectionFilterFactory;
@@ -11,6 +12,7 @@ import de.thingweb.directory.rest.CollectionResource;
 import de.thingweb.directory.rest.IntersectionFilter;
 import de.thingweb.directory.rest.RESTResource;
 import de.thingweb.directory.rest.RESTResourceFactory;
+import de.thingweb.directory.sparql.client.Queries;
 
 public class DirectoryCollectionResource extends CollectionResource {
 	
@@ -33,7 +35,8 @@ public class DirectoryCollectionResource extends CollectionResource {
 		
 		@Override
 		public boolean keep(RESTResource child) {
-			return child instanceof DirectoryResource && !((DirectoryResource) child).hasExpired();
+			String uri = ThingDirectory.getBaseURI() + child.getPath();
+			return child instanceof DirectoryResource && !Queries.hasExpired(uri);
 		}
 		
 	}

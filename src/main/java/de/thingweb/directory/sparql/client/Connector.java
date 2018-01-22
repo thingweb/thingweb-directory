@@ -52,36 +52,5 @@ public class Connector {
 	public static RepositoryConnection getRepositoryConnection() {
 		return connection;
 	}
-	
-	public static RDFConnection getConnection() {
-		return getConnection(false);
-	}
-	
-	public static RDFConnection getConnection(boolean withInference) {
-		if (dataset != null) {
-			Dataset ds = dataset;
-			
-			if (withInference) {
-				Model m = ModelFactory.createDefaultModel();
-				RDFConnection conn = RDFConnectionFactory.connect(ds);
-				Txn.executeRead(conn, () -> {
-					// loads copy of union graph into main memory
-					Model union = dataset.getNamedModel(Queries.UNION_GRAPH_URI);
-					m.add(union);
-				});
-	
-				 // TODO include Pellet instead?
-		    	Reasoner reasoner = ReasonerRegistry.getOWLMiniReasoner();
-		    	InfModel inf = ModelFactory.createInfModel(reasoner, m);
-		    	ds = DatasetFactory.create(inf);
-			}
-			
-			return RDFConnectionFactory.connect(ds);
-		} else if (endpoint != null) {
-			return RDFConnectionFactory.connect(endpoint);
-		}
-		
-		throw new RuntimeException("No RDF connection available");
-	}
-	
+
 }
