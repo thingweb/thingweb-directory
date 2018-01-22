@@ -99,12 +99,14 @@ public class ThingDirectory {
     	// Default values
         int portCoAP = DEFAULT_COAP_PORT;
         int portHTTP = DEFAULT_HTTP_PORT;
-        String endpoint = null; // SPARQL endpoint URI for remote storage
+        String queryEndpoint = null; // SPARQL query endpoint
+        String updateEndpoint = null; // SPARQL update endpoint
         
         //####### Handle input ##########
         Options options = new Options();
         
-        options.addOption("e", true, "SPARQL endpoint URI for remote storage (not compatible with -d).");
+        options.addOption("q", true, "SPARQL query endpoint URI for remote storage (main memory storage if not provided).");
+        options.addOption("u", true, "SPARQL update endpoint URI for remote storage (same as query endpoint if not provided).");
         options.addOption("c", true, "CoAP port number. Default is 5683.");
         options.addOption("h", true, "HTTP port number. Default is 8080.");
         options.addOption("help", false, "This help message.");
@@ -119,8 +121,13 @@ public class ThingDirectory {
         if (cmd.hasOption("h")) {
         	portHTTP = Integer.parseInt(cmd.getOptionValue("h"));
         }
-        if (cmd.hasOption("e")) {
-        	endpoint = cmd.getOptionValue("e");
+        if (cmd.hasOption("q") && cmd.hasOption("u")) {
+        	queryEndpoint = cmd.getOptionValue("q");
+        	if (cmd.hasOption("u")) {
+        		updateEndpoint = cmd.getOptionValue("u");
+        	} else {
+        		updateEndpoint = queryEndpoint;
+        	}
         }
         if (cmd.hasOption("help")) {
         	// Automatically generate help statement
@@ -132,8 +139,8 @@ public class ThingDirectory {
         // ##############################
 
         // initiate SPARQL client
-        if (endpoint != null) {
-            Connector.init(endpoint);       	
+        if (queryEndpoint != null) {
+            Connector.init(queryEndpoint, updateEndpoint);
         } else {
             Connector.init();
         }
