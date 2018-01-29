@@ -1,0 +1,27 @@
+@prefix tdb:     <http://jena.hpl.hp.com/2008/tdb#> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix ja:      <http://jena.hpl.hp.com/2005/11/Assembler#> .
+@prefix fuseki:  <http://jena.apache.org/fuseki#> .
+@prefix :        <#> .
+
+# for testing purposes
+<#service>  rdf:type fuseki:Service ;
+fuseki:name              "directory" ;
+fuseki:serviceQuery      "sparql" ;
+fuseki:dataset           <#dataset> .
+
+# [] ja:loadClass "org.apache.jena.tdb.TDB" .
+tdb:DatasetTDB  rdfs:subClassOf  ja:RDFDataset .
+tdb:GraphTDB    rdfs:subClassOf  ja:Model      .
+
+<#dataset> rdf:type tdb:DatasetTDB ;
+	tdb:location "D:\\thingweb-repository\\db" .
+
+<#all-inf> rdf:type ja:InfModel ;
+	ja:reasoner [ ja:reasonerURL <http://jena.hpl.hp.com/2003/OWLMiniFBRuleReasoner> ] ;
+	ja:baseModel <#all> .
+    
+<#all> rdf:type tdb:GraphTDB ;
+	tdb:dataset <#dataset> ;
+	tdb:graphName </all> .
