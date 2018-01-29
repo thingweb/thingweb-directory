@@ -141,6 +141,7 @@ public class ThingDirectory {
         // initiate SPARQL client
         if (queryEndpoint != null) {
             Connector.init(queryEndpoint, updateEndpoint);
+            // TODO fall back to embedded store if endpoint not responding
         } else {
             Connector.init();
         }

@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+    <head>
+      <meta charset="UTF-8">
+      <title>Thingweb Directory - Register and discover W3C Thing Descriptions</title>
+      <style type="text/css">
+      	.block {
+          display: inline;
+      	}
+      </style>
+      <script type="text/javascript">
+      	function register() {
+			var xhr = new XMLHttpRequest();
+
+			xhr.onreadystatechange = function() {
+				if (xhr.readyState === 4) { // XMLHttpRequest.DONE
+					var id = xhr.getResponseHeader("Location");
+					
+					if (id) {
+      					var anchor = "<a href= \"" + id + "\">" + id + "</a>";
+						document.getElementById("td-location").innerHTML = "Created: " + anchor;
+					}
+				}
+			}
+			
+			var field = document.getElementById("td-format-field");
+			var format = field.options[field.selectedIndex].value;
+      		xhr.open("POST", "td");
+      		xhr.setRequestHeader("Content-Type", format);
+
+      		var td = document.getElementById("td-field").value;
+      		xhr.send(td);
+      	}
+      	
+      	function discover() {
+      		var xhr = new XMLHttpRequest();
+
+      		xhr.responseType = "json";
+      		xhr.onreadystatechange = function() {
+      			if (xhr.readyState === 4) { // XMLHttpRequest.DONE
+      				var ids = xhr.response;
+      			
+      				var table = document.getElementById("td-table");
+      			
+      				ids.forEach(function(id) {
+      					console.log(id);
+      					var anchor = "<a href= \"td/" + id + "\">" + id + "</a>";
+						table.insertRow().insertCell().innerHTML = anchor;
+      				});
+      			}
+      		}
+      		
+      		var q = document.getElementById("filter-field").value;
+			if (q === "") { q = "?s ?p ?o"; }
+      		xhr.open("GET", "td-lookup/sem?query=" + q);
+      		
+      		xhr.send();
+      	}
+      </script>
+    </head>
+    <body>
+      <h1>Thingweb Directory</h1>
+      
+      <h2>Register</h2>
+      <form action="javascript:register()">
+        <label for="td">Thing Description</label>
+      	<textarea id="td-field" name="td" rows="10" cols="50"></textarea>
+        <label for="td-format">Format</label>
+        <select id="td-format-field" name="td-format">
+          <option value="application/ld+json" selected="selected">JSON-LD</option>
+          <option value="application/n-triples">N-Triples</option>
+          <option value="text/turtle">Turtle</option>
+          <option value="application/rdf+xml">RDF/XML</option>
+        </select>
+        <input type="submit" value="OK"/>
+      </form>
+      <p id="td-location"></p>
+      
+      <h2>Discover</h2>
+      <form action="javascript:discover()">
+        <label for="filter">SPARQL filter</label>
+      	<textarea id="filter-field" name="filter" rows="10" cols="50"></textarea>
+        <input type="submit" value="OK"/>
+      </form>
+      <table id="td-table"></table>
+    </body>
+</html>

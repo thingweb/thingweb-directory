@@ -60,7 +60,7 @@ public class Queries {
 			+ "}"
 			+ "}";
 	
-	private static final String LIST_RESOURCES_TPL = "SELECT ?res WHERE { "
+	private static final String LIST_RESOURCES_TPL = "SELECT DISTINCT ?res WHERE { "
 			+ "GRAPH ?res { "
 			+ "%s " // arbitrary graph pattern
 			+ "} "

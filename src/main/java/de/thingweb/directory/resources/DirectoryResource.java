@@ -73,7 +73,8 @@ public class DirectoryResource extends RESTResource {
 		
 		uri = ThingDirectory.getBaseURI() + path;
 		lifetime = lt;
-		
+
+		// TODO when resource already exist, old timestamp not removed
 		Queries.createTimeout(uri, lifetime);
 	}
 	
