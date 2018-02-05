@@ -33,6 +33,7 @@ import org.eclipse.rdf4j.query.BooleanQuery;
 import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
+import org.eclipse.rdf4j.rio.RDFFormat;
 import org.eclipse.rdf4j.rio.RDFParseException;
 import org.eclipse.rdf4j.rio.Rio;
 import org.eclipse.rdf4j.rio.UnsupportedRDFormatException;
@@ -169,7 +170,9 @@ public class TDCollectionResource extends DirectoryCollectionResource {
 	public RESTResource post(Map<String, String> parameters, InputStream payload) throws RESTException {
 		Model graph;
 		try {
-			graph = RDFDocument.read(parameters, payload);
+			String base = RDFDocument.getInputBaseURI(parameters);
+			RDFFormat format = RDFDocument.getInputContentType(parameters);
+			graph = Rio.parse(payload, base, format);
 		} catch (RDFParseException | UnsupportedRDFormatException | IOException e) {
 			throw new BadRequestException(e);
 		}

@@ -58,7 +58,7 @@ public class RDFDocument extends DirectoryResource {
 		super(path, parameters);
 
 		try {
-			Model m = read(parameters, in);
+			Model m = Rio.parse(in, getInputBaseURI(parameters), getInputContentType(parameters));
 			
 			Queries.loadResource(uri, m);
 
@@ -75,16 +75,11 @@ public class RDFDocument extends DirectoryResource {
 		
 		Model m = Queries.getResource(uri);
 		
-		if (!m.isEmpty()) {			
-			RDFFormat format = DEFAULT_RDF_FORMAT;
-			if (parameters.containsKey(RESTResource.PARAMETER_ACCEPT)) {
-				String mediaType = parameters.get(RESTResource.PARAMETER_ACCEPT);
-				format = Rio.getParserFormatForMIMEType(mediaType).orElse(format);
-			}
+		if (!m.isEmpty()) {
+			RDFFormat format = getOutputAccept(parameters);
+			Rio.write(m, out, format);
 			// FIXME not thread-safe
 			contentType = format.getDefaultMIMEType();
-			
-			Rio.write(m, out, format);
 		} else {
 			throw new NotFoundException();
 		}
@@ -93,7 +88,7 @@ public class RDFDocument extends DirectoryResource {
 	@Override
 	public void put(Map<String, String> parameters, InputStream payload) throws RESTException {
 		try {
-			Model m = read(parameters, payload);
+			Model m = Rio.parse(payload, getInputBaseURI(parameters), getInputContentType(parameters));
 			
 			Queries.replaceResource(uri, m);
 			
@@ -138,17 +133,32 @@ public class RDFDocument extends DirectoryResource {
 		};
 	}
 	
-	protected static Model read(Map<String, String> parameters, InputStream payload) throws RDFParseException, UnsupportedRDFormatException, IOException {
+	protected static String getInputBaseURI(Map<String, String> parameters) {
+		// TODO take ep into account
+		return ThingDirectory.getBaseURI() + "/";
+	}
+	
+	protected static RDFFormat getInputContentType(Map<String, String> parameters) {
 		RDFFormat format = DEFAULT_RDF_FORMAT;
+		
 		if (parameters.containsKey(RESTResource.PARAMETER_CONTENT_TYPE)) {
 			String mediaType = parameters.get(RESTResource.PARAMETER_CONTENT_TYPE);
 			// TODO guess RDF specific type from generic media type (CoAP)
 			format = Rio.getParserFormatForMIMEType(mediaType).orElse(format);
 		}
 		
-		Model m = Rio.parse(payload, ThingDirectory.getBaseURI() + "/", format); // TODO take ep into account
+		return format;
+	}
+	
+	protected static RDFFormat getOutputAccept(Map<String, String> parameters) {
+		RDFFormat format = DEFAULT_RDF_FORMAT;
 		
-		return m;
+		if (parameters.containsKey(RESTResource.PARAMETER_ACCEPT)) {
+			String mediaType = parameters.get(RESTResource.PARAMETER_ACCEPT);
+			format = Rio.getParserFormatForMIMEType(mediaType).orElse(format);
+		}
+		
+		return format;
 	}
 
 }
