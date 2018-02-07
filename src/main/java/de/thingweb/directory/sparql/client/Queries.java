@@ -223,10 +223,12 @@ public class Queries {
 
 	/**
 	 * SELECT ?res WHERE {
-	 *   ...
+	 *   GRAPH ?res {
+	 *     ...
+	 *   }
 	 * }
 	 * 
-	 * @param pattern
+	 * @param SPARQL graph pattern
 	 * @return
 	 */
 	public static TupleQueryResult listResources(String pattern) {

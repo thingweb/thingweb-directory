@@ -10,6 +10,8 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.servlet.http.HttpServlet;
+
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
@@ -22,6 +24,10 @@ import de.thingweb.directory.http.HTTPServer;
 import de.thingweb.directory.resources.WelcomePageResource;
 import de.thingweb.directory.rest.IndexResource;
 import de.thingweb.directory.rest.RESTServerInstance;
+import de.thingweb.directory.rest.RESTServletContainer;
+import de.thingweb.directory.servlet.TDCollectionServlet;
+import de.thingweb.directory.servlet.TDLookUpSemServlet;
+import de.thingweb.directory.servlet.TDServlet;
 import de.thingweb.directory.sparql.client.Connector;
 import de.thingweb.directory.sparql.server.Functions;
 
@@ -48,7 +54,7 @@ public class ThingDirectory {
 	// TODO fix addressing
     private final static String baseURI = "http://localhost";
 
-    private final Set<RESTServerInstance> servers = new HashSet<>();
+    private final Set<RESTServletContainer> servers = new HashSet<>();
     
     private final IndexResource index = new WelcomePageResource();
     
@@ -69,33 +75,26 @@ public class ThingDirectory {
     	// constructor is private and should only be called once
     }
     
-    public Set<RESTServerInstance> getInstances() {
+    public Set<RESTServletContainer> getServers() {
     	return servers;
     }
     
-    public void run(Collection<RESTServerInstance> instances) {       
-        servers.addAll(instances);
-
-        for (RESTServerInstance s : servers) {
-        	s.setIndex(index);
-        	s.start();
-        }
-
-//        for (RESTServerInstance i : servers) {
-//            i.join();
-//        }
-        
-        ThingDirectory.get().terminate();
+    public void run(Collection<RESTServletContainer> containers) {
+    	servers.addAll(containers);
+    	
+    	TDServlet td = new TDServlet();
+    	TDCollectionServlet tdCollection = new TDCollectionServlet();
+    	TDLookUpSemServlet tdLookUpSem = new TDLookUpSemServlet(td);
+    	
+    	for (RESTServletContainer s : containers) {
+    		s.addCollectionWithMapping("/td", tdCollection, td);
+    		s.addServletWithMapping("/td-lookup/sem", tdLookUpSem);
+    		
+    		s.start();
+    	}
     }
-    
-    public void terminate() {
-        // TODO anything to do?
-    }
-
-    // TODO periodically remove resources whose lifetime expired
     
     public static void main(String[] args) throws Exception {
-
     	// Default values
         int portCoAP = DEFAULT_COAP_PORT;
         int portHTTP = DEFAULT_HTTP_PORT;
@@ -150,8 +149,8 @@ public class ThingDirectory {
         Functions.registerAll();
         
         // create and start REST server instances
-        Set<RESTServerInstance> servers = new HashSet<>();
-        servers.add(new CoAPServer(portCoAP));
+        Set<RESTServletContainer> servers = new HashSet<>();
+//        servers.add(new CoAPServer(portCoAP)); // FIXME
         servers.add(new HTTPServer(portHTTP));
         
         ThingDirectory.get().run(servers);
