@@ -5,15 +5,11 @@ import org.eclipse.californium.core.server.resources.Resource;
 
 import de.thingweb.directory.rest.CollectionItemServlet;
 import de.thingweb.directory.rest.CollectionServlet;
-import de.thingweb.directory.rest.IndexResource;
-import de.thingweb.directory.rest.RESTResource;
-import de.thingweb.directory.rest.RESTServerInstance;
 import de.thingweb.directory.rest.RESTServlet;
 import de.thingweb.directory.rest.RESTServletContainer;
 
-public class CoAPServer implements RESTServerInstance, RESTServletContainer {
+public class CoAPServer implements RESTServletContainer {
 
-	protected IndexResource root;
 	protected CoapServer server;
 	protected Thread t;
 
@@ -25,40 +21,15 @@ public class CoAPServer implements RESTServerInstance, RESTServletContainer {
 	
 	@Override
 	public void addCollectionWithMapping(String path, CollectionServlet coll, CollectionItemServlet item) {
-		// TODO Auto-generated method stub
-		
+		addServletWithMapping(path, coll);
+		addServletWithMapping(path + "/*", item);
 	}
 	
 	@Override
 	public void addServletWithMapping(String path, RESTServlet servlet) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void onCreate(RESTResource resource) {
-		// TODO currently assumes resources are added after their parents
-		addRec(resource.getPath(), new CoAPResourceContainer(resource),
-				server.getRoot());
-
-		resource.addListener(this);
-	}
-
-	@Override
-	public void onDelete(RESTResource resource) {
-		deleteRec(resource.getPath(), server.getRoot());
-	}
-
-	@Override
-	public void setIndex(IndexResource index) {
-		root = index;
-		server = new CoapServer(port) {
-			@Override
-			protected Resource createRoot() {
-				return new CoAPResourceContainer(root);
-			}
-		};
-		index.addListener(this);
+		Resource res = new CoAPServletWrapper(servlet);
+		res.setPath(path); // FIXME process regex in path
+		server.add(res);
 	}
 
 	@Override
@@ -87,33 +58,6 @@ public class CoAPServer implements RESTServerInstance, RESTServletContainer {
 			// TODO
 			e.printStackTrace();
 		}
-	}
-
-	protected void addRec(String path, Resource resource, Resource parent) {
-		for (Resource r : parent.getChildren()) {
-			if (path.contains(path(r))) {
-				addRec(path, resource, r);
-				return;
-			}
-		}
-		parent.add(resource);
-	}
-
-	protected void deleteRec(String path, Resource parent) {
-		if (path(parent).equals(path)) {
-			parent.getParent().remove(parent);
-			return;
-		}
-		for (Resource r : parent.getChildren()) {
-			if (path.contains(path(r))) {
-				deleteRec(path, r);
-				return;
-			}
-		}
-	}
-
-	protected String path(Resource r) {
-		return r.getPath() + r.getName();
 	}
 
 }

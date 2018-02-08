@@ -18,8 +18,13 @@ import org.apache.commons.cli.Options;
 import org.apache.log4j.Logger;
 
 import de.thingweb.directory.http.HTTPServer;
+import de.thingweb.directory.resources.TDLookUpEpResource;
+import de.thingweb.directory.resources.TDLookUpResResource;
 import de.thingweb.directory.rest.CollectionServlet;
 import de.thingweb.directory.rest.RESTServletContainer;
+import de.thingweb.directory.servlet.RDFDocumentServlet;
+import de.thingweb.directory.servlet.TDLookUpEpServlet;
+import de.thingweb.directory.servlet.TDLookUpResServlet;
 import de.thingweb.directory.servlet.TDLookUpSemServlet;
 import de.thingweb.directory.servlet.TDServlet;
 import de.thingweb.directory.sparql.client.Connector;
@@ -76,10 +81,19 @@ public class ThingDirectory {
     	
     	TDServlet td = new TDServlet();
     	CollectionServlet tdCollection = new CollectionServlet(td);
+    	
+    	RDFDocumentServlet vocab = new RDFDocumentServlet();
+    	CollectionServlet vocabCollection = new CollectionServlet(vocab);
+    	
+    	TDLookUpEpServlet tdLookUpEp = new TDLookUpEpServlet();
+    	TDLookUpResServlet tdLookUpRes = new TDLookUpResServlet();
     	TDLookUpSemServlet tdLookUpSem = new TDLookUpSemServlet(td);
     	
     	for (RESTServletContainer s : containers) {
     		s.addCollectionWithMapping("/td", tdCollection, td);
+    		s.addCollectionWithMapping("/vocab", vocabCollection, vocab);
+    		s.addServletWithMapping("/td-lookup/ep", tdLookUpEp);
+    		s.addServletWithMapping("/td-lookup/res", tdLookUpRes);
     		s.addServletWithMapping("/td-lookup/sem", tdLookUpSem);
     		
     		s.start();

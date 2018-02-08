@@ -3,7 +3,6 @@ package de.thingweb.directory.http;
 import java.util.EnumSet;
 
 import javax.servlet.DispatcherType;
-import javax.servlet.http.HttpServlet;
 
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Server;
@@ -13,21 +12,15 @@ import org.eclipse.jetty.server.handler.ResourceHandler;
 import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
-import org.eclipse.jetty.servlet.ServletMapping;
 import org.eclipse.jetty.servlets.CrossOriginFilter;
 
 import de.thingweb.directory.rest.CollectionItemServlet;
-import de.thingweb.directory.rest.CollectionResource;
 import de.thingweb.directory.rest.CollectionServlet;
-import de.thingweb.directory.rest.IndexResource;
-import de.thingweb.directory.rest.RESTResource;
-import de.thingweb.directory.rest.RESTServerInstance;
 import de.thingweb.directory.rest.RESTServlet;
 import de.thingweb.directory.rest.RESTServletContainer;
 
 public class HTTPServer implements RESTServletContainer {
 
-	protected IndexResource root;
 	protected Server server;
 	protected ServletHandler handler;
 
