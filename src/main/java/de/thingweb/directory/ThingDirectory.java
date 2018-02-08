@@ -18,8 +18,6 @@ import org.apache.commons.cli.Options;
 import org.apache.log4j.Logger;
 
 import de.thingweb.directory.http.HTTPServer;
-import de.thingweb.directory.resources.TDLookUpEpResource;
-import de.thingweb.directory.resources.TDLookUpResResource;
 import de.thingweb.directory.rest.CollectionServlet;
 import de.thingweb.directory.rest.RESTServletContainer;
 import de.thingweb.directory.servlet.RDFDocumentServlet;

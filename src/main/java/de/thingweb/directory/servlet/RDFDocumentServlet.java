@@ -1,8 +1,6 @@
 package de.thingweb.directory.servlet;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.util.Map;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -16,9 +14,6 @@ import org.eclipse.rdf4j.rio.Rio;
 import org.eclipse.rdf4j.rio.UnsupportedRDFormatException;
 
 import de.thingweb.directory.ThingDirectory;
-import de.thingweb.directory.rest.BadRequestException;
-import de.thingweb.directory.rest.NotFoundException;
-import de.thingweb.directory.rest.RESTResource;
 import de.thingweb.directory.rest.RESTServlet;
 import de.thingweb.directory.sparql.client.Queries;
 
