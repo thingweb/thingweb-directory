@@ -1,6 +1,8 @@
 package de.thingweb.directory.servlet;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -14,7 +16,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.eclipse.jetty.server.Request;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.rio.RDFFormat;
 import org.eclipse.rdf4j.rio.RDFParseException;
@@ -28,7 +29,6 @@ import com.github.jsonldjava.utils.JsonUtils;
 import de.thingweb.directory.BaseTest;
 import de.thingweb.directory.rest.CollectionItemServlet;
 import de.thingweb.directory.rest.CollectionServlet;
-import de.thingweb.directory.rest.RESTResource;
 import de.thingweb.directory.servlet.utils.MockHttpServletRequest;
 import de.thingweb.directory.servlet.utils.MockHttpServletResponse;
 

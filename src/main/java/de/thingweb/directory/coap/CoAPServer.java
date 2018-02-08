@@ -13,10 +13,8 @@ public class CoAPServer implements RESTServletContainer {
 	protected CoapServer server;
 	protected Thread t;
 
-	private int port;
-
 	public CoAPServer(int port) {
-		this.port = port;
+		server = new CoapServer(port);
 	}
 	
 	@Override

@@ -41,7 +41,7 @@ public class TDServlet extends RDFDocumentServlet {
 	
 	public TDServlet() {
 		try {
-			String pattern = String.format("?td a <%s>", TD.Thing.getURI());
+			String pattern = String.format("?td a <%s>", TD.Thing.stringValue());
 			
 			try (TupleQueryResult res = Queries.listResources(pattern)) {
 				while (res.hasNext()) {
@@ -91,7 +91,7 @@ public class TDServlet extends RDFDocumentServlet {
 
 	@Override
 	protected String generateItemID(Model m) throws ServletException {
-		Set<Resource> things = m.filter(null, RDF.TYPE, SimpleValueFactory.getInstance().createIRI(TD.Thing.getURI())).subjects();
+		Set<Resource> things = m.filter(null, RDF.TYPE, SimpleValueFactory.getInstance().createIRI(TD.Thing.stringValue())).subjects();
 		
 		Iterator<Resource> iterator = things.iterator();
 		if (!iterator.hasNext()) {
@@ -127,7 +127,7 @@ public class TDServlet extends RDFDocumentServlet {
 			td.add(stm);
 			if (!p.equals(RDF.TYPE) && o instanceof Resource) {
 				Resource node = (Resource) o;
-				if (!m.contains(node, RDF.TYPE, SimpleValueFactory.getInstance().createIRI(TD.Thing.getURI())) && !visited.contains(node)) {
+				if (!m.contains(node, RDF.TYPE, SimpleValueFactory.getInstance().createIRI(TD.Thing.stringValue())) && !visited.contains(node)) {
 					Model submodel = extractTD(m, node, visited);
 					submodel.forEach(substm -> {
 						td.add(substm);

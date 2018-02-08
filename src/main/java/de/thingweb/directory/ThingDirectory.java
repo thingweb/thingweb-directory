@@ -26,7 +26,6 @@ import de.thingweb.directory.servlet.TDLookUpResServlet;
 import de.thingweb.directory.servlet.TDLookUpSemServlet;
 import de.thingweb.directory.servlet.TDServlet;
 import de.thingweb.directory.sparql.client.Connector;
-import de.thingweb.directory.sparql.server.Functions;
 
 @SwaggerDefinition(tags = {
 	@Tag(name = "thing_description",
@@ -148,13 +147,10 @@ public class ThingDirectory {
         } else {
             Connector.init();
         }
-
-        // configure SPARQL engine (server)
-        Functions.registerAll();
         
         // create and start REST server instances
         Set<RESTServletContainer> servers = new HashSet<>();
-//        servers.add(new CoAPServer(portCoAP)); // FIXME
+//        servers.add(new CoAPServer(portCoAP));
         servers.add(new HTTPServer(portHTTP));
         
         ThingDirectory.get().run(servers);

@@ -1,17 +1,15 @@
 package de.thingweb.directory.rest;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 
 import java.io.IOException;
 
 import javax.servlet.ServletException;
 
-import org.apache.jena.reasoner.rulesys.builtins.AssertDisjointPairs;
 import org.junit.Test;
 
 import de.thingweb.directory.BaseTest;
-import de.thingweb.directory.rest.CollectionItemServlet;
-import de.thingweb.directory.servlet.TDServlet;
 import de.thingweb.directory.servlet.utils.MockHttpServletRequest;
 import de.thingweb.directory.servlet.utils.MockHttpServletResponse;
 

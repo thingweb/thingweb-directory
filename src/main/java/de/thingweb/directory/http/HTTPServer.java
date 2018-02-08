@@ -10,6 +10,7 @@ import org.eclipse.jetty.server.handler.DefaultHandler;
 import org.eclipse.jetty.server.handler.HandlerList;
 import org.eclipse.jetty.server.handler.ResourceHandler;
 import org.eclipse.jetty.servlet.FilterHolder;
+import org.eclipse.jetty.servlet.FilterMapping;
 import org.eclipse.jetty.servlet.ServletHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.servlets.CrossOriginFilter;
@@ -39,10 +40,10 @@ public class HTTPServer implements RESTServletContainer {
 			handler, // uses mapped servlets
 			new DefaultHandler() // returns 404
 		});
-		
-		server.setHandler(handlers);
 
 		configureCORS();
+		
+		server.setHandler(handlers);
 	}
 	
 	@Override
@@ -86,9 +87,9 @@ public class HTTPServer implements RESTServletContainer {
 
 	private void configureCORS() {
 		FilterHolder holder = new FilterHolder(new CrossOriginFilter());
-		holder.setInitParameter("allowedOrigins", "*"); // TODO - restrict this
-		holder.setInitParameter("allowedMethods", "GET,POST,PUT,DELETE,HEAD,OPTIONS");
-		holder.setInitParameter("allowedCredentials", "true");
+		holder.setInitParameter(CrossOriginFilter.ALLOWED_ORIGINS_PARAM, "*"); // TODO - restrict this
+		holder.setInitParameter(CrossOriginFilter.ALLOWED_METHODS_PARAM, "GET,POST,PUT,DELETE,HEAD,OPTIONS");
+		holder.setInitParameter(CrossOriginFilter.ALLOW_CREDENTIALS_PARAM, "true");
 
 		handler.addFilterWithMapping(holder, "/*", EnumSet.of(DispatcherType.REQUEST));
 	}

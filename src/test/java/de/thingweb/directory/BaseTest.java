@@ -1,37 +1,14 @@
 package de.thingweb.directory;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.StringWriter;
-import java.util.ArrayList;
-import java.util.List;
 
-import org.apache.jena.query.ReadWrite;
-import org.apache.jena.rdfconnection.RDFConnection;
-import org.apache.jena.system.Txn;
-import org.eclipse.rdf4j.query.TupleQuery;
-import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
-import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 
-
-
-
-
-
-
-
-
-
-
-
-import de.thingweb.directory.ThingDirectory;
 import de.thingweb.directory.sparql.client.Connector;
 
 /**

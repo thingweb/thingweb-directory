@@ -1,12 +1,11 @@
 package de.thingweb.directory;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import java.io.InputStream;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpDelete;
@@ -15,7 +14,6 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.HttpClientBuilder;
-import org.codehaus.plexus.util.StringOutputStream;
 import org.eclipse.californium.core.CoapClient;
 import org.eclipse.californium.core.CoapResponse;
 import org.eclipse.californium.core.coap.CoAP.ResponseCode;
@@ -25,12 +23,9 @@ import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import de.thingweb.directory.ThingDirectory;
 import de.thingweb.directory.coap.CoAPServer;
 import de.thingweb.directory.http.HTTPServer;
-import de.thingweb.directory.rest.RESTServerInstance;
 import de.thingweb.directory.rest.RESTServletContainer;
-import de.thingweb.directory.sparql.client.Connector;
 
 public class ThingDirectoryTest extends BaseTest {
 	
