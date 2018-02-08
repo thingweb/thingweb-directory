@@ -5,7 +5,11 @@ import java.util.EnumSet;
 import javax.servlet.DispatcherType;
 import javax.servlet.http.HttpServlet;
 
+import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.handler.DefaultHandler;
+import org.eclipse.jetty.server.handler.HandlerList;
+import org.eclipse.jetty.server.handler.ResourceHandler;
 import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
@@ -30,7 +34,21 @@ public class HTTPServer implements RESTServletContainer {
 	public HTTPServer(int port) {
 		server = new Server(port);
 		handler = new ServletHandler();
-		server.setHandler(handler);
+		
+		ResourceHandler publicHandler = new ResourceHandler();
+		String base = getClass().getClassLoader().getResource("public").getFile();
+		publicHandler.setResourceBase(base);
+		publicHandler.setDirectoriesListed(true);
+		publicHandler.setWelcomeFiles(new String[] { "index.html" });
+		
+		HandlerList handlers = new HandlerList();
+		handlers.setHandlers(new Handler[] {
+			publicHandler, // serves files in '/public'
+			handler, // uses mapped servlets
+			new DefaultHandler() // returns 404
+		});
+		
+		server.setHandler(handlers);
 
 		configureCORS();
 	}
