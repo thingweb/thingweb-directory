@@ -19,6 +19,7 @@ import de.thingweb.directory.ThingDirectory;
 import de.thingweb.directory.rest.BadRequestException;
 import de.thingweb.directory.rest.NotFoundException;
 import de.thingweb.directory.rest.RESTResource;
+import de.thingweb.directory.rest.RESTServlet;
 import de.thingweb.directory.sparql.client.Queries;
 
 public class RDFDocumentServlet extends RegistrationResourceServlet {

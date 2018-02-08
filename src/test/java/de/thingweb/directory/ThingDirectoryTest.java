@@ -29,7 +29,7 @@ import de.thingweb.directory.ThingDirectory;
 import de.thingweb.directory.coap.CoAPServer;
 import de.thingweb.directory.http.HTTPServer;
 import de.thingweb.directory.rest.RESTServerInstance;
-import de.thingweb.directory.servlet.RESTServletContainer;
+import de.thingweb.directory.rest.RESTServletContainer;
 import de.thingweb.directory.sparql.client.Connector;
 
 public class ThingDirectoryTest extends BaseTest {

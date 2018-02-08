@@ -1,4 +1,4 @@
-package de.thingweb.directory.servlet;
+package de.thingweb.directory.rest;
 
 import static org.junit.Assert.*;
 
@@ -10,7 +10,7 @@ import org.apache.jena.reasoner.rulesys.builtins.AssertDisjointPairs;
 import org.junit.Test;
 
 import de.thingweb.directory.BaseTest;
-import de.thingweb.directory.servlet.CollectionItemServlet;
+import de.thingweb.directory.rest.CollectionItemServlet;
 import de.thingweb.directory.servlet.TDServlet;
 import de.thingweb.directory.servlet.utils.MockHttpServletRequest;
 import de.thingweb.directory.servlet.utils.MockHttpServletResponse;

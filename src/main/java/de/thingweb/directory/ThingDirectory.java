@@ -10,8 +10,6 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.servlet.http.HttpServlet;
-
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
@@ -19,13 +17,9 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.log4j.Logger;
 
-import de.thingweb.directory.coap.CoAPServer;
 import de.thingweb.directory.http.HTTPServer;
-import de.thingweb.directory.resources.WelcomePageResource;
-import de.thingweb.directory.rest.IndexResource;
-import de.thingweb.directory.rest.RESTServerInstance;
-import de.thingweb.directory.servlet.RESTServletContainer;
-import de.thingweb.directory.servlet.TDCollectionServlet;
+import de.thingweb.directory.rest.CollectionServlet;
+import de.thingweb.directory.rest.RESTServletContainer;
 import de.thingweb.directory.servlet.TDLookUpSemServlet;
 import de.thingweb.directory.servlet.TDServlet;
 import de.thingweb.directory.sparql.client.Connector;
@@ -81,7 +75,7 @@ public class ThingDirectory {
     	servers.addAll(containers);
     	
     	TDServlet td = new TDServlet();
-    	TDCollectionServlet tdCollection = new TDCollectionServlet();
+    	CollectionServlet tdCollection = new CollectionServlet(td);
     	TDLookUpSemServlet tdLookUpSem = new TDLookUpSemServlet(td);
     	
     	for (RESTServletContainer s : containers) {

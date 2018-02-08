@@ -2,9 +2,14 @@ package de.thingweb.directory.servlet;
 
 import static org.junit.Assert.*;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.junit.Ignore;
 import org.junit.Test;
@@ -12,28 +17,45 @@ import org.junit.Test;
 import com.github.jsonldjava.utils.JsonUtils;
 
 import de.thingweb.directory.BaseTest;
+import de.thingweb.directory.rest.CollectionItemServlet;
+import de.thingweb.directory.rest.CollectionServlet;
 import de.thingweb.directory.servlet.utils.MockHttpServletRequest;
 import de.thingweb.directory.servlet.utils.MockHttpServletResponse;
 
 public class TDLookUpSemServletTest extends BaseTest {
+	
+	private static class MockCollectionServlet extends CollectionServlet {
+		
+		public MockCollectionServlet(CollectionItemServlet servlet) {
+			super(servlet);
+		}
+		
+		@Override
+		protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+			// only used for proper testing of protected method
+			super.doPost(req, resp);
+		}
+		
+	}
 
 	@Test
-	@Ignore
 	public void testDoGetWithQuery() throws Exception {
 		TDServlet servlet = new TDServlet();
+		MockCollectionServlet collServlet = new MockCollectionServlet(servlet);
 		TDLookUpSemServlet lookUpServlet = new TDLookUpSemServlet(servlet);
 		
 		byte[] b = loadResource("samples/fanTD.jsonld");
 		MockHttpServletRequest req = new MockHttpServletRequest("/", b, "application/ld+json");
 		MockHttpServletResponse resp = new MockHttpServletResponse();
-		
-		String id = servlet.doAdd(req, resp);
+
+		collServlet.doPost(req, resp);
 		
 		b = loadResource("samples/temperatureSensorTD.jsonld");
 		req = new MockHttpServletRequest("/", b, "application/ld+json");
 		resp = new MockHttpServletResponse();
-		
-		servlet.doAdd(req, resp);
+
+		collServlet.doPost(req, resp);
+		String id = resp.getHeader("Location");
 
 		String q = "?thing a <http://uri.etsi.org/m2m/saref#Sensor> .\n"
 				+ "FILTER NOT EXISTS {"

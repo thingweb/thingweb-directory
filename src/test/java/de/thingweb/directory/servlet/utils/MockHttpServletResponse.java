@@ -3,7 +3,9 @@ package de.thingweb.directory.servlet.utils;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.Cookie;
@@ -14,6 +16,8 @@ public class MockHttpServletResponse implements HttpServletResponse {
 	private int status = 200;
 	
 	private ByteArrayServletOutputStream out = new ByteArrayServletOutputStream();
+	
+	private Map<String, String> headers = new HashMap<>();
 	
 	public byte[] getBytes() {
 		return out.getBytes();
@@ -106,17 +110,17 @@ public class MockHttpServletResponse implements HttpServletResponse {
 
 	@Override
 	public void addDateHeader(String arg0, long arg1) {
-
+		addHeader(arg0, Long.toString(arg1));
 	}
 
 	@Override
 	public void addHeader(String arg0, String arg1) {
-
+		setHeader(arg0, arg1);
 	}
 
 	@Override
 	public void addIntHeader(String arg0, int arg1) {
-
+		addHeader(arg0, Integer.toString(arg1));
 	}
 
 	@Override
@@ -146,7 +150,7 @@ public class MockHttpServletResponse implements HttpServletResponse {
 
 	@Override
 	public String getHeader(String arg0) {
-		return null;
+		return headers.get(arg0);
 	}
 
 	@Override
@@ -181,17 +185,17 @@ public class MockHttpServletResponse implements HttpServletResponse {
 
 	@Override
 	public void setDateHeader(String arg0, long arg1) {
-
+		setHeader(arg0, Long.toString(arg1));
 	}
 
 	@Override
 	public void setHeader(String arg0, String arg1) {
-
+		headers.put(arg0, arg1);
 	}
 
 	@Override
 	public void setIntHeader(String arg0, int arg1) {
-
+		setHeader(arg0, Integer.toString(arg1));
 	}
 
 	@Override

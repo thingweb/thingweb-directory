@@ -1,4 +1,4 @@
-package de.thingweb.directory.servlet;
+package de.thingweb.directory.rest;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -41,7 +41,7 @@ public abstract class CollectionItemServlet extends RESTServlet {
 		return generateItemID();
 	}
 	
-	public Collection<String> getAllItems() {
+	protected Collection<String> getAllItems() {
 		return items;
 	}
 	

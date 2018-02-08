@@ -3,13 +3,13 @@ package de.thingweb.directory.coap;
 import org.eclipse.californium.core.CoapServer;
 import org.eclipse.californium.core.server.resources.Resource;
 
+import de.thingweb.directory.rest.CollectionItemServlet;
+import de.thingweb.directory.rest.CollectionServlet;
 import de.thingweb.directory.rest.IndexResource;
 import de.thingweb.directory.rest.RESTResource;
 import de.thingweb.directory.rest.RESTServerInstance;
-import de.thingweb.directory.servlet.CollectionItemServlet;
-import de.thingweb.directory.servlet.CollectionServlet;
-import de.thingweb.directory.servlet.RESTServlet;
-import de.thingweb.directory.servlet.RESTServletContainer;
+import de.thingweb.directory.rest.RESTServlet;
+import de.thingweb.directory.rest.RESTServletContainer;
 
 public class CoAPServer implements RESTServerInstance, RESTServletContainer {
 

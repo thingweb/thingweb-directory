@@ -9,6 +9,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.util.Models;
@@ -17,10 +19,26 @@ import org.eclipse.rdf4j.rio.Rio;
 import org.junit.Test;
 
 import de.thingweb.directory.BaseTest;
+import de.thingweb.directory.rest.CollectionItemServlet;
+import de.thingweb.directory.rest.CollectionServlet;
 import de.thingweb.directory.servlet.utils.MockHttpServletRequest;
 import de.thingweb.directory.servlet.utils.MockHttpServletResponse;
 
 public class RDFDocumentServletTest extends BaseTest {
+	
+	private static class MockCollectionServlet extends CollectionServlet {
+		
+		public MockCollectionServlet(CollectionItemServlet servlet) {
+			super(servlet);
+		}
+		
+		@Override
+		protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+			// only used for proper testing of protected method
+			super.doPost(req, resp);
+		}
+		
+	}
 	
 	@Test
 	public void testDoGetWithContentNegotiation() throws Exception {
@@ -125,13 +143,15 @@ public class RDFDocumentServletTest extends BaseTest {
 	@Test
 	public void testDoGetTimeout() throws ServletException, IOException, InterruptedException {
 		RegistrationResourceServlet servlet = new RDFDocumentServlet();
+		MockCollectionServlet collServlet = new MockCollectionServlet(servlet);
 
 		Map<String, String> params = new HashMap<>();
 		params.put("lt", "1"); // 1s timeout
 		MockHttpServletRequest req = new MockHttpServletRequest("/", new byte [0], "text/plain", new HashMap<>(), params);
 		MockHttpServletResponse resp = new MockHttpServletResponse();
 		
-		String id = servlet.doAdd(req, resp);
+		collServlet.doPost(req, resp);
+		String id = resp.getHeader("Location");
 		
 		Thread.sleep(1500); // 1.5s sleep time (> resource timeout)
 		
@@ -146,13 +166,15 @@ public class RDFDocumentServletTest extends BaseTest {
 	@Test
 	public void testDoPutTimeout() throws Exception {
 		RegistrationResourceServlet servlet = new RDFDocumentServlet();
+		MockCollectionServlet collServlet = new MockCollectionServlet(servlet);
 
 		Map<String, String> params = new HashMap<>();
 		params.put("lt", "1"); // 1s timeout
 		MockHttpServletRequest req = new MockHttpServletRequest("/", new byte [0], "text/plain", new HashMap<>(), params);
 		MockHttpServletResponse resp = new MockHttpServletResponse();
 		
-		String id = servlet.doAdd(req, resp);
+		collServlet.doPost(req, resp);
+		String id = resp.getHeader("Location");
 		
 		Thread.sleep(500); // 0.5s sleep time (< resource timeout)
 		

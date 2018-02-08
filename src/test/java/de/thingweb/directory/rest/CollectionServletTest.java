@@ -1,4 +1,4 @@
-package de.thingweb.directory.servlet;
+package de.thingweb.directory.rest;
 
 import static org.junit.Assert.*;
 
@@ -12,8 +12,8 @@ import org.junit.Test;
 import com.github.jsonldjava.utils.JsonUtils;
 
 import de.thingweb.directory.BaseTest;
-import de.thingweb.directory.servlet.CollectionItemServlet;
-import de.thingweb.directory.servlet.CollectionServlet;
+import de.thingweb.directory.rest.CollectionItemServlet;
+import de.thingweb.directory.rest.CollectionServlet;
 import de.thingweb.directory.servlet.utils.MockHttpServletRequest;
 import de.thingweb.directory.servlet.utils.MockHttpServletResponse;
 
