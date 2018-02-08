@@ -15,7 +15,6 @@ import org.eclipse.californium.core.coap.OptionSet;
 import org.eclipse.californium.core.coap.Response;
 import org.eclipse.californium.core.server.resources.CoapExchange;
 
-import de.thingweb.directory.resources.TDCollectionResource;
 import de.thingweb.directory.rest.BadRequestException;
 import de.thingweb.directory.rest.NotFoundException;
 import de.thingweb.directory.rest.RESTException;
@@ -29,10 +28,10 @@ public class CoAPResourceContainer extends CoapResource {
 		super(resource.getName());
 		this.resource = resource;
 //
-		if (resource instanceof TDCollectionResource) {
-			this.getAttributes().addResourceType("core.rd");
-			super.setObservable(true);
-		}
+//		if (resource instanceof TDCollectionResource) {
+//			this.getAttributes().addResourceType("core.rd");
+//			super.setObservable(true);
+//		}
 //		else if (resource instanceof TDLookUpHandler) {
 //		this.getAttributes().addResourceType("core.rd-lookup");
 //	}

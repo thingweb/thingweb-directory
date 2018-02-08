@@ -1,4 +1,4 @@
-package de.thingweb.directory.rest;
+package de.thingweb.directory.servlet;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -27,7 +27,7 @@ public abstract class CollectionItemServlet extends RESTServlet {
 	protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		items.remove(getItemID(req));
 	}
-	
+
 	/**
 	 * Should return the name of the resource newly created
 	 * 

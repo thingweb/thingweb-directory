@@ -13,7 +13,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.eclipse.rdf4j.query.TupleQueryResult;
 
 import de.thingweb.directory.ThingDirectory;
-import de.thingweb.directory.rest.RESTServlet;
 import de.thingweb.directory.servlet.utils.BufferedResponseWrapper;
 import de.thingweb.directory.servlet.utils.RedirectedRequestWrapper;
 import de.thingweb.directory.sparql.client.Queries;

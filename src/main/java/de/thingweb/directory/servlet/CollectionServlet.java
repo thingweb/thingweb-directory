@@ -1,4 +1,4 @@
-package de.thingweb.directory.rest;
+package de.thingweb.directory.servlet;
 
 import java.io.IOException;
 import java.io.OutputStream;

@@ -8,7 +8,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import de.thingweb.directory.ThingDirectory;
-import de.thingweb.directory.rest.CollectionItemServlet;
 
 /**
  * 

@@ -19,7 +19,6 @@ import de.thingweb.directory.ThingDirectory;
 import de.thingweb.directory.rest.BadRequestException;
 import de.thingweb.directory.rest.NotFoundException;
 import de.thingweb.directory.rest.RESTResource;
-import de.thingweb.directory.rest.RESTServlet;
 import de.thingweb.directory.sparql.client.Queries;
 
 public class RDFDocumentServlet extends RegistrationResourceServlet {
@@ -77,6 +76,8 @@ public class RDFDocumentServlet extends RegistrationResourceServlet {
 	
 	@Override
 	protected String doAdd(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+		super.doAdd(req, resp);
+		
 		try {
 			Model m = Rio.parse(req.getInputStream(), getBaseURI(req), getContentFormat(req));
 			

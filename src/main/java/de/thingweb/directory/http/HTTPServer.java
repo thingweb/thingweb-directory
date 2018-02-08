@@ -12,14 +12,14 @@ import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.servlet.ServletMapping;
 import org.eclipse.jetty.servlets.CrossOriginFilter;
 
-import de.thingweb.directory.rest.CollectionItemServlet;
 import de.thingweb.directory.rest.CollectionResource;
-import de.thingweb.directory.rest.CollectionServlet;
 import de.thingweb.directory.rest.IndexResource;
 import de.thingweb.directory.rest.RESTResource;
 import de.thingweb.directory.rest.RESTServerInstance;
-import de.thingweb.directory.rest.RESTServlet;
-import de.thingweb.directory.rest.RESTServletContainer;
+import de.thingweb.directory.servlet.CollectionItemServlet;
+import de.thingweb.directory.servlet.CollectionServlet;
+import de.thingweb.directory.servlet.RESTServlet;
+import de.thingweb.directory.servlet.RESTServletContainer;
 
 public class HTTPServer implements RESTServletContainer {
 

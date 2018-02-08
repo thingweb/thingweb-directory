@@ -24,7 +24,7 @@ import de.thingweb.directory.http.HTTPServer;
 import de.thingweb.directory.resources.WelcomePageResource;
 import de.thingweb.directory.rest.IndexResource;
 import de.thingweb.directory.rest.RESTServerInstance;
-import de.thingweb.directory.rest.RESTServletContainer;
+import de.thingweb.directory.servlet.RESTServletContainer;
 import de.thingweb.directory.servlet.TDCollectionServlet;
 import de.thingweb.directory.servlet.TDLookUpSemServlet;
 import de.thingweb.directory.servlet.TDServlet;
@@ -55,8 +55,6 @@ public class ThingDirectory {
     private final static String baseURI = "http://localhost";
 
     private final Set<RESTServletContainer> servers = new HashSet<>();
-    
-    private final IndexResource index = new WelcomePageResource();
     
     private static ThingDirectory singleton = null;
     

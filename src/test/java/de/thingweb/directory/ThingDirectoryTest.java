@@ -29,6 +29,7 @@ import de.thingweb.directory.ThingDirectory;
 import de.thingweb.directory.coap.CoAPServer;
 import de.thingweb.directory.http.HTTPServer;
 import de.thingweb.directory.rest.RESTServerInstance;
+import de.thingweb.directory.servlet.RESTServletContainer;
 import de.thingweb.directory.sparql.client.Connector;
 
 public class ThingDirectoryTest extends BaseTest {
@@ -42,10 +43,10 @@ public class ThingDirectoryTest extends BaseTest {
 	public static void runRepository() throws Exception {
 		ThingDirectory directory = ThingDirectory.get();
 
-		Set<RESTServerInstance> servers = new HashSet<>();
+		Set<RESTServletContainer> servers = new HashSet<>();
 	    servers.add(new CoAPServer(COAP_PORT));
 	    servers.add(new HTTPServer(HTTP_PORT));
-	    
+
 	    thread = new Thread(() -> {
 		    directory.run(servers);
 	    });

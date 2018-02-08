@@ -35,8 +35,6 @@ import com.github.jsonldjava.core.JsonLdProcessor;
 import com.github.jsonldjava.utils.JsonUtils;
 
 import de.thingweb.directory.ThingDirectory;
-import de.thingweb.directory.resources.RDFDocument;
-import de.thingweb.directory.resources.TDResource;
 import de.thingweb.directory.rest.RESTException;
 import de.thingweb.directory.sparql.client.Queries;
 import de.thingweb.directory.vocabulary.TD;
@@ -96,7 +94,7 @@ public class TDServlet extends RDFDocumentServlet {
 	}
 
 	@Override
-	protected String generateItemID(Model m) throws ServletException {			
+	protected String generateItemID(Model m) throws ServletException {
 		Set<Resource> things = m.filter(null, RDF.TYPE, SimpleValueFactory.getInstance().createIRI(TD.Thing.getURI())).subjects();
 		
 		Iterator<Resource> iterator = things.iterator();
@@ -146,7 +144,7 @@ public class TDServlet extends RDFDocumentServlet {
 	}
 	
 	protected static Object getFrame() throws IOException {
-		InputStream in = TDResource.class.getClassLoader().getResourceAsStream(TD_FRAME_FILENAME);
+		InputStream in = TDServlet.class.getClassLoader().getResourceAsStream(TD_FRAME_FILENAME);
 		return JsonUtils.fromInputStream(in);
 	}
 	

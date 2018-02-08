@@ -1,4 +1,4 @@
-package de.thingweb.directory.rest;
+package de.thingweb.directory.servlet;
 
 /**
  * 
