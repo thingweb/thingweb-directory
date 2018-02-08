@@ -36,8 +36,7 @@ public class HTTPServer implements RESTServletContainer {
 		handler = new ServletHandler();
 		
 		ResourceHandler publicHandler = new ResourceHandler();
-		String base = getClass().getClassLoader().getResource("public").getFile();
-		publicHandler.setResourceBase(base);
+		publicHandler.setResourceBase("public");
 		publicHandler.setDirectoriesListed(true);
 		publicHandler.setWelcomeFiles(new String[] { "index.html" });
 		
