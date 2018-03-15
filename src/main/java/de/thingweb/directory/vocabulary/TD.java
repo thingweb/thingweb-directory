@@ -8,7 +8,7 @@ public class TD {
 	public static final Resource Thing = SimpleValueFactory.getInstance().createIRI(getURI() + "Thing");
 
 	public static String getURI() {
-		return "http://iot.linkeddata.es/def/wot#"; // TODO to update
+		return "http://www.w3.org/ns/td#";
 	}
 	
 }
