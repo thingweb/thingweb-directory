@@ -1,5 +1,6 @@
 package de.thingweb.directory.http;
 
+import java.net.URL;
 import java.util.EnumSet;
 
 import javax.servlet.DispatcherType;
@@ -14,6 +15,8 @@ import org.eclipse.jetty.servlet.FilterMapping;
 import org.eclipse.jetty.servlet.ServletHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.servlets.CrossOriginFilter;
+import org.eclipse.jetty.util.resource.PathResource;
+import org.eclipse.jetty.util.resource.Resource;
 
 import de.thingweb.directory.rest.CollectionItemServlet;
 import de.thingweb.directory.rest.CollectionServlet;
@@ -30,7 +33,7 @@ public class HTTPServer extends RESTServletContainer {
 		handler = new ServletHandler();
 		
 		ResourceHandler publicHandler = new ResourceHandler();
-		publicHandler.setResourceBase("public");
+		publicHandler.setBaseResource(Resource.newClassPathResource("public"));
 		publicHandler.setDirectoriesListed(true);
 		publicHandler.setWelcomeFiles(new String[] { "index.html" });
 		
