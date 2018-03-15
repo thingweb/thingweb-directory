@@ -8,16 +8,18 @@ package de.thingweb.directory.rest;
  * @creation 06.02.2018
  *
  */
-public interface RESTServletContainer {
+public abstract class RESTServletContainer {
 	
-	public void addServletWithMapping(String path, RESTServlet servlet);
+	public void addServletWithMapping(String path, RESTServlet servlet) {
+		if (servlet instanceof CollectionServlet) {
+			addServletWithMapping(path + "/*", ((CollectionServlet) servlet).getItemServlet());
+		}
+	}
 	
-	public void addCollectionWithMapping(String path, CollectionServlet coll, CollectionItemServlet item);
+	public abstract void start();
 	
-	public void start();
+	public abstract void stop();
 	
-	public void stop();
-	
-	public void join();
+	public abstract void join();
   
 }

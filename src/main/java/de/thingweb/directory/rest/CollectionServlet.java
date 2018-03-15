@@ -14,7 +14,7 @@ import de.thingweb.directory.ThingDirectory;
 
 public class CollectionServlet extends RESTServlet {
 	
-	protected static final String LOCATION_HEADER = "Location";
+	public static final String LOCATION_HEADER = "Location";
 	
 	private static final String[] ACCEPTED = { "application/json" };
 	
@@ -22,6 +22,10 @@ public class CollectionServlet extends RESTServlet {
 	
 	public CollectionServlet(CollectionItemServlet child) {
 		itemServlet = child;
+	}
+	
+	public CollectionItemServlet getItemServlet() {
+		return itemServlet;
 	}
 	
 	@Override

@@ -1,5 +1,6 @@
 package de.thingweb.directory.coap;
 
+import org.eclipse.californium.core.CoapResource;
 import org.eclipse.californium.core.CoapServer;
 import org.eclipse.californium.core.server.resources.Resource;
 
@@ -8,7 +9,7 @@ import de.thingweb.directory.rest.CollectionServlet;
 import de.thingweb.directory.rest.RESTServlet;
 import de.thingweb.directory.rest.RESTServletContainer;
 
-public class CoAPServer implements RESTServletContainer {
+public class CoAPServer extends RESTServletContainer {
 
 	protected CoapServer server;
 	protected Thread t;
@@ -18,21 +19,26 @@ public class CoAPServer implements RESTServletContainer {
 	}
 	
 	@Override
-	public void addCollectionWithMapping(String path, CollectionServlet coll, CollectionItemServlet item) {
-		addServletWithMapping(path, coll);
-		addServletWithMapping(path + "/*", item);
-	}
-	
-	@Override
 	public void addServletWithMapping(String path, RESTServlet servlet) {
-		Resource res = new CoAPServletWrapper(servlet);
-		res.setPath(path); // FIXME process regex in path
-		server.add(res);
+		if (path.startsWith("/") && path.endsWith("/*")) {
+			// path-prefix mappings
+			// managed by collection wrapper
+		} else if (path.startsWith("*.")) {
+			// TODO extension mapping
+		} else if (path.equals("/")) {
+			// TODO default mapping
+		} else {
+			// exact mapping
+			String name = path.substring(path.lastIndexOf('/') + 1);
+			Resource res = new CoAPServletWrapper(name, servlet);
+			addRec(path, res, server.getRoot());
+		}
+		
+		super.addServletWithMapping(path, servlet);
 	}
 
 	@Override
 	public void start() {
-
 		// TODO server can only be started after setIndex() is called
 		t = new Thread(new Runnable() {
 			@Override
@@ -55,6 +61,21 @@ public class CoAPServer implements RESTServletContainer {
 		} catch (InterruptedException e) {
 			// TODO
 			e.printStackTrace();
+		}
+	}
+	  
+	private void addRec(String path, Resource resource, Resource parent) {
+		int end = path.indexOf('/', 1);
+		String name = path.substring(1, end < 0 ? path.length() : end);
+
+		if (resource.getName().equals(name)) {
+			parent.add(resource);
+		} else {
+			if (parent.getChild(name) == null) {
+				parent.add(new CoapResource(name));
+			}
+			String subpath = path.substring(path.indexOf('/', 1));
+			addRec(subpath, resource, parent.getChild(name));
 		}
 	}
 

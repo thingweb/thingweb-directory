@@ -17,6 +17,7 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.log4j.Logger;
 
+import de.thingweb.directory.coap.CoAPServer;
 import de.thingweb.directory.http.HTTPServer;
 import de.thingweb.directory.rest.CollectionServlet;
 import de.thingweb.directory.rest.RESTServletContainer;
@@ -87,8 +88,8 @@ public class ThingDirectory {
     	TDLookUpSemServlet tdLookUpSem = new TDLookUpSemServlet(td);
     	
     	for (RESTServletContainer s : containers) {
-    		s.addCollectionWithMapping("/td", tdCollection, td);
-    		s.addCollectionWithMapping("/vocab", vocabCollection, vocab);
+    		s.addServletWithMapping("/td", tdCollection);
+    		s.addServletWithMapping("/vocab", vocabCollection);
     		s.addServletWithMapping("/td-lookup/ep", tdLookUpEp);
     		s.addServletWithMapping("/td-lookup/res", tdLookUpRes);
     		s.addServletWithMapping("/td-lookup/sem", tdLookUpSem);
@@ -104,7 +105,7 @@ public class ThingDirectory {
         String queryEndpoint = null; // SPARQL query endpoint
         String updateEndpoint = null; // SPARQL update endpoint
         
-        //####### Handle input ##########
+        // Handle input
         Options options = new Options();
         
         options.addOption("q", true, "SPARQL query endpoint URI for remote storage (main memory storage if not provided).");
@@ -137,8 +138,6 @@ public class ThingDirectory {
             formatter.printHelp( "thingweb-repository-version.jar", options );
         	System.exit(0);
         }
-        
-        // ##############################
 
         // initiate SPARQL client
         if (queryEndpoint != null) {
@@ -150,7 +149,7 @@ public class ThingDirectory {
         
         // create and start REST server instances
         Set<RESTServletContainer> servers = new HashSet<>();
-//        servers.add(new CoAPServer(portCoAP));
+        servers.add(new CoAPServer(portCoAP));
         servers.add(new HTTPServer(portHTTP));
         
         ThingDirectory.get().run(servers);

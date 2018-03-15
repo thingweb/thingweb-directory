@@ -20,7 +20,7 @@ import de.thingweb.directory.rest.CollectionServlet;
 import de.thingweb.directory.rest.RESTServlet;
 import de.thingweb.directory.rest.RESTServletContainer;
 
-public class HTTPServer implements RESTServletContainer {
+public class HTTPServer extends RESTServletContainer {
 
 	protected Server server;
 	protected ServletHandler handler;
@@ -47,15 +47,11 @@ public class HTTPServer implements RESTServletContainer {
 	}
 	
 	@Override
-	public void addCollectionWithMapping(String path, CollectionServlet coll, CollectionItemServlet item) {
-		addServletWithMapping(path, coll);
-		addServletWithMapping(path + "/*", item);
-	}
-	
-	@Override
 	public void addServletWithMapping(String path, RESTServlet servlet) {
 		ServletHolder holder = new ServletHolder(servlet);
 		handler.addServletWithMapping(holder, path);
+		
+		super.addServletWithMapping(path, servlet);
 	}
 
 	@Override
