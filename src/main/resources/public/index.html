@@ -52,7 +52,7 @@
 					var id = xhr.getResponseHeader("Location");
 					
 					if (id) {
-      					var anchor = "<a href= \"" + id + "\">" + id + "</a>";
+      					var anchor = "<a href= \"td/" + id + "\">" + id + "</a>";
 						document.getElementById("td-location").innerHTML = "Created: " + anchor;
 					}
 				}
@@ -80,11 +80,10 @@
       				var table = document.getElementById("td-table");
       				table.innerHTML = "";
       			
-      				ids.forEach(function(id) {
-      					console.log(id);
+      				for (id in ids) {
       					var anchor = "<a href= \"td/" + id + "\">" + id + "</a>";
 						table.insertRow().insertCell().innerHTML = anchor;
-      				});
+      				}
       			}
       		}
       		
@@ -120,14 +119,16 @@
       </form>
       
       <form action="javascript:discover()">
-        <h2>Discover (<code>/td-lookup</code>)</h2>
+        <h2>Discover (<code>/td-lookup/sem</code>)</h2>
         <p>
           <textarea id="filter-field" placeholder="SPARQL filter (empty: no filter)" name="filter" rows="2" cols="50"></textarea>
         </p>
         <p>
           <input type="submit" value="OK"/>
         </p>
-        <table id="td-table"></table>
+        <p>
+          <table id="td-table"></table>
+        </p>
       </form>
     </body>
 </html>
