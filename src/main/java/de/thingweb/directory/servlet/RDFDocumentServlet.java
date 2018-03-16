@@ -54,7 +54,7 @@ public class RDFDocumentServlet extends RegistrationResourceServlet {
 			Model m = Rio.parse(req.getInputStream(), getBaseURI(req), getContentFormat(req));
 
 			String uri = getRDFDocumentURI(getItemID(req));
-			Queries.replaceResource(uri, m);			
+			Queries.replaceResource(uri, m);
 		} catch (RDFParseException | UnsupportedRDFormatException | IOException e) {
 			throw new ServletException(e);
 		}

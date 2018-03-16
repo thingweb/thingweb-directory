@@ -23,7 +23,7 @@ $ gradle build
 
 ### Running the Directory
 
-Download the project and build it (see [Building](#Building). Once it is finished, the server can be started:
+Download the project and build it (see [Building](#Building)). Once it is finished, the server can be started:
 ```sh
 $ java -jar build/libs/thingweb-directory-{version}.jar
 ```
@@ -35,9 +35,9 @@ By default, the Directory runs an in-memory RDF store, whose content is deleted 
 
 ### Interacting with the Directory
 
-The HTTP endpoint provides an HTML client to register and discover Thing Descriptions. This client accesses a REST API to manage Thing Descriptions that complies to the [IETF Resource Directory specification](https://tools.ietf.org/html/draft-ietf-core-resource-directory-12). Registration is done by POSTing on `/td` and discovery can be performed on `td-lookup/ep`, `td-lookup/res` and `td-lookup/sem` (which expects a SPARQL graph pattern as query parameter).
+The HTTP endpoint provides an HTML client to register and discover Thing Descriptions. This client accesses a REST API to manage Thing Descriptions that complies to the [IETF Resource Directory specification](https://tools.ietf.org/html/draft-ietf-core-resource-directory-12). Registration is done by POSTing on [`/td`](http://localhost:8080/td) and discovery can be performed on [`td-lookup/ep`](http://localhost:8080/td-lookup/ep), [`td-lookup/res`](http://localhost:8080/td-lookup/res) and [`td-lookup/sem`](http://localhost:8080/td-lookup/sem) (which expects a SPARQL graph pattern as query parameter).
 
-See `src/main/resources/api.json` for a formal specification of the Thing Directory API. This file is exposed by the server at `/api.json`. It can e.g. be processed by the [Swagger UI](http://swagger.io/swagger-ui/) to render an online documentation. See the [Open API Initiative](https://www.openapis.org/) for more details.
+See `src/main/resources/api.json` for a formal specification of the Thing Directory API. This file is exposed by the server at [`/api.json`](http://localhost:8080/api.json). It can e.g. be processed by the [Swagger UI](http://swagger.io/swagger-ui/) to render an online documentation. See the [Open API Initiative](https://www.openapis.org/) for more details.
 
 ## TODOs
 

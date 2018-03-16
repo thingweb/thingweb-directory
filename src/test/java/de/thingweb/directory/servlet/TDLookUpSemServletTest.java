@@ -59,7 +59,7 @@ public class TDLookUpSemServletTest extends BaseTest {
 
 		String q = "?thing a <http://uri.etsi.org/m2m/saref#Sensor> .\n"
 				+ "FILTER NOT EXISTS {"
-				+ "  ?thing <http://iot.linkeddata.es/def/wot#providesInteractionPattern> ?i .\n"
+				+ "  ?thing <http://www.w3.org/ns/td#providesInteractionPattern> ?i .\n"
 				+ "  ?i a <http://uri.etsi.org/m2m/saref#ToggleCommand> .\n"
 				+ "}";
 		HashMap<String, String> params = new HashMap<>();

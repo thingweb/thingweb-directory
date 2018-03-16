@@ -44,12 +44,10 @@ public abstract class RegistrationResourceServlet extends CollectionItemServlet 
 	
 	@Override
 	protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-		int lt = DEFAULT_LIFETIME;
 		if (req.getParameter(PARAMETER_LIFETIME) != null) {
-			lt = Integer.parseInt(req.getParameter(PARAMETER_LIFETIME));
+			int lt = Integer.parseInt(req.getParameter(PARAMETER_LIFETIME));
+			updateTimeout(getItemID(req), lt);
 		}
-		
-		updateTimeout(getItemID(req), lt);
 	}
 	
 	@Override

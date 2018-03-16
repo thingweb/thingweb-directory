@@ -1,7 +1,7 @@
 {
 	"@context": {
 		"xsd": "http://www.w3.org/2001/XMLSchema#",
-		"td": "http://iot.linkeddata.es/def/wot#",
+		"td": "http://www.w3.org/ns/td#",
 		"Thing": "td:Thing",
 		"name": "td:name",
 		"base": {
