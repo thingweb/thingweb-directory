@@ -23,9 +23,7 @@
  */
 
 apply plugin: 'java'
-apply plugin: 'java-library-distribution'
-apply plugin: 'maven'
-apply plugin:'maven-publish'
+apply plugin: 'application'
 apply plugin: 'eclipse'
 
 sourceSets {
@@ -41,7 +39,7 @@ repositories {
 	jcenter()
 }
 
-dependencies {	
+dependencies {
 	compile 'org.eclipse.californium:californium-core:1.0.0-M3'
 	compile 'com.ontotext.graphdb:graphdb-free-runtime:8.4.0'
 	compile 'log4j:log4j:1.2.17'
@@ -55,37 +53,4 @@ dependencies {
 
 version = '0.8'
 group = 'de.thingweb'
-
-publishing {
-    publications {
-        mavenJava(MavenPublication) {
-            from components.java
-        }
-    }
-}
-
-jar {
-	doFirst {
-		def serviceDir = file("$buildDir/META-INF/services")
-		serviceDir.deleteDir()
-		serviceDir.mkdirs()
-
-		// copy all service files from deps to buildDir
-		for(file in configurations.runtime) {
-			zipTree(file).matching{ include 'META-INF/services/*' }.each { f ->
-				new File(serviceDir, f.name) << f.getText("UTF-8")
-			}
-		}
-	}
-	
-	from ( configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } ) {
-		exclude 'META-INF/**' // Don't let Gradle merge service files
-	}
-	
-	manifest {
-		attributes 'Main-Class': 'de.thingweb.directory.ThingDirectory'
-	}
-	
-	// include service files from the buildDir
-	from fileTree(buildDir).matching{ include 'META-INF/services/*' }
-}
+mainClassName = 'de.thingweb.directory.ThingDirectory'

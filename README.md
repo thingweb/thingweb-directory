@@ -11,27 +11,21 @@ The directory features an API to create, read, update and delete (CRUD) a TD. Th
 
 ## Getting Started
 
-### Building
-
-We are using [Gradle](https://gradle.org/) as a build tool:
-
-The following command will produce a standalone jar (the execution might last a couple of minutes):
-```sh
-$ cd thingweb-directory
-$ gradle build
-```
-
 ### Running the Directory
 
-Download the project and build it (see [Building](#Building)). Once it is finished, the server can be started:
+Download the project and unzip it (see [releases](https://github.com/thingweb/thingweb-directory/releases)). Then, run:
 ```sh
-$ java -jar build/libs/thingweb-directory-{version}.jar
+$ bin/thingweb-directory
 ```
 After this step, the Directory server is running and can be accessed over HTTP or CoAP:
  - http://localhost:8080
  - coap://localhost:5683
 
-By default, the Directory runs an in-memory RDF store, whose content is deleted after the Directory is shut down. To persist Thing Descriptions, provide an external SPARQL endpoint as argument. Run the command above with `-help` for more details.
+By default, the Directory runs an in-memory RDF store, whose content is deleted after the Directory is shut down. To persist Thing Descriptions, provide an external SPARQL endpoint as argument. Run the command above with arg `-help` for more details.
+
+#### Known issues
+
+On Windows, the execution will fail with a Batch error message. If [Mingw](http://mingw.org/) is installed on your machine, try to run `bin/thingweb-directory` inside an emulated Bash shell. Alternatively, try `java -cp lib\* de.thingweb.directory.ThingDirectory`.
 
 ### Interacting with the Directory
 
@@ -39,18 +33,12 @@ The HTTP endpoint provides an HTML client to register and discover Thing Descrip
 
 See `src/main/resources/api.json` for a formal specification of the Thing Directory API. This file is exposed by the server at [`/api.json`](http://localhost:8080/api.json). It can e.g. be processed by the [Swagger UI](http://swagger.io/swagger-ui/) to render an online documentation. See the [Open API Initiative](https://www.openapis.org/) for more details.
 
-## TODOs
+### Building from sources
 
- - clean resources
-   - register default vocabularies (WoT, SAREF, BA, QUDT...)
- - reject vocabulary if no alignment with WoT (LOV approach?)
-   - add parameter to filter vocabularies in the KB at insertion time
- - update tests
-   - new TD form
-   - delete RDF store after tests terminate
- - clean ThingDescriptionUtils (streamToString, static/not static)
- - repair text search
- - proper configuration of log4j and java.util.logging
-   - add consistent logging throughout the application
-   - stack trace in logs if 500 returned
- - add PATCH to /td/{id}
+We are using [Gradle](https://gradle.org/) as a build tool:
+
+The following command will produce a distribution of the Thingweb Directory in the `/build/distributions/` folder:
+```sh
+$ cd thingweb-directory
+$ gradle build
+```

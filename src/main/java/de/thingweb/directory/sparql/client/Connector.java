@@ -26,10 +26,9 @@ public class Connector {
 		
 		try {
 			// probe to test SPARQL endpoint availability
-			// TODO request SPARQL service description and check for sd:UnionDefaultGraph
 			connection.isEmpty();
+			// TODO request SPARQL service description and check for sd:UnionDefaultGraph
 		} catch (RepositoryException e) {
-			// SPARQL endpoint probably not running
 			ThingDirectory.LOG.warn("SPARQL endpoint cannot be reached. Switching to main memory RDF store...");
 			init();
 		}
