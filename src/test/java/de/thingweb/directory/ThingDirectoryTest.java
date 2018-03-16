@@ -58,7 +58,7 @@ public class ThingDirectoryTest extends BaseTest {
 	public void testSetup() throws Exception {
 		CoapClient coapClient = new CoapClient("coap://localhost:" + COAP_PORT + "/");
 		CoapResponse coapResponse = coapClient.get();
-		assertEquals("CoAP server instance is not reachable", ResponseCode.VALID, coapResponse.getCode());
+		assertEquals("CoAP server instance is not reachable", ResponseCode.CONTENT, coapResponse.getCode());
 		
 		HttpClient httpClient = HttpClientBuilder.create().build();
 		HttpGet httpRequest = new HttpGet("http://localhost:" + HTTP_PORT + "/");

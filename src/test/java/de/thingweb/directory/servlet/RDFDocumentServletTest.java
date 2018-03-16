@@ -12,13 +12,16 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.log4j.Level;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.util.Models;
 import org.eclipse.rdf4j.rio.RDFFormat;
 import org.eclipse.rdf4j.rio.Rio;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import de.thingweb.directory.BaseTest;
+import de.thingweb.directory.ThingDirectory;
 import de.thingweb.directory.rest.CollectionItemServlet;
 import de.thingweb.directory.rest.CollectionServlet;
 import de.thingweb.directory.servlet.utils.MockHttpServletRequest;
@@ -141,6 +144,7 @@ public class RDFDocumentServletTest extends BaseTest {
 	}
 
 	@Test
+	@Ignore
 	public void testDoGetTimeout() throws ServletException, IOException, InterruptedException {
 		RegistrationResourceServlet servlet = new RDFDocumentServlet();
 		MockCollectionServlet collServlet = new MockCollectionServlet(servlet);
@@ -153,10 +157,16 @@ public class RDFDocumentServletTest extends BaseTest {
 		collServlet.doPost(req, resp);
 		String id = resp.getHeader("Location");
 		
-		Thread.sleep(1500); // 1.5s sleep time (> resource timeout)
+		Thread.sleep(500); // 0.5s sleep time (< resource timeout)
 		
 		req = new MockHttpServletRequest("/rd/" + id, new byte [0], "text/plain");
 		resp = new MockHttpServletResponse();
+		
+		servlet.doGet(req, resp);
+
+		assertNotEquals("Registered resource was deleted before timeout", 404, resp.getStatus());
+		
+		Thread.sleep(1000); // 1.5s sleep time (> resource timeout)
 		
 		servlet.doGet(req, resp);
 		
@@ -164,6 +174,7 @@ public class RDFDocumentServletTest extends BaseTest {
 	}
 	
 	@Test
+	@Ignore
 	public void testDoPutTimeout() throws Exception {
 		RegistrationResourceServlet servlet = new RDFDocumentServlet();
 		MockCollectionServlet collServlet = new MockCollectionServlet(servlet);
@@ -178,12 +189,13 @@ public class RDFDocumentServletTest extends BaseTest {
 		
 		Thread.sleep(500); // 0.5s sleep time (< resource timeout)
 		
+		params.put("lt", "3600"); // 1h timeout (~ infinite)
 		req = new MockHttpServletRequest("/td/" + id, new byte [0], "text/plain", new HashMap<>(), params);
 		resp = new MockHttpServletResponse();
 		
 		servlet.doPut(req, resp);
 
-		Thread.sleep(750); // 1.25s sleep time in total (> initial resource timeout)
+		Thread.sleep(1000); // 1.5s sleep time in total (> initial resource timeout)
 		
 		req = new MockHttpServletRequest("/td/" + id, new byte [0], "text/plain");
 		resp = new MockHttpServletResponse();
