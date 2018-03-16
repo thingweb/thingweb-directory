@@ -35,7 +35,7 @@ See `src/main/resources/api.json` for a formal specification of the Thing Direct
 
 ### Building from sources
 
-We are using [Gradle](https://gradle.org/) as a build tool:
+We are using [Gradle](https://gradle.org/) as a build tool.
 
 The following command will produce a distribution of the Thingweb Directory in the `/build/distributions/` folder:
 ```sh
