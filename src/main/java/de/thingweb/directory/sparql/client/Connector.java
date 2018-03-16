@@ -2,6 +2,7 @@ package de.thingweb.directory.sparql.client;
 
 import java.io.IOException;
 
+import org.eclipse.rdf4j.query.BooleanQuery;
 import org.eclipse.rdf4j.repository.Repository;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.eclipse.rdf4j.repository.RepositoryException;
@@ -12,14 +13,27 @@ import org.eclipse.rdf4j.rio.RDFParseException;
 
 import com.ontotext.graphdb.example.util.EmbeddedGraphDB;
 
+import de.thingweb.directory.ThingDirectory;
+
 public class Connector {
 	
 	private static RepositoryConnection connection;
 	
 	public static void init(String queryEndpoint, String updateEndpoint) {
-		Repository repo = new SPARQLRepository(queryEndpoint, updateEndpoint);
+		SPARQLRepository repo = new SPARQLRepository(queryEndpoint, updateEndpoint);
 		repo.initialize();
 		connection = repo.getConnection();
+		
+		try {
+			// probe to test SPARQL endpoint availability
+			// TODO request SPARQL service description and check for sd:UnionDefaultGraph
+			connection.isEmpty();
+		} catch (RepositoryException e) {
+			// SPARQL endpoint probably not running
+			ThingDirectory.LOG.warn("SPARQL endpoint cannot be reached. Switching to main memory RDF store...");
+			init();
+		}
+		
 		// TODO close connection
 	}
 	
