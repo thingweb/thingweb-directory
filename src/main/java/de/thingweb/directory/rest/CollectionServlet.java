@@ -60,13 +60,13 @@ public class CollectionServlet extends RESTServlet {
 		
 		if (!items.contains(id)) {
 			items.add(id);
+			resp.setStatus(201); // Created
 		} else {
 			ThingDirectory.LOG.info("Item already registered: " + id);
+			resp.setStatus(204); // No Content
 		}
 		
-		// TODO change status code if item already exists
 		resp.setHeader(LOCATION_HEADER, id);
-		resp.setStatus(201); // Created
 	}
 	
 	@Override

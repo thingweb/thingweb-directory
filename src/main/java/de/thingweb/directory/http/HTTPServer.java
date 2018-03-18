@@ -44,7 +44,7 @@ public class HTTPServer extends RESTServletContainer {
 			new DefaultHandler() // returns 404
 		});
 
-		configureCORS();
+		configureCORS(handler);
 		
 		server.setHandler(handlers);
 	}
@@ -84,7 +84,7 @@ public class HTTPServer extends RESTServletContainer {
 		}
 	}
 
-	private void configureCORS() {
+	private void configureCORS(ServletHandler handler) {
 		FilterHolder holder = new FilterHolder(new CrossOriginFilter());
 		holder.setInitParameter(CrossOriginFilter.ALLOWED_ORIGINS_PARAM, "*"); // TODO - restrict this
 		holder.setInitParameter(CrossOriginFilter.ALLOWED_METHODS_PARAM, "GET,POST,PUT,DELETE,HEAD,OPTIONS");
