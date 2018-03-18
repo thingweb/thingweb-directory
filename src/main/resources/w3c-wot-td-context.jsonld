@@ -15,7 +15,8 @@
     },
     "interaction" : {
       "@id" : "http://www.w3.org/ns/td#interaction",
-      "@type" : "@id"
+      "@type" : "@id",
+      "@container": "@list"
     },
     "security" : {
       "@id" : "http://www.w3.org/ns/td#security",
@@ -32,7 +33,8 @@
     },
     "form" : {
       "@id" : "http://www.w3.org/ns/td#form",
-      "@type" : "@id"
+      "@type" : "@id",
+      "@container": "@list"
     },
     "schema" : {
       "@id" : "http://www.w3.org/ns/td#schema",
@@ -78,7 +80,8 @@
     },
     "link" : {
       "@id" : "http://www.w3.org/ns/td#link",
-      "@type" : "@id"
+      "@type" : "@id",
+      "@container": "@list"
     },
     "rel" : {
       "@id" : "http://www.w3.org/ns/td#rel",

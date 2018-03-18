@@ -1,6 +1,9 @@
 package de.thingweb.directory.servlet;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.Map;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -12,6 +15,8 @@ import org.eclipse.rdf4j.rio.RDFHandlerException;
 import org.eclipse.rdf4j.rio.RDFParseException;
 import org.eclipse.rdf4j.rio.Rio;
 import org.eclipse.rdf4j.rio.UnsupportedRDFormatException;
+
+import com.github.jsonldjava.utils.JsonUtils;
 
 import de.thingweb.directory.ThingDirectory;
 import de.thingweb.directory.rest.RESTServlet;
@@ -72,8 +77,6 @@ public class RDFDocumentServlet extends RegistrationResourceServlet {
 	
 	@Override
 	protected String doAdd(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-		super.doAdd(req, resp);
-		
 		try {
 			Model m = Rio.parse(req.getInputStream(), getBaseURI(req), getContentFormat(req));
 			
@@ -81,6 +84,8 @@ public class RDFDocumentServlet extends RegistrationResourceServlet {
 			
 			String uri = getRDFDocumentURI(id);
 			Queries.loadResource(uri, m);
+			
+			// TODO normalize RDF graph (by giving URIs to blank nodes)
 
 			ThingDirectory.LOG.info(String.format("Added RDF document: %s (%d triples)", uri, m.size()));
 			

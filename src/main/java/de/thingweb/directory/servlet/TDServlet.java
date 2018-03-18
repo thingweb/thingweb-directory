@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.net.URLEncoder;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -17,6 +18,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.model.Statement;
 import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 import org.eclipse.rdf4j.model.util.ModelBuilder;
@@ -37,7 +39,21 @@ import de.thingweb.directory.vocabulary.TD;
 
 public class TDServlet extends RDFDocumentServlet {
 	
+	protected static final String TD_CONTEXT_URI = "https://w3c.github.io/wot/w3c-wot-td-context.jsonld";
+	
 	protected static final String TD_FRAME_FILENAME = "td-frame.json";
+	
+	protected static Object TD_FRAME_OBJECT;
+	
+	static {
+		try {
+			InputStream in = TDServlet.class.getClassLoader().getResourceAsStream(TD_FRAME_FILENAME);
+			TD_FRAME_OBJECT = JsonUtils.fromInputStream(in);
+		} catch (IOException e) {
+			ThingDirectory.LOG.error("TD frame could not be loaded from resource file", e);
+			TD_FRAME_OBJECT = null;
+		}
+	}
 	
 	public TDServlet() {
 		try {
@@ -57,24 +73,22 @@ public class TDServlet extends RDFDocumentServlet {
 	}
 	
 	@Override
-	protected void writeContent(Model m, HttpServletRequest req, HttpServletResponse resp) throws RDFHandlerException, IOException {
+	protected void writeContent(Model m, HttpServletRequest req, HttpServletResponse resp) throws RDFHandlerException, IOException {		
 		RDFFormat format = getAcceptedFormat(req);
 		
-		if (format.equals(RDFFormat.JSONLD)) {
+		if (format.equals(RDFFormat.JSONLD) && TD_FRAME_OBJECT != null) {
 			// performs JSON-LD framing
 			try {
 				ByteArrayOutputStream buffer = new ByteArrayOutputStream();
 				Rio.write(m, buffer, format);
 				
 				Object obj = JsonUtils.fromString(buffer.toString());
-				// TODO cache frame object?
-				Object framed = JsonLdProcessor.frame(obj, getFrame(), new JsonLdOptions());
+				Object framed = JsonLdProcessor.frame(obj, TD_FRAME_OBJECT, new JsonLdOptions());
 				
 				resp.setContentType(RDFFormat.JSONLD.getDefaultMIMEType());
 				
-				if (framed instanceof Map) {
-					Object graph = ((Map<String, Object>) framed).get("@graph");
-					Object td = ((List<Object>) graph).get(0);
+				Object td = getThingObject(framed);
+				if (td != null) {
 					JsonUtils.write(new OutputStreamWriter(resp.getOutputStream()), td);
 				} else {
 					ThingDirectory.LOG.warn("Framed object not as expected (TD)");
@@ -110,6 +124,30 @@ public class TDServlet extends RDFDocumentServlet {
 	}
 	
 	/**
+	 * 
+	 * @param flattened a JSON-LD flattened object
+	 * @return the first Thing object found in flattened
+	 */
+	@SuppressWarnings("unchecked")
+	private Object getThingObject(Object flattened) {
+		if (flattened instanceof Map) {
+			Map<String, Object> map = (Map<String, Object>) flattened;
+			Object graph = map.get("@graph");
+			
+			if (graph != null && graph instanceof List) {
+				List<Object> list = (List<Object>) graph;
+				if (!list.isEmpty()) {
+					Map<String, Object> td = (Map<String, Object>) list.get(0);
+					((Map<String, Object>) td).put("@context", TD_CONTEXT_URI);
+					return td;
+				}
+			}
+		}
+		
+		return null;
+	}
+	
+	/**
 	 * breadth-first traversal of the RDF model
 	 * 
 	 * @param root starting point of the traversal
@@ -137,11 +175,6 @@ public class TDServlet extends RDFDocumentServlet {
 		});
 		
 		return td;
-	}
-	
-	protected static Object getFrame() throws IOException {
-		InputStream in = TDServlet.class.getClassLoader().getResourceAsStream(TD_FRAME_FILENAME);
-		return JsonUtils.fromInputStream(in);
 	}
 	
 }
