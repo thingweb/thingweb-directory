@@ -11,6 +11,8 @@ The directory features an API to create, read, update and delete (CRUD) a TD. Th
 
 ## Getting Started
 
+The Thingweb Directory requires Java 1.8.
+
 ### Running the Directory
 
 Download the project and unzip it (see [releases](https://github.com/thingweb/thingweb-directory/releases)). Then, run:
