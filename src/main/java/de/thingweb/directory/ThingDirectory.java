@@ -104,12 +104,15 @@ public class ThingDirectory {
         int portHTTP = DEFAULT_HTTP_PORT;
         String queryEndpoint = null; // SPARQL query endpoint
         String updateEndpoint = null; // SPARQL update endpoint
+        String username = null;
+        String password = null;
         
         // Handle input
         Options options = new Options();
         
         options.addOption("q", true, "SPARQL query endpoint URI for remote storage (main memory storage if not provided).");
         options.addOption("u", true, "SPARQL update endpoint URI for remote storage (same as query endpoint if not provided).");
+        options.addOption("a", true, "SPARQL update endpoint auth credentials, user:pw (no auth if not provided).");
         options.addOption("c", true, "CoAP port number. Default is 5683.");
         options.addOption("h", true, "HTTP port number. Default is 8080.");
         options.addOption("help", false, "This help message.");
@@ -124,12 +127,22 @@ public class ThingDirectory {
         if (cmd.hasOption("h")) {
         	portHTTP = Integer.parseInt(cmd.getOptionValue("h"));
         }
-        if (cmd.hasOption("q") && cmd.hasOption("u")) {
+        if (cmd.hasOption("q")) {
         	queryEndpoint = cmd.getOptionValue("q");
+        	
         	if (cmd.hasOption("u")) {
         		updateEndpoint = cmd.getOptionValue("u");
         	} else {
         		updateEndpoint = queryEndpoint;
+        	}
+        	
+        	if (cmd.hasOption("a")) {
+        		String credentials = cmd.getOptionValue("a");
+        		if (credentials.contains(":")) {
+        			String[] splitted = credentials.split(":");
+        			username = splitted[0];
+        			password = splitted[1];
+        		}
         	}
         }
         if (cmd.hasOption("help")) {
@@ -141,7 +154,11 @@ public class ThingDirectory {
 
         // initiate SPARQL client
         if (queryEndpoint != null) {
-            Connector.init(queryEndpoint, updateEndpoint);
+        	if (username != null && password != null) {
+        		Connector.init(queryEndpoint, updateEndpoint, username, password);
+        	} else {
+                Connector.init(queryEndpoint, updateEndpoint);
+        	}
         } else {
             Connector.init();
         }

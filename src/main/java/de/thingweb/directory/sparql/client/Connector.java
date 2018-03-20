@@ -2,6 +2,7 @@ package de.thingweb.directory.sparql.client;
 
 import java.io.IOException;
 
+import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import org.eclipse.rdf4j.query.BooleanQuery;
 import org.eclipse.rdf4j.repository.Repository;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
@@ -19,9 +20,11 @@ public class Connector {
 	
 	private static RepositoryConnection connection;
 	
-	public static void init(String queryEndpoint, String updateEndpoint) {
+	public static void init(String queryEndpoint, String updateEndpoint, String username, String password) {
 		SPARQLRepository repo = new SPARQLRepository(queryEndpoint, updateEndpoint);
 		repo.initialize();
+		repo.setUsernameAndPassword(username, password);
+		
 		connection = repo.getConnection();
 		
 		try {
@@ -33,7 +36,11 @@ public class Connector {
 			init();
 		}
 		
-		// TODO close connection
+		// TODO close connection		
+	}
+	
+	public static void init(String queryEndpoint, String updateEndpoint) {
+		init(queryEndpoint, updateEndpoint, null, null);
 	}
 	
 	public static void init() {
