@@ -1,8 +1,6 @@
 package de.thingweb.directory.servlet;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -21,6 +19,10 @@ import org.eclipse.rdf4j.rio.RDFFormat;
 import org.eclipse.rdf4j.rio.RDFParseException;
 import org.eclipse.rdf4j.rio.Rio;
 import org.eclipse.rdf4j.rio.UnsupportedRDFormatException;
+import org.everit.json.schema.Schema;
+import org.everit.json.schema.loader.SchemaLoader;
+import org.json.JSONObject;
+import org.json.JSONTokener;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -154,6 +156,32 @@ public class TDServletTest extends BaseTest {
 		b = resp.getBytes();
 		Object td = JsonUtils.fromString(new String(b));
 		assertEquals("Duplicate TD was not detected", 1, ((List) td).size());
+	}
+	
+	@Test
+	public void testDoGet() throws Exception {
+		String src = new String(loadResource("td-schema.json"));
+		Schema schema = SchemaLoader.load(new JSONObject(src));
+		
+		MockTDServlet servlet = new MockTDServlet();
+		MockCollectionServlet collServlet = new MockCollectionServlet(servlet);
+		
+		byte[] b = loadResource("samples/fanTD.jsonld");
+		MockHttpServletRequest req = new MockHttpServletRequest("/td", b, "application/ld+json");
+		MockHttpServletResponse resp = new MockHttpServletResponse();
+
+		collServlet.doPost(req, resp);
+		String id = resp.getHeader("Location");
+
+		Map<String, String> headers = new HashMap<>();
+		headers.put("Accept", "application/ld+json");
+		req = new MockHttpServletRequest("/td/" + id, new byte [0], "text/plain", headers);
+		resp = new MockHttpServletResponse();
+		
+		servlet.doGet(req, resp);
+		
+		JSONObject td = new JSONObject(new String(resp.getBytes()));
+		schema.validate(td);
 	}
 
 }
