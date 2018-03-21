@@ -5,7 +5,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -17,12 +19,15 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Model;
+import org.eclipse.rdf4j.model.ModelFactory;
 import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.Statement;
 import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.model.impl.LinkedHashModel;
 import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 import org.eclipse.rdf4j.model.util.ModelBuilder;
 import org.eclipse.rdf4j.model.vocabulary.RDF;
+import org.eclipse.rdf4j.model.vocabulary.RDFS;
 import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.eclipse.rdf4j.rio.RDFFormat;
 import org.eclipse.rdf4j.rio.RDFHandlerException;
@@ -105,7 +110,7 @@ public class TDServlet extends RDFDocumentServlet {
 
 	@Override
 	protected String generateItemID(Model m) throws ServletException {
-		Set<Resource> things = m.filter(null, RDF.TYPE, SimpleValueFactory.getInstance().createIRI(TD.Thing.stringValue())).subjects();
+		Set<Resource> things = m.filter(null, RDF.TYPE, TD.Thing).subjects();
 		
 		Iterator<Resource> iterator = things.iterator();
 		if (!iterator.hasNext()) {
@@ -138,13 +143,39 @@ public class TDServlet extends RDFDocumentServlet {
 				List<Object> list = (List<Object>) graph;
 				if (!list.isEmpty()) {
 					Map<String, Object> td = (Map<String, Object>) list.get(0);
-					((Map<String, Object>) td).put("@context", TD_CONTEXT_URI);
+					
+					// TODO remove after TD spec is relaxed
+					// 1. @context must be an array
+					List<String> ctx = new ArrayList<>();
+					ctx.add(TD_CONTEXT_URI);
+					((Map<String, Object>) td).put("@context", ctx);
+					// 2. @type must be an array
+					processThingObject(td);
+					
 					return td;
 				}
 			}
 		}
 		
 		return null;
+	}
+	
+	@SuppressWarnings("unchecked")
+	private void processThingObject(Object thing) {
+		if (thing instanceof Map) {
+			Map<String, Object> map = (Map<String, Object>) thing;
+			
+			if (map.containsKey("@type") && map.get("@type") instanceof String) {
+				List<String> type = new ArrayList<>();
+				type.add((String) map.get("@type"));
+				map.put("@type", type);
+			}
+			
+			map.forEach((k, v) -> processThingObject(v));
+		} else if (thing instanceof List) {
+			List<Object> list = (List<Object>) thing;
+			list.forEach(i -> processThingObject(i));
+		}
 	}
 	
 	/**
