@@ -16,7 +16,7 @@
     "interaction" : {
       "@id" : "http://www.w3.org/ns/td#interaction",
       "@type" : "@id",
-      "@container": "@list"
+      "@container": "@set"
     },
     "security" : {
       "@id" : "http://www.w3.org/ns/td#security",
@@ -34,7 +34,7 @@
     "form" : {
       "@id" : "http://www.w3.org/ns/td#form",
       "@type" : "@id",
-      "@container": "@list"
+      "@container": "@set"
     },
     "schema" : {
       "@id" : "http://www.w3.org/ns/td#schema",
@@ -78,7 +78,7 @@
     "link" : {
       "@id" : "http://www.w3.org/ns/td#link",
       "@type" : "@id",
-      "@container": "@list"
+      "@container": "@set"
     },
     "rel" : {
       "@id" : "http://www.w3.org/ns/td#rel"
