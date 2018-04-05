@@ -38,7 +38,10 @@ public abstract class CollectionItemServlet extends RESTServlet {
 	 * @throws IOException
 	 */
 	protected String doAdd(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-		return generateItemID();
+		String id = generateItemID();
+		items.add(id);
+		
+		return id;
 	}
 	
 	protected Collection<String> getAllItems() {

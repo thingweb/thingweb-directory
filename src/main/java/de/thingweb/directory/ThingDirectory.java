@@ -148,7 +148,7 @@ public class ThingDirectory {
         if (cmd.hasOption("help")) {
         	// Automatically generate help statement
             HelpFormatter formatter = new HelpFormatter();
-            formatter.printHelp( "thingweb-repository-version.jar", options );
+            formatter.printHelp("thingweb-directory", options);
         	System.exit(0);
         }
 

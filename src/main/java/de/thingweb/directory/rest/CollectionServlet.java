@@ -55,11 +55,11 @@ public class CollectionServlet extends RESTServlet {
 
 	@Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+		int delta = itemServlet.getAllItems().size();
 		String id = itemServlet.doAdd(req, resp);
-		Collection<String> items = itemServlet.getAllItems();
+		delta = itemServlet.getAllItems().size() - delta;
 		
-		if (!items.contains(id)) {
-			items.add(id);
+		if (delta > 0) {
 			resp.setStatus(201); // Created
 		} else {
 			ThingDirectory.LOG.info("Item already registered: " + id);

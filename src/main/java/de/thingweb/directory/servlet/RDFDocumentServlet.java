@@ -82,12 +82,15 @@ public class RDFDocumentServlet extends RegistrationResourceServlet {
 			
 			String id = generateItemID(m);
 			
-			String uri = getRDFDocumentURI(id);
-			Queries.loadResource(uri, m);
-			
-			// TODO normalize RDF graph (by giving URIs to blank nodes)
+			if (!items.contains(id)) {
+				String uri = getRDFDocumentURI(id);
+				Queries.loadResource(uri, m);
+				
+				// TODO normalize RDF graph (by giving URIs to blank nodes)
 
-			ThingDirectory.LOG.info(String.format("Added RDF document: %s (%d triples)", uri, m.size()));
+				items.add(id);
+				ThingDirectory.LOG.info(String.format("Added RDF document: %s (%d triples)", uri, m.size()));
+			}
 			
 			return id;
 		} catch (RDFParseException | UnsupportedRDFormatException | IOException e) {
