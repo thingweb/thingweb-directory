@@ -41,12 +41,14 @@ public class RDFDocumentServlet extends RegistrationResourceServlet {
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		super.doGet(req, resp);
 
-		String uri = getRDFDocumentURI(getItemID(req));
+		String id = getItemID(req);
+		String uri = getRDFDocumentURI(id);
 		Model m = Queries.getResource(uri);
 		
 		if (!m.isEmpty()) {
 			writeContent(m, req, resp);
 		} else {
+			items.remove(id);
 			resp.sendError(404); // Not Found
 		}
 	}
