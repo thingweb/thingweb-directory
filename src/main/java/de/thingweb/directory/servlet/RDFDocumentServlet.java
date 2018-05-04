@@ -20,6 +20,7 @@ import com.github.jsonldjava.utils.JsonUtils;
 
 import de.thingweb.directory.ThingDirectory;
 import de.thingweb.directory.rest.RESTServlet;
+import de.thingweb.directory.servlet.exception.MalformedDocumentException;
 import de.thingweb.directory.sparql.client.Queries;
 
 public class RDFDocumentServlet extends RegistrationResourceServlet {
@@ -95,6 +96,10 @@ public class RDFDocumentServlet extends RegistrationResourceServlet {
 			}
 			
 			return id;
+		} catch (MalformedDocumentException e) {
+			ThingDirectory.LOG.error("Malformed RDF document", e);
+			resp.sendError(HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
+			return null;
 		} catch (RDFParseException | UnsupportedRDFormatException | IOException e) {
 			ThingDirectory.LOG.error("Cannot parse RDF document", e);
 			throw new ServletException(e);
@@ -106,8 +111,9 @@ public class RDFDocumentServlet extends RegistrationResourceServlet {
 	 * 
 	 * @param m
 	 * @return
+	 * @throws MalformedDocumentException 
 	 */
-	protected String generateItemID(Model m) throws ServletException {
+	protected String generateItemID(Model m) throws MalformedDocumentException {
 		return super.generateItemID();
 	}
 	

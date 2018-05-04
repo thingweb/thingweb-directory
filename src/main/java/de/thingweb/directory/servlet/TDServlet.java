@@ -40,6 +40,7 @@ import com.github.jsonldjava.core.JsonLdProcessor;
 import com.github.jsonldjava.utils.JsonUtils;
 
 import de.thingweb.directory.ThingDirectory;
+import de.thingweb.directory.servlet.exception.MalformedDocumentException;
 import de.thingweb.directory.sparql.client.Queries;
 import de.thingweb.directory.vocabulary.TD;
 
@@ -118,13 +119,12 @@ public class TDServlet extends RDFDocumentServlet {
 	}
 
 	@Override
-	protected String generateItemID(Model m) throws ServletException {
+	protected String generateItemID(Model m) throws MalformedDocumentException {
 		Set<Resource> things = m.filter(null, RDF.TYPE, TD.Thing).subjects();
 		
 		Iterator<Resource> iterator = things.iterator();
 		if (!iterator.hasNext()) {
-			// TODO catch it in parent code to return Bad Request
-			throw new ServletException("No instance of td:Thing found in the RDF payload");
+			throw new MalformedDocumentException("No instance of td:Thing found in the RDF payload");
 		}
 		
 		Resource res = iterator.next();
