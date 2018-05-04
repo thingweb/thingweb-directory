@@ -8,6 +8,7 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -60,21 +61,29 @@ public class TDServlet extends RDFDocumentServlet {
 		}
 	}
 	
-	public TDServlet() {
+	@Override
+	protected Collection<String> getAllItems() {
+		Collection<String> ids = new HashSet<String>();
+		
 		try {
 			String pattern = String.format("?td a <%s>", TD.Thing.stringValue());
 			
+			// fetches items IDs from RDF store if accessible
 			try (TupleQueryResult res = Queries.listResources(pattern)) {
 				while (res.hasNext()) {
 					String uri = res.next().getValue("res").stringValue();
 					String id = getItemId(uri);
 					
-					items.add(id);
+					ids.add(id);
 				}
+				
+				items = ids;
 			}
 		} catch (Exception e) {
 			ThingDirectory.LOG.error("Cannot fetch existing TDs from the RDF store", e);
 		}
+
+		return items;
 	}
 	
 	@Override
