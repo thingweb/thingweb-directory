@@ -44,6 +44,7 @@ dependencies {
 	compile 'org.eclipse.californium:californium-core:1.0.0-M3'
 	compile 'com.ontotext.graphdb:graphdb-free-runtime:8.4.0'
 	compile 'log4j:log4j:1.2.17'
+	compile 'org.slf4j:slf4j-log4j12:1.7.25'
 	compile 'io.swagger:swagger-core:1.5.16'
 	compile 'org.eclipse.jetty:jetty-maven-plugin:9.3.6.v20151106'
 	compile 'org.eclipse.jetty:jetty-servlets:9.3.6.v20151106'
