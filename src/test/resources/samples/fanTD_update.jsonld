@@ -1,98 +1,59 @@
 {
-	"@context": {
-		"xsd": "http://www.w3.org/2001/XMLSchema#",
-		"td": "http://www.w3.org/ns/td#",
-		"Thing": "td:Thing",
-		"name": "td:name",
-		"base": {
-			"@id": "td:baseURI",
-			"@type": "@id"
-		},
-		"Link": "td:Link",
-		"href": {
-			"@id": "td:href",
-			"@type": "@id"
-		},
-		"mediaType": {
-			"@id": "td:hasMediaType"
-		},
-		"Interaction": "td:Interaction",
-		"interaction": {
-			"@id": "td:providesInteractionPattern",
-			"@type": "@id",
-			"@container": "@set"
-		},
-		"link": {
-			"@id": "td:isAccessibleThrough",
-			"@type": "@id"
-		},
-		"security": "td:implementsSecurity",
-		"Property": "td:Property",
-		"required": {
-			"@id": "td:isRequired",
-			"@type": "xsd:boolean"
-		},
-		"writable": {
-			"@id": "td:isWritable",
-			"@type": "xsd:boolean"
-		},
-		"Event": "td:Event",
-		"Action": "td:Action",
-		"inputData": {
-			"@id": "td:hasInputData"
-		},
-		"outputData": {
-			"@id": "td:hasOutputData"
-		},
-		"child": "td:isChildOf",
-		"geo": "http://www.w3.org/2003/01/geo/wgs84_pos#",
-		"saref": "http://uri.etsi.org/m2m/saref#",
-		"Sensor": "saref:Sensor",
-		"Temperature": "saref:Temperature",
-		"Toggle": "saref:ToggleCommand",
-		"unit": "saref:isMeasuredIn",
-		"celsius": "http://www.wurvoc.org/vocabularies/om-1.8/degree_Celsius"
-	},
+	"@context": [
+		"https://w3c.github.io/wot/w3c-wot-td-context.jsonld",
+		{
+			"geo": "http://www.w3.org/2003/01/geo/wgs84_pos#",
+			"saref": "http://uri.etsi.org/m2m/saref#",
+			"Sensor": "saref:Sensor",
+			"Temperature": "saref:Temperature",
+			"Toggle": "saref:ToggleCommand",
+			"unit": "saref:isMeasuredIn",
+			"celsius": "http://www.wurvoc.org/vocabularies/om-1.8/degree_Celsius"
+		}
+	],
+	"id": "urn:Fan",
 	"@type": ["Thing", "Sensor"],
 	"name": "Fan2",
 	"base": "coap:///www.example.com:5686/Fan",
-	"interaction": [{
-			"@type": ["Property", "Temperature"],
-			"name": "myThreshold",
-			"valueType": "number",
+	"properties": {
+		"myThreshold": {
+			"@type": "Temperature",
+			"type": "number",
 			"unit": "celsius",
 			"writable": true,
 			"geo:location": "room_4",
-			"link": {
+			"forms": [{
 				"href": "threshold",
 				"mediaType": "application/json"
-			}
-		},
-		{
-			"@type": ["Action", "Toggle"],
+			}]
+		}
+	},
+	"actions": {
+		"fanOnOff": {
+			"@type": "Toggle",
 			"name": "fanOnOff",
-			"inputData": {
+			"input": {
 				"@type": "OnOff",
-				"valueType": "xsd:boolean"
+				"type": "boolean"
 			},
-			"link": {
+			"forms": [{
 				"href": "toggle",
 				"mediaType": "application/json"
-			}
+			}]
 		},
-		{
-			"@type": ["Action", "Toggle"],
+		"fanOnOffTempAction": {
+			"@type": "Toggle",
 			"name": "fanOnOffTempAction",
-			"inputData": {
+			"input": {
 				"@type": "Temperature",
-				"valueType": "xsd:float",
+				"type": "number",
 				"unit": "celsius"
 			},
 			"geo:location": "room_4",
-			"link": {
+			"forms": [{
 				"href": "fanOnOffTempAction",
 				"mediaType": "application/json"
-			}
+			}]
 		}
-	]
+	}
 }

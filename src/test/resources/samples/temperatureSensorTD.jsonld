@@ -1,102 +1,62 @@
 {
-	"@context": {
-		"xsd": "http://www.w3.org/2001/XMLSchema#",
-		"td": "http://www.w3.org/ns/td#",
-		"Thing": "td:Thing",
-		"name": "td:name",
-		"base": {
-			"@id": "td:baseURI",
-			"@type": "@id"
-		},
-		"Link": "td:Link",
-		"href": {
-			"@id": "td:href",
-			"@type": "@id"
-		},
-		"mediaType": {
-			"@id": "td:hasMediaType"
-		},
-		"Interaction": "td:Interaction",
-		"interaction": {
-			"@id": "td:providesInteractionPattern",
-			"@type": "@id",
-			"@container": "@set"
-		},
-		"link": {
-			"@id": "td:isAccessibleThrough",
-			"@type": "@id"
-		},
-		"security": "td:implementsSecurity",
-		"Property": "td:Property",
-		"required": {
-			"@id": "td:isRequired",
-			"@type": "xsd:boolean"
-		},
-		"writable": {
-			"@id": "td:isWritable",
-			"@type": "xsd:boolean"
-		},
-		"Event": "td:Event",
-		"Action": "td:Action",
-		"inputData": {
-			"@id": "td:hasInputData"
-		},
-		"outputData": {
-			"@id": "td:hasOutputData"
-		},
-		"child": "td:isChildOf",
-		"geo": "http://www.w3.org/2003/01/geo/wgs84_pos#",
-		"saref": "http://uri.etsi.org/m2m/saref#",
-		"Sensor": "saref:Sensor",
-		"Temperature": "saref:Temperature",
-		"Toggle": "saref:ToggleCommand",
-		"unit": "saref:isMeasuredIn",
-		"celsius": "http://www.wurvoc.org/vocabularies/om-1.8/degree_Celsius"
-	},
+	"@context": [
+		"https://w3c.github.io/wot/w3c-wot-td-context.jsonld",
+		{
+			"geo": "http://www.w3.org/2003/01/geo/wgs84_pos#",
+			"saref": "http://uri.etsi.org/m2m/saref#",
+			"Sensor": "saref:Sensor",
+			"Temperature": "saref:Temperature",
+			"Toggle": "saref:ToggleCommand",
+			"unit": "saref:isMeasuredIn",
+			"celsius": "http://www.wurvoc.org/vocabularies/om-1.8/degree_Celsius"
+		}
+	],
+	"id": "urn:Temp",
 	"@type": ["Thing", "Sensor"],
 	"name": "myTempSensor",
 	"base": "coap:///www.example.com:5687/temp",
-	"interaction": [{
-			"@type": ["Property", "Temperature"],
+	"properties": {
+		"myTemp": {
+			"@type": "Temperature",
 			"unit": "celsius",
 			"reference": "threshold",
 			"name": "myTemp",
-			"valueType": "number",
+			"type": "number",
 			"writable": false,
-			"link": {
+			"forms": [{
 				"href": "val",
 				"mediaType": "application/json"
-			}
+			}]
 		},
-		{
-			"@type": ["Property", "Temperature"],
+		"myThreshold": {
+			"@type": "Temperature",
 			"unit": "celsius",
 			"name": "myThreshold",
-			"valueType": "number",
+			"type": "number",
 			"writable": true,
-			"link": {
+			"forms": [{
 				"href": "threshold",
 				"mediaType": "application/json"
-			}
-		},
-		{
-			"@type": ["Event"],
-			"valueType": "number",
+			}]
+		}
+	},
+	"events": {
+		"myChange": {
+			"type": "number",
 			"name": "myChange",
 			"property": "temp",
-			"link": {
+			"forms": [{
 				"href": "val/changed",
 				"mediaType": "application/json"
-			}
+			}]
 		},
-		{
-			"@type": ["Event"],
-			"valueType": "number",
+		"myWarning": {
+			"type": "number",
 			"name": "myWarning",
-			"link": {
+			"forms": [{
 				"href": "val/high",
 				"mediaType": "application/json"
-			}
+			}]
 		}
-	]
+	}
 }

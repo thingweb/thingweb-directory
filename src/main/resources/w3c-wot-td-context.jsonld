@@ -1,5 +1,6 @@
 {
   "@context" : {
+    "@version": 1.1,
     "td": "http://www.w3.org/ns/td#",
     "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
     "xsd": "http://www.w3.org/2001/XMLSchema#",
@@ -13,10 +14,24 @@
     "Link" : {
       "@id" : "http://www.w3.org/ns/td#Link"
     },
-    "interaction" : {
-      "@id" : "http://www.w3.org/ns/td#interaction",
+    "definitions": {
+      "@id": "http://www.w3.org/ns/td#definition",
+      "@container": "@id"
+    },
+    "properties" : {
+      "@id" : "http://www.w3.org/ns/td#properties",
       "@type" : "@id",
-      "@container": "@set"
+      "@container": "@id"
+    },
+    "actions" : {
+      "@id" : "http://www.w3.org/ns/td#actions",
+      "@type" : "@id",
+      "@container": "@id"
+    },
+    "events" : {
+      "@id" : "http://www.w3.org/ns/td#events",
+      "@type" : "@id",
+      "@container": "@id"
     },
     "security" : {
       "@id" : "http://www.w3.org/ns/td#security",
@@ -29,12 +44,7 @@
       "@id" : "http://www.w3.org/ns/td#DataSchema"
     },
     "label" : {
-      "@id" : "http://www.w3.org/2000/01/rdf-schema#label"
-    },
-    "form" : {
-      "@id" : "http://www.w3.org/ns/td#form",
-      "@type" : "@id",
-      "@container": "@set"
+      "@id" : "http://www.w3.org/ns/td#label"
     },
     "schema" : {
       "@id" : "http://www.w3.org/ns/td#schema",
@@ -73,10 +83,18 @@
       "@id" : "http://purl.org/vocab/vann/preferredNamespacePrefix"
     },
     "Property" : {
-      "@id" : "http://www.w3.org/ns/td#Property"
+      "@id" : "http://www.w3.org/ns/td#Property",
+      "@context": {
+        "properties": "http://www.w3.org/ns/td#objectSchemaProperties"
+      }
     },
-    "link" : {
-      "@id" : "http://www.w3.org/ns/td#link",
+    "forms" : {
+      "@id" : "http://www.w3.org/ns/td#forms",
+      "@type" : "@id",
+      "@container": "@set"
+    },
+    "links" : {
+      "@id" : "http://www.w3.org/ns/td#links",
       "@type" : "@id",
       "@container": "@set"
     },
@@ -92,8 +110,12 @@
     "Action" : {
       "@id" : "http://www.w3.org/ns/td#Action"
     },
-    "inputSchema" : {
-      "@id" : "http://www.w3.org/ns/td#inputSchema",
+    "input" : {
+      "@id" : "http://www.w3.org/ns/td#input",
+      "@type" : "@id"
+    },
+    "output" : {
+      "@id" : "http://www.w3.org/ns/td#output",
       "@type" : "@id"
     },
     "anyOf" : {
@@ -110,6 +132,12 @@
     "number" : {
       "@id" : "http://www.w3.org/ns/td#Number"
     },
+    "maximum" : {
+      "@id" : "http://www.w3.org/ns/td#maximum"
+    },
+    "minimum" : {
+      "@id" : "http://www.w3.org/ns/td#minimum"
+    },
     "maxItems" : {
       "@id" : "http://www.w3.org/ns/td#maxItems",
       "@type" : "http://www.w3.org/2001/XMLSchema#decimal"
@@ -122,7 +150,7 @@
       "@id" : "http://www.w3.org/ns/td#items",
       "@type" : "@id"
     },
-    "field" : {
+    "fields" : {
       "@id" : "http://www.w3.org/ns/td#field",
       "@type" : "@id"
     },
@@ -134,7 +162,8 @@
     },
     "required" : {
       "@id" : "http://www.w3.org/ns/td#required",
-      "@type" : "http://www.w3.org/2001/XMLSchema#boolean"
+      "@type" : "http://www.w3.org/2001/XMLSchema#string",
+      "@container": "@set"
     },
     "oneOf" : {
       "@id" : "http://www.w3.org/ns/td#oneOf",
@@ -144,21 +173,37 @@
       "@id" : "http://www.w3.org/ns/td#DataField"
     },
     "description" : {
-      "@id" : "http://www.w3.org/2000/01/rdf-schema#comment"
+      "@id" : "http://www.w3.org/ns/td#description"
     },
     "array" : {
       "@id" : "http://www.w3.org/ns/td#Array"
     },
     "enum" : {
       "@id" : "http://www.w3.org/ns/td#enum",
-      "@type" : "@id"
+      "@type" : "@id",
+      "@container": "@set"
+    },
+    "const" : {
+      "@id" : "http://www.w3.org/ns/td#const"
     },
     "boolean" : {
       "@id" : "http://www.w3.org/ns/td#Boolean"
     },
     "type": {
-      "@id" : "http://www.w3.org/ns/td#schemaType",
+      "@id" : "http://www.w3.org/ns/td#type",
       "@type": "@vocab"
+    },
+    "support": {
+      "@id" : "http://www.w3.org/ns/td#support"
+    },
+    "securityDefinitions": {
+      "@id" : "http://www.w3.org/ns/td#securityDefinitions"
+    },
+    "scheme": {
+      "@id" : "http://www.w3.org/ns/td#scheme"
+    },
+    "in": {
+      "@id" : "http://www.w3.org/ns/td#in"
     }
   }
 }
