@@ -17,7 +17,6 @@ package org.eclipse.thingweb.directory.servlet;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Map;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -33,8 +32,7 @@ import org.eclipse.thingweb.directory.ThingDirectory;
 import org.eclipse.thingweb.directory.rest.RESTServlet;
 import org.eclipse.thingweb.directory.servlet.exception.MalformedDocumentException;
 import org.eclipse.thingweb.directory.sparql.client.Queries;
-
-import com.github.jsonldjava.utils.JsonUtils;
+import org.eclipse.thingweb.directory.utils.TDTransform;
 
 public class RDFDocumentServlet extends RegistrationResourceServlet {
 	
@@ -94,7 +92,7 @@ public class RDFDocumentServlet extends RegistrationResourceServlet {
 	@Override
 	protected String doAdd(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		try {
-			Model m = Rio.parse(req.getInputStream(), getBaseURI(req), getContentFormat(req));
+			Model m = readContent(req, resp);
 			
 			String id = generateItemID(m);
 			
@@ -115,6 +113,7 @@ public class RDFDocumentServlet extends RegistrationResourceServlet {
 			return null;
 		} catch (RDFParseException | UnsupportedRDFormatException | IOException e) {
 			ThingDirectory.LOG.error("Cannot parse RDF document", e);
+			
 			throw new ServletException(e);
 		}
 	}
@@ -170,6 +169,20 @@ public class RDFDocumentServlet extends RegistrationResourceServlet {
 		}
 		
 		return format;
+	}
+	
+	/**
+	 * To be overridden by subclasses if pre-processing is required (e.g. RDF lifting)
+	 * 
+	 * @param req servlet request
+	 * @param resp servlet response
+	 * @return RDF document as an RDF4J model
+	 * @throws RDFParseException
+	 * @throws UnsupportedRDFormatException
+	 * @throws IOException
+	 */
+	protected Model readContent(HttpServletRequest req, HttpServletResponse resp) throws RDFParseException, UnsupportedRDFormatException, IOException {
+		return Rio.parse(req.getInputStream(), getBaseURI(req), getContentFormat(req));
 	}
 	
 	/**

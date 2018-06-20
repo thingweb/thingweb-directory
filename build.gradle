@@ -23,6 +23,7 @@
  */
 
 apply plugin: 'java'
+apply plugin: 'groovy'
 apply plugin: 'application'
 apply plugin: 'eclipse'
 
@@ -42,13 +43,16 @@ repositories {
 
 dependencies {
 	compile 'org.eclipse.californium:californium-core:1.0.0-M3'
-	compile 'com.ontotext.graphdb:graphdb-free-runtime:8.4.0'
+	compile 'com.ontotext.graphdb:graphdb-free-runtime:8.5.0'
+	compile 'com.github.jsonld-java:jsonld-java:0.12.0'
 	compile 'log4j:log4j:1.2.17'
 	compile 'org.slf4j:slf4j-log4j12:1.7.25'
 	compile 'io.swagger:swagger-core:1.5.16'
 	compile 'org.eclipse.jetty:jetty-maven-plugin:9.3.6.v20151106'
 	compile 'org.eclipse.jetty:jetty-servlets:9.3.6.v20151106'
 	compile 'commons-cli:commons-cli:1.4'
+	compile 'org.codehaus.groovy:groovy:3.0.0-alpha-2'
+	compile 'org.codehaus.groovy:groovy-json:3.0.0-alpha-2'
 	
 	testCompile 'junit:junit:4.8'
 	testCompile 'com.github.everit-org.json-schema:org.everit.json.schema:1.8.0'
