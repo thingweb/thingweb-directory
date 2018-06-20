@@ -31,6 +31,9 @@ class TDTransform {
 			[(k): (v)]
 		})
 		
+		td."@id" = td."id"
+		td.remove("id")
+		
 		JsonOutput.toJson(td)
 	}
 
@@ -52,6 +55,9 @@ class TDTransform {
 			}
 			[(k): (v)]
 		})
+		
+		td."id" = td."@id"
+		td.remove("@id")
 		
 		JsonOutput.toJson(td)
 	}

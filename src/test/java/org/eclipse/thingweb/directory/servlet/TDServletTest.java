@@ -39,6 +39,7 @@ import org.eclipse.thingweb.directory.rest.CollectionServlet;
 import org.eclipse.thingweb.directory.servlet.TDServlet;
 import org.eclipse.thingweb.directory.servlet.utils.MockHttpServletRequest;
 import org.eclipse.thingweb.directory.servlet.utils.MockHttpServletResponse;
+import org.eclipse.thingweb.directory.utils.TDTransform;
 import org.everit.json.schema.Schema;
 import org.everit.json.schema.loader.SchemaLoader;
 import org.json.JSONObject;
@@ -99,16 +100,14 @@ public class TDServletTest extends BaseTest {
 	public void testGenerateItemID() throws RDFParseException, UnsupportedRDFormatException, IOException, ServletException {
 		MockTDServlet servlet = new MockTDServlet();
 		
-		InputStream td = cl.getResourceAsStream("samples/fanTD.jsonld");
-		Model m = Rio.parse(td, BaseTest.BASE_URI, RDFFormat.JSONLD);
+		byte[] b = loadResource("samples/fanTD.jsonld");
+		MockHttpServletRequest req = new MockHttpServletRequest("/td", b, "application/ld+json");
+		MockHttpServletResponse resp = new MockHttpServletResponse();
+		Model m = servlet.readContent(req, resp);
+		
 		String id = servlet.generateItemID(m);
 		
 		assertEquals("Child resource name should be the TD @id", id, "urn%3AFan");
-
-		td = cl.getResourceAsStream("samples/temperatureSensorTD.jsonld");
-		m = Rio.parse(td, BaseTest.BASE_URI, RDFFormat.JSONLD);
-		id = servlet.generateItemID(m);
-		assertTrue("Not all TDs were registered (simultaneous registration)", id.matches("[0123456789abcdef]{8}"));
 	}
 	
 	@Test
@@ -122,6 +121,19 @@ public class TDServletTest extends BaseTest {
 
 		assertEquals("Two child resources should have been created from input", 2, servlet.getAllItems().size());
 	}
+	
+	@Test
+	public void testReadContent() throws Exception {
+		MockTDServlet servlet = new MockTDServlet();
+		
+		byte[] b = loadResource("samples/fanTD.jsonld");
+		MockHttpServletRequest req = new MockHttpServletRequest("/td", b, "application/ld+json");
+		MockHttpServletResponse resp = new MockHttpServletResponse();
+		Model m = servlet.readContent(req, resp);
+		
+		// TODO not only: should have all original statements
+		assertNotNull("TD should have be parsed as JSON-LD 1.1", m);
+	}
 
 	@Test
 	public void testWriteContent() throws IOException {
@@ -133,8 +145,7 @@ public class TDServletTest extends BaseTest {
 		MockHttpServletRequest req = new MockHttpServletRequest("/td", b, "application/ld+json", headers);
 		MockHttpServletResponse resp = new MockHttpServletResponse();
 		
-		Model m = Rio.parse(new ByteArrayInputStream(b), BaseTest.BASE_URI, RDFFormat.JSONLD);
-		
+		Model m = servlet.readContent(req, resp);
 		servlet.writeContent(m, req, resp);
 		
 		b = resp.getBytes();
