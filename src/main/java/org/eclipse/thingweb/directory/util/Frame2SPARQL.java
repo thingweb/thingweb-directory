@@ -21,7 +21,7 @@ import java.util.List;
 
 
 /**
- * org.eclipse.thingweb.directory.util
+ * org.eclipse.thingweb.digrectory.util
  * <p>
  * TODO: Add class description
  * <p>
