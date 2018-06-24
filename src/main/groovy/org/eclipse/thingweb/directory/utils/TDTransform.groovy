@@ -27,6 +27,9 @@ import groovy.json.*
  */
 class TDTransform {
 	
+	// TODO unify with TDServlet.TD_CONTEXT_URI
+	private final TD_CONTEXT_URI = "https://w3c.github.io/wot/w3c-wot-td-context.jsonld"
+	
 	Object object
 	
 	TDTransform(input) {
@@ -34,19 +37,41 @@ class TDTransform {
 	}
 
 	String asJsonLd10() {
+		def ctx = ["@context": ["properties": "http://www.w3.org/ns/td/schema#properties"]]
+		
 		def td = object.collectEntries({ k, v ->
 			switch (k) {
 				case "properties":
+					v = v.collect({ id, p -> ["@id": id, *:ctx, *:asJsonLd10Schema(p)] })
+					break
 				case "actions":
+					v = v.collect({ id, a ->
+						def i = asJsonLd10Schema(a."input")
+						def o = asJsonLd10Schema(a."output")
+						["@id": id, *:ctx, *:a, "input": i, "output": o]
+					})
+					break
 				case "events":
-					v = v.collect({ kp, vp -> [ "@id": kp, *:vp ] })
+					// TODO
 					break
 			}
 			[(k): (v)]
 		})
 		
+		if (!td."@context") {
+			td."@context" = TD_CONTEXT_URI
+		}
+		
+		if (!td."@type") {
+			td."@type" = "Thing"
+		}
+		
 		td."@id" = td."id"
 		td.remove("id")
+		
+		// TODO
+		// - add default values
+		// - context and type can be arrays
 		
 		JsonOutput.toJson(td)
 	}
@@ -54,17 +79,25 @@ class TDTransform {
 	String asJsonLd11() {
 		def td = object
 		
-		if (td.containsKey("@graph")) {
+		if (td."@graph") {
 			td = td."@graph".find()
-			td."@context" = "https://w3c.github.io/wot/w3c-wot-td-context.jsonld"
+			td."@context" = TD_CONTEXT_URI
 		}
 		
 		td = td.collectEntries({ k, v ->
 			switch (k) {
 				case "properties":
+					v = v.collectEntries({ p -> [(p."@id"): asJsonLd11Schema(p.findAll({ it.key != "@id" })) ] })
+					break
 				case "actions":
+					v = v.collectEntries({ a ->
+						def i = asJsonLd11Schema(a."input")
+						def o = asJsonLd11Schema(a."output")
+						[(a."@id"): [*:a.findAll({ !["@id", "input", "output"].contains(it) }), "input": i, "output": o]]
+					})
+					break
 				case "events":
-					v = v.collectEntries({ vp -> [(vp."@id"): vp.findAll({ it.key != "@id" }) ] })
+					// TODO
 					break
 			}
 			[(k): (v)]
@@ -72,8 +105,40 @@ class TDTransform {
 		
 		td."id" = td."@id"
 		td.remove("@id")
-		
+
 		JsonOutput.toJson(td)
+	}
+	
+	private def asJsonLd10Schema(obj) {
+		if (obj instanceof Map) {
+			return obj.collectEntries({ k, v ->
+				switch (k) {
+					case "properties":
+						v = v.collect({ id, s -> ["@id": id, *:asJsonLd10Schema(s)] })
+						break
+					case "items":
+						v = asJsonLd10Schema(v)
+						break
+				}
+				[(k): (v)]
+			})
+		}
+	}
+	
+	private def asJsonLd11Schema(obj) {
+		if (obj instanceof Map) {
+			return obj.collectEntries({ k, v ->
+				switch (k) {
+					case "http://www.w3.org/ns/td/schema#properties":
+						k = "properties"
+						v = v.collectEntries({ s -> [(s."@id"): asJsonLd11Schema(s.findAll({ it.key != "@id" }))] })
+					case "items":
+						v = asJsonLd11Schema(v)
+						break
+				}
+				[(k): (v)]
+			})
+		}
 	}
 
 }

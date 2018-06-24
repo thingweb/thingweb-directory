@@ -14,6 +14,10 @@
       "@type" : "@id",
       "@container": "@set"
     },
+    "http://www.w3.org/ns/td/schema#properties" : {
+      "@type" : "@id",
+      "@container": "@set"
+    },
     "actions" : {
       "@id" : "http://www.w3.org/ns/td#actions",
       "@type" : "@id",
