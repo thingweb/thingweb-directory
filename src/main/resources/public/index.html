@@ -34,26 +34,68 @@
         }
         
         .highlighted {
-          background: #c6ff45;
           text-align: center;
           font-style: italic;
         }
         
-        tr {
+        p.success {
+          background: #c6ff45;
+        }
+        
+        p.failure {
+          background: #ff7f44;
+        }
+        
+        table.success tr {
           background: #eee;
+        }
+        
+        table.failure tr {
+          background: #ff7f44;
         }
       </style>
       <script type="text/javascript">
+      	function setRegistrationMessage(message, success) {
+      		var p = document.getElementById("td-location");
+      		p.classList.remove("success", "failure");
+      		
+      		if (success === true) { p.classList.add("success"); }
+      		else if (success === false) { p.classList.add("failure"); }
+      		
+      		p.innerHTML = message;
+      	}
+      	
+      	function setDiscoveryResult(result, success) {
+      		var table = document.getElementById("td-table");
+      		table.classList.remove("success", "failure");
+      		table.innerHTML = "";
+      		
+      		if (success === true) { table.classList.add("success"); }
+      		else if (success === false) { table.classList.add("failure"); }
+      		
+      		if (!(result instanceof Array)) { result = [result]; }
+      		
+      		if (result.length === 0) {
+      			table.insertRow().insertCell().innerHTML = "<i>(no result)</i>";
+      		}
+      		
+  			for (i in result) {
+				table.insertRow().insertCell().innerHTML = result[i];
+			}
+      	}
+
       	function register() {
 			var xhr = new XMLHttpRequest();
 
 			xhr.onreadystatechange = function() {
 				if (xhr.readyState === 4) { // XMLHttpRequest.DONE
-					var id = xhr.getResponseHeader("Location");
-					
-					if (id) {
+					if (xhr.status == 201 && xhr.getResponseHeader("Location")) {
+						var id = xhr.getResponseHeader("Location");
       					var anchor = "<a href= \"td/" + id + "\">" + id + "</a>";
-						document.getElementById("td-location").innerHTML = "Created: " + anchor;
+      					setRegistrationMessage("Created: " + anchor, true);
+					} else {
+						console.error(xhr.response);
+						setRegistrationMessage("Error (see console)", false);
 					}
 				}
 			}
@@ -62,11 +104,11 @@
 			var format = field.options[field.selectedIndex].value;
       		xhr.open("POST", "td");
       		xhr.setRequestHeader("Content-Type", format);
-      		
-      		// TODO error
 
       		var td = document.getElementById("td-field").value;
       		xhr.send(td);
+      		
+      		setRegistrationMessage("Request sent...");
       	}
       	
       	function discover() {
@@ -75,23 +117,28 @@
       		xhr.responseType = "json";
       		xhr.onreadystatechange = function() {
       			if (xhr.readyState === 4) { // XMLHttpRequest.DONE
-      				var ids = xhr.response;
-      			
-      				var table = document.getElementById("td-table");
-      				table.innerHTML = "";
-      			
-      				for (id in ids) {
-      					var anchor = "<a href= \"td/" + id + "\">" + id + "</a>";
-						table.insertRow().insertCell().innerHTML = anchor;
+      				if (xhr.status === 200) {
+          				var ids = xhr.response;
+          			
+          				let anchors = [];
+          				for (id in ids) {
+          					anchors.push("<a href= \"td/" + id + "\">" + id + "</a>");
+          				}
+          				setDiscoveryResult(anchors, true);
+      				} else {
+      					console.error(xhr.response);
+      					setDiscoveryResult("Error (see console)", false);
       				}
       			}
       		}
       		
       		var q = document.getElementById("filter-field").value;
 			if (q === "") { q = "?s ?p ?o"; }
-      		xhr.open("GET", "td-lookup/sem?query=" + q);
+      		xhr.open("GET", "td-lookup/sem?query=" + encodeURIComponent(q));
       		
       		xhr.send();
+      		
+			setDiscoveryResult("Request sent...");
       	}
       </script>
     </head>
