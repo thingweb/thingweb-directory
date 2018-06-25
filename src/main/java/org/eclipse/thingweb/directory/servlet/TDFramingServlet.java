@@ -46,12 +46,9 @@ public class TDFramingServlet extends RESTServlet {
     if (resp.isCommitted()) {
       return; // parent class returned an error status
     }
-
     String frame = req.getParameter(QUERY_PARAMETER);
-    System.err.println("===============================================================");
-    System.err.println(frame);
-    System.err.println("===============================================================");
 
+    ThingDirectory.LOG.info(frame);
 
     Frame2SPARQL frame2SPARQL = new Frame2SPARQL();
     RepositoryConnection connection = Connector.getRepositoryConnection();
