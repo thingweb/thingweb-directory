@@ -3,6 +3,8 @@ package org.eclipse.thingweb.directory.util;
 import com.github.jsonldjava.core.JsonLdOptions;
 import com.github.jsonldjava.core.JsonLdProcessor;
 import com.github.jsonldjava.utils.JsonUtils;
+import com.github.jsonldjava.utils.Obj;
+import org.apache.commons.lang3.ArrayUtils;
 import org.eclipse.rdf4j.model.*;
 import org.eclipse.rdf4j.model.impl.TreeModel;
 import org.eclipse.rdf4j.query.*;
@@ -12,7 +14,9 @@ import org.eclipse.rdf4j.repository.sail.SailRepository;
 import org.eclipse.rdf4j.rio.RDFFormat;
 import org.eclipse.rdf4j.rio.Rio;
 import org.eclipse.rdf4j.sail.memory.MemoryStore;
+import org.eclipse.thingweb.directory.utils.TDTransform;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.StringReader;
@@ -35,10 +39,20 @@ public class Frame2SPARQL
 {
   private Model subGraphModel;
 
-  private Object frame(Repository repo, Object frame) throws IOException {
+  public Object frame(RepositoryConnection connection, String frame) throws IOException {
+
+    Object frameObject = JsonUtils.fromString(frame);
+
+    //expanded frame object
+    Object expandedframeObject = JsonLdProcessor.expand(frameObject);
+
 
     //Get subGraph from the repository by the frame object
-    Object subGraph = getSubGraph(repo, frame);
+    if (expandedframeObject instanceof  List){
+      expandedframeObject = ((List) expandedframeObject).get(0);
+    }
+
+    Object subGraph = getSubGraph(connection, expandedframeObject);
 
     //If subGraph is empty return empty sub Graph
     if (subGraph instanceof List){
@@ -54,15 +68,16 @@ public class Frame2SPARQL
     opts.setUseNativeTypes(true);
     opts.setCompactArrays(true);
 
-    Object framed = JsonLdProcessor.frame(subGraph, frame, opts);
+    Object framed = JsonLdProcessor.frame(subGraph, frameObject, opts);
     return framed;
   }
 
 
-  private Object getSubGraph(Repository repo, Object frame) throws IOException {
+  private Object getSubGraph(RepositoryConnection connection, Object frame) throws IOException {
+
     subGraphModel = new TreeModel();
 
-    Model parentLayer = processParentLayer(repo, (Map<String, Object>) frame);
+    Model parentLayer = processParentLayer(connection, (Map<String, Object>) frame);
 
     //seen set to prevent describing duplicated resource
     Set<String> seen = new HashSet<>();
@@ -80,7 +95,7 @@ public class Frame2SPARQL
         if (!seen.contains(value.toString()))
         {
           //describe resource in further
-          processChildrenLayers(repo, value.toString(), seen);
+          processChildrenLayers(connection, value.toString(), seen);
         }
       }
     }
@@ -89,31 +104,36 @@ public class Frame2SPARQL
 
     ByteArrayOutputStream buffer = new ByteArrayOutputStream();
     Rio.write(subGraphModel, buffer, RDFFormat.JSONLD);
-    System.out.println(buffer.toString());
+
     return JsonUtils.fromString(buffer.toString());
   }
 
 
-  private Model processParentLayer(Repository repository, Map<String, Object> object){
+  private Model processParentLayer(RepositoryConnection connection, Map<String, Object> object){
     Object id = object.get("@id");
+    Object type = object.get("@type");
 
     List<String> properties = new ArrayList<>();
 
     object.forEach((String key, Object value)->{
       if (!key.equals("@id")){
-        properties.add(key);
+        if (!key.equals("@context")) {
+          if (!key.equals("@type")) {
+            properties.add(key);
+          }
+        }
       }
     });
 
-    String query = generateDescribeQuery(id, properties);
+    String query = generateDescribeQuery(id, properties, type);
 
-    Model model = doDescribeQuery(repository, query);
+    Model model = doDescribeQuery(connection, query);
 
     return model;
   }
 
-  private void processChildrenLayers(Repository repository, String resource, Set<String> seen){
-    Model model__ = queryResource(repository, resource);
+  private void processChildrenLayers(RepositoryConnection connection, String resource, Set<String> seen){
+    Model model__ = queryResource(connection, resource);
     seen.add(resource);
 
     for (Statement statement : model__) {
@@ -121,7 +141,7 @@ public class Frame2SPARQL
       if (!value.equals(resource)) {
         if (value instanceof Resource) {
           if (!seen.contains(value.toString())) {
-            processChildrenLayers(repository, value.toString(), seen);
+            processChildrenLayers(connection, value.toString(), seen);
           }
         }
       }
@@ -131,7 +151,7 @@ public class Frame2SPARQL
   }
 
 
-  private String generateDescribeQuery(Object resource, List<String> properties){
+  private String generateDescribeQuery(Object resource, List<String> properties, Object type){
     String head = resource == null? "?x" : "<" + resource + ">";
 
     String query = "DESCRIBE " + head;
@@ -142,31 +162,59 @@ public class Frame2SPARQL
       query += head + " <" + property + "> " + "?o" + (++i) + ". \n";
     }
 
+    if (type != null){
+      query += generateType(head, type);
+    }
+
     query += "}";
 
     return query;
   }
 
-  private Model queryResourceWithFilter(Repository repository, String subject, String type ){
+  private String generateType(String head, Object type){
+    if (type instanceof Map){
+      Map<String, Object> map = (Map<String, Object>) type;
+      Object type_ = map.get("@id");
+      return head + " a <" + type_ + ">.\n";
+    }
+
+    if (type instanceof List){
+      List<Object> list = (List<Object>) type;
+
+      String s = "";
+      for (Object object:list){
+        if (object instanceof String){
+          s += head + " a <" + object + ">.\n";
+        }
+      }
+      return s;
+    }
+
+    if (type instanceof String)
+    {
+      return head + " a <" + type + "> .\n";
+    }
+
+    return "";
+  }
+
+  private Model queryResourceWithFilter(RepositoryConnection connection, String subject, String type ){
     if (subject == null) { subject = "?x"; }
     else {subject = "<" + subject + ">"; }
     type = "<" + type + ">";
     String describeQuery = "DESCRIBE " + subject + " " + "WHERE { " + subject + " a " + type + ".}";
 
-    return doDescribeQuery(repository, describeQuery);
+    return doDescribeQuery(connection, describeQuery);
   }
 
-  private Model queryResource(Repository repository, String subject){
+  private Model queryResource(RepositoryConnection connection, String subject){
     String describeQuery  = "DESCRIBE <" + subject + "> ";
-
-    return doDescribeQuery(repository, describeQuery);
+    return doDescribeQuery(connection, describeQuery);
   }
 
-  private Model doDescribeQuery(Repository repository, String describeQuery){
-    RepositoryConnection connection   = repository.getConnection();
+  private Model doDescribeQuery(RepositoryConnection connection, String describeQuery){
     GraphQueryResult graphQueryResult = connection.prepareGraphQuery(describeQuery).evaluate();
     Model model = QueryResults.asModel(graphQueryResult);
-
     return model;
   }
 
@@ -176,7 +224,6 @@ public class Frame2SPARQL
 //=====================================================================================================================
 //TEST CODE
 //=====================================================================================================================
-
   private Repository inputData(String input) throws IOException {
 
     Repository repo = new SailRepository(new MemoryStore());
@@ -198,124 +245,64 @@ public class Frame2SPARQL
 
     System.out.println(JsonUtils.toPrettyString(object));
   }
-
-  //Test describe query without Filter
-
-
-
-  private void queryTest1(){
+  private void testFrame() throws IOException {
     String input =
-        "[{\"@id\":\"http://personA\",\n"
-            + "  \"@type\":\"http://person.org\",\n"
-            + "  \"http://name.org\":\"Person A\",\n"
-            + "  \"http://id.org\":\"1\"},\n"
-            + " {\"@id\":\"http://deviceA\",\n"
-            + "  \"@type\":\"http://device.org\",\n"
-            + "  \"http://name.org\":\"Device A\",\n"
-            + "  \"http://id.org\":\"2\"}]";
+        "{\n"
+            + "  \"@context\": [\"https://w3c.github.io/wot/w3c-wot-td-context.jsonld\"],\n"
+            + "  \"@type\": [\"Thing\"],\n"
+            + "  \"name\": \"MyLampThing\",\n"
+            + "  \"interaction\": [\n"
+            + "      {\n"
+            + "          \"@type\": [\"Property\"],\n"
+            + "          \"name\": \"status\",\n"
+            + "          \"schema\": {\"type\": \"string\"},\n"
+            + "          \"writable\": false,\n"
+            + "          \"observable\": true,\n"
+            + "          \"form\": [{\n"
+            + "              \"href\": \"coaps://mylamp.example.com:5683/status\",\n"
+            + "              \"mediaType\": \"application/json\"\n"
+            + "          }]\n"
+            + "      },\n"
+            + "      {\n"
+            + "          \"@type\": [\"Action\"],\n"
+            + "          \"name\": \"toggle\",\n"
+            + "          \"form\": [{\n"
+            + "              \"href\": \"coaps://mylamp.example.com:5683/toggle\",\n"
+            + "              \"mediaType\": \"application/json\"\n"
+            + "          }]\n"
+            + "      },\n"
+            + "      {\n"
+            + "          \"@type\": [\"Event\"],\n"
+            + "          \"name\": \"overheating\",\n"
+            + "          \"schema\": {\"type\": \"string\"},\n"
+            + "          \"form\": [{\n"
+            + "              \"href\": \"coaps://mylamp.example.com:5683/oh\",\n"
+            + "              \"mediaType\": \"application/json\"\n"
+            + "          }]\n"
+            + "      }\n"
+            + "  ]\n"
+            + "}";
 
+    String frame=
+        "{\"@context\": [\"https://w3c.github.io/wot/w3c-wot-td-context.jsonld\"],\n"
+            + "  \"@type\": [\"Thing\"]}";
+
+
+    RepositoryConnection connection = inputData(input).getConnection();
+    Object object = frame(connection, frame);
+
+    String td = JsonUtils.toPrettyString(object);
+    TDTransform transform = new TDTransform(new ByteArrayInputStream(td.getBytes()));
+                td        = transform.asJsonLd11();
+
+    System.out.println(JsonUtils.toPrettyString(JsonUtils.fromString(td)));
+  }
+
+  public static void main(String[] args){
     try {
-      Repository repo = inputData(input);
-
-      Model model = queryResourceWithFilter(repo, null, "http://device.org");
-      printJsonLd(model);
-
-
+      (new Frame2SPARQL()).testFrame();
     } catch (IOException e) {
       e.printStackTrace();
     }
   }
-
-  private void testOtherLevel() throws IOException {
-    String input =
-        "[{\n"
-            + "  \"@id\":\"http://personA\",\n"
-            + "  \"http://name\":\"Anh\",\n"
-            + "  \"http://knows\":{\n"
-            + "    \"@id\":\"http://personB\",\n"
-            + "    \"http://name\":\"B\"\n"
-            + "  }},\n"
-            + " {\n"
-            + "  \"@id\":\"http://personC\",\n"
-            + "  \"http://name\":\"Cnh\",\n"
-            + "  \"http://knows\":{\n"
-            + "  \"@id\":\"http://personD\",\n"
-            + "    \"http://name\":\"C\"\n"
-            + "  }\n"
-            + " }\n"
-            + "]";
-    String frame="";
-
-    subGraphModel = new TreeModel();
-
-    Repository repository = inputData(input);
-
-    processChildrenLayers(repository, "http://personA", new HashSet<>());
-
-    printJsonLd(subGraphModel);
-  }
-
-  private void testFirstLevel() throws IOException {
-    String input =
-        "[{\n"
-            + "  \"@id\":\"http://personA\",\n"
-            + "  \"http://name\":\"Anh\",\n"
-            + "  \"http://knows\":{\n"
-            + "    \"@id\":\"http://personB\",\n"
-            + "    \"http://name\":\"B\"\n"
-            + "  }},\n"
-            + " {\n"
-            + "  \"@id\":\"http://personC\",\n"
-            + "  \"http://name\":\"Cnh\",\n"
-            + "  \"http://knows\":{\n"
-            + "  \"@id\":\"http://personD\",\n"
-            + "    \"http://name\":\"C\"\n"
-            + "  }\n"
-            + " }\n"
-            + "]";
-    String frame =
-        "{\n"
-            + "  \"@id\":\"http://personA\",\n"
-            + "  \"http://knows\":{},\n"
-            + "  \"http://name\":\"\"\n"
-            + "}";
-
-    Repository repo = inputData(input);
-    Model model = processParentLayer(repo, (Map<String, Object>) JsonUtils.fromString(frame));
-    printJsonLd(model);
-  }
-
-  private void testFrame() throws IOException {
-    String input =
-        "[{\n"
-            + "  \"@id\":\"http://personA\",\n"
-            + "  \"http://name\":\"Anh\",\n"
-            + "  \"http://knows\":{\n"
-            + "    \"@id\":\"http://personB\",\n"
-            + "    \"http://name\":\"B\"\n"
-            + "  }},\n"
-            + " {\n"
-            + "  \"@id\":\"http://personC\",\n"
-            + "  \"http://name\":\"Cnh\",\n"
-            + "  \"http://knows\":{\n"
-            + "  \"@id\":\"http://personD\",\n"
-            + "    \"http://name\":\"C\"\n"
-            + "  }\n"
-            + " }\n"
-            + "]";
-
-    String frame__ =
-        "{\n"
-            + "  \"@id\":\"http://personA\",\n"
-            + "  \"http://knowss\":{},\n"
-            + "  \"http://name\":\"\"\n"
-            + "}";
-
-    Repository repo = inputData(input);
-    Object frameObj = JsonUtils.fromString(frame__);
-    Object framed = frame(repo, frameObj);
-  }
-
-
-
 }

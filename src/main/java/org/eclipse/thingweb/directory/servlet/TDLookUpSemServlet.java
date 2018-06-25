@@ -84,11 +84,8 @@ public class TDLookUpSemServlet extends RESTServlet {
 					out.write('\"');
 					out.write(id.getBytes());
 					out.write('\"');
-					
 					out.write(':');
-					
 					out.write(respWrapper.getOutputBytes());
-					
 					if (it.hasNext()) {
 						out.write(',');
 					}
@@ -96,9 +93,7 @@ public class TDLookUpSemServlet extends RESTServlet {
 					ThingDirectory.LOG.warn("Trying to access non-existing (or expired) TD: " + id);
 				}
 			}
-			
 			out.write('}');
-			
 			resp.setContentType("application/json");
 			out.close(); // sends response
 		} catch (IOException e) {

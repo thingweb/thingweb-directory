@@ -34,11 +34,7 @@ import org.eclipse.thingweb.directory.coap.CoAPServer;
 import org.eclipse.thingweb.directory.http.HTTPServer;
 import org.eclipse.thingweb.directory.rest.CollectionServlet;
 import org.eclipse.thingweb.directory.rest.RESTServletContainer;
-import org.eclipse.thingweb.directory.servlet.RDFDocumentServlet;
-import org.eclipse.thingweb.directory.servlet.TDLookUpEpServlet;
-import org.eclipse.thingweb.directory.servlet.TDLookUpResServlet;
-import org.eclipse.thingweb.directory.servlet.TDLookUpSemServlet;
-import org.eclipse.thingweb.directory.servlet.TDServlet;
+import org.eclipse.thingweb.directory.servlet.*;
 import org.eclipse.thingweb.directory.sparql.client.Connector;
 
 @SwaggerDefinition(tags = {
@@ -59,7 +55,7 @@ public class ThingDirectory {
 	public static final Logger LOG = Logger.getRootLogger();
 	
 	public static final int DEFAULT_COAP_PORT = 5683;
-	public static final int DEFAULT_HTTP_PORT = 8080;
+	public static final int DEFAULT_HTTP_PORT = 8090;
     
 	// TODO fix addressing
     private final static String baseURI = "http://localhost";
@@ -99,6 +95,7 @@ public class ThingDirectory {
     	TDLookUpEpServlet tdLookUpEp = new TDLookUpEpServlet();
     	TDLookUpResServlet tdLookUpRes = new TDLookUpResServlet();
     	TDLookUpSemServlet tdLookUpSem = new TDLookUpSemServlet(td);
+      TDFramingServlet tdFraming = new TDFramingServlet(td);
     	
     	for (RESTServletContainer s : containers) {
     		s.addServletWithMapping("/td", tdCollection);
@@ -106,7 +103,7 @@ public class ThingDirectory {
     		s.addServletWithMapping("/td-lookup/ep", tdLookUpEp);
     		s.addServletWithMapping("/td-lookup/res", tdLookUpRes);
     		s.addServletWithMapping("/td-lookup/sem", tdLookUpSem);
-    		
+    		s.addServletWithMapping("/td-lookup/frame", tdFraming);
     		s.start();
     	}
     }

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html xmlns="http://www.w3.org/1999/html">
     <head>
       <meta charset="UTF-8">
       <title>Thingweb Directory - Register and discover W3C Thing Descriptions</title>
@@ -32,7 +32,12 @@
           resize: vertical;
           width: calc(100% - 2*3px);
         }
-        
+
+        .textb {
+          resize: vertical;
+          width: calc(100% - 2*3px);
+        }
+
         .highlighted {
           text-align: center;
           font-style: italic;
@@ -55,14 +60,16 @@
         }
       </style>
       <script type="text/javascript">
-      	function setRegistrationMessage(message, success) {
-      		var p = document.getElementById("td-location");
-      		p.classList.remove("success", "failure");
+
+        function setRegistrationMessage(message, success) {
+      	  var p = document.getElementById("td-location");
+
+      	      p.classList.remove("success", "failure");
       		
-      		if (success === true) { p.classList.add("success"); }
-      		else if (success === false) { p.classList.add("failure"); }
+      	  if (success === true) { p.classList.add("success"); }
+      	  else if (success === false) { p.classList.add("failure"); }
       		
-      		p.innerHTML = message;
+      	  p.innerHTML = message;
       	}
       	
       	function setDiscoveryResult(result, success) {
@@ -92,6 +99,7 @@
 					if (xhr.status == 201 && xhr.getResponseHeader("Location")) {
 						var id = xhr.getResponseHeader("Location");
       					var anchor = "<a href= \"td/" + id + "\">" + id + "</a>";
+
       					setRegistrationMessage("Created: " + anchor, true);
 					} else {
 						console.error(xhr.response);
@@ -110,16 +118,14 @@
       		
       		setRegistrationMessage("Request sent...");
       	}
-      	
+
       	function discover() {
       		var xhr = new XMLHttpRequest();
-
       		xhr.responseType = "json";
       		xhr.onreadystatechange = function() {
       			if (xhr.readyState === 4) { // XMLHttpRequest.DONE
       				if (xhr.status === 200) {
           				var ids = xhr.response;
-          			
           				let anchors = [];
           				for (id in ids) {
           					anchors.push("<a href= \"td/" + id + "\">" + id + "</a>");
@@ -131,15 +137,42 @@
       				}
       			}
       		}
-      		
+
       		var q = document.getElementById("filter-field").value;
 			if (q === "") { q = "?s ?p ?o"; }
       		xhr.open("GET", "td-lookup/sem?query=" + encodeURIComponent(q));
-      		
       		xhr.send();
-      		
+
 			setDiscoveryResult("Request sent...");
       	}
+
+        function frame() {
+      	    var xhr = new XMLHttpRequest();
+
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === 4) { // XMLHttpRequest.DONE
+                    if (xhr.status === 200) {
+                        var ids = xhr.response;
+                        setFramedResult(ids);
+                    } else {
+                        console.error(xhr.response);
+                        setFramedResult("errors");
+                    }
+                }
+            }
+
+            var q = document.getElementById("frame-field").value;
+            if (q == "") { q = "{}"; }
+            xhr.open("GET", "td-lookup/frame?frame=" + encodeURIComponent(q));
+            xhr.send();
+        }
+
+        function setFramedResult(result) {
+          var tb = document.getElementById("framed-tb");
+
+          tb.value = result;
+        }
+
       </script>
     </head>
     <body>
@@ -175,6 +208,24 @@
         </p>
         <p>
           <table id="td-table"></table>
+        </p>
+      </form>
+
+      <form action="javascript:frame()">
+        <h2>Frame </h2>
+        <p>
+          <textarea id="frame-field" placeholder="JSON-LD Frame" name="frame" rows="2" cols="50"></textarea>
+        </p>
+        <p>
+          <input type="submit" value="OK">
+        </p>
+
+      </form>
+
+      <form>
+        <h2>Framed Json-ld </h2>
+        <p>
+          <textarea id="framed-tb" class="textb"  rows="20" cols="50" readonly></textarea>
         </p>
       </form>
     </body>

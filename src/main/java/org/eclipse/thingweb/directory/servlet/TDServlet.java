@@ -97,7 +97,7 @@ public class TDServlet extends RDFDocumentServlet {
 		
 		if (format.equals(RDFFormat.JSONLD)) {
 			TDTransform transform = new TDTransform(req.getInputStream());
-			String td = transform.asJsonLd10();
+			String td = transform.asJsonLd11();
 			return Rio.parse(new ByteArrayInputStream(td.getBytes()), getBaseURI(req), format);
 		}
 		
