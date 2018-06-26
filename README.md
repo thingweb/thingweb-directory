@@ -27,7 +27,7 @@ By default, the Directory runs an in-memory RDF store, whose content is deleted 
 
 #### Known issues
 
-On Windows, the execution will fail with a Batch error message. If [Mingw](http://mingw.org/) is installed on your machine, try to run `bin/thingweb-directory` inside an emulated Bash shell. Alternatively, try `java -cp lib\* de.thingweb.directory.ThingDirectory`.
+On Windows, the execution will fail with a Batch error message. If [Mingw](http://mingw.org/) is installed on your machine, try to run `bin/thingweb-directory` inside an emulated Bash shell. Alternatively, try `java -cp lib\* org.eclipse.thingweb.directory.ThingDirectory`.
 
 ### Interacting with the Directory
 

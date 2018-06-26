@@ -14,9 +14,7 @@
  ********************************************************************************/
 package org.eclipse.thingweb.directory.servlet;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -32,7 +30,6 @@ import org.eclipse.thingweb.directory.ThingDirectory;
 import org.eclipse.thingweb.directory.rest.RESTServlet;
 import org.eclipse.thingweb.directory.servlet.exception.MalformedDocumentException;
 import org.eclipse.thingweb.directory.sparql.client.Queries;
-import org.eclipse.thingweb.directory.utils.TDTransform;
 
 public class RDFDocumentServlet extends RegistrationResourceServlet {
 	

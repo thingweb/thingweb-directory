@@ -19,7 +19,6 @@ import groovy.json.*
 /**
  * 
  *  Compatibility script for JSON-LD 1.1.
- *  TODO nested properties
  *
  * @author Victor Charpenay
  * @creation 20.06.2018
