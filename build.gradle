@@ -66,6 +66,6 @@ dependencies {
 
 
 
-version = '0.8.1a'
+version = '0.8a'
 group = 'org.eclipse'
 mainClassName = 'org.eclipse.thingweb.directory.ThingDirectory'
