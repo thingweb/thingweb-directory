@@ -89,7 +89,7 @@
 
 			xhr.onreadystatechange = function() {
 				if (xhr.readyState === 4) { // XMLHttpRequest.DONE
-					if (xhr.status == 201 && xhr.getResponseHeader("Location")) {
+					if (xhr.getResponseHeader("Location")) {
 						var id = xhr.getResponseHeader("Location");
       					var anchor = "<a href= \"td/" + id + "\">" + id + "</a>";
       					setRegistrationMessage("Created: " + anchor, true);
