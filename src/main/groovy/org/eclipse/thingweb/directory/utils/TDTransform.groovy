@@ -36,7 +36,9 @@ class TDTransform {
 				
 		if (object."@graph") {
 			object = object."@graph".find()
+			object = withNativeTypes(object)
 		}
+		
 	}
 
 	String asJsonLd10() {
@@ -47,6 +49,44 @@ class TDTransform {
 	String asJsonLd11() {
 		def td = asJsonLd11ForType(object, "Thing")
 		JsonOutput.toJson(td)
+	}
+	
+	/**
+	 * See https://github.com/jsonld-java/jsonld-java/issues/132
+	 * FIXME
+	 * 
+	 * @param obj
+	 * @return
+	 */
+	private withNativeTypes(obj) {
+		switch (obj) {
+			case Map:
+				if (obj."@value") {
+					switch (obj."@type") {
+						case "xsd:integer":
+							return obj."@value".toInteger()
+						case "xsd:double":
+							return obj."@value".toDouble()
+						case "xsd:boolean":
+							return obj."@value".asBoolean()
+						default:
+							return obj
+					}
+				}
+				return obj.collectEntries({ k, v -> [(k): withNativeTypes(v)] })
+			case List:
+				return obj.collect({ i -> withNativeTypes(i) })
+			case String:
+				switch (obj) {
+					case "true":
+					case "false":
+						return obj.asBoolean()
+					default:
+						return obj
+				}
+			default:
+				return obj
+		}
 	}
 	
 	/**
