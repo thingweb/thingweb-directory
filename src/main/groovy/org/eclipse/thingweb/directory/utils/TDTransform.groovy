@@ -33,6 +33,10 @@ class TDTransform {
 	
 	TDTransform(input) {
 		object = new JsonSlurper().parse(input)
+				
+		if (object."@graph") {
+			object = object."@graph".find()
+		}
 	}
 
 	String asJsonLd10() {
@@ -43,6 +47,30 @@ class TDTransform {
 	String asJsonLd11() {
 		def td = asJsonLd11ForType(object, "Thing")
 		JsonOutput.toJson(td)
+	}
+	
+	/**
+	 * Navigates through obj and returns the referenced object if found.
+	 * Else, returns an empty object.
+	 * 
+	 * @param obj
+	 * @param ref
+	 * @return
+	 */
+	private resolve(obj, String ref) {
+		def nav = { resolved, i -> 
+			resolved != [:] ? resolved : resolve(i, ref)
+		}
+		
+		switch (obj) {
+			case Map:
+				if (ref == obj."@id") return obj
+				return obj.values().inject([:], nav)
+			case List:
+				return obj.inject([:], nav)
+			default:
+				return [:]
+		}
 	}
 	
 	private Map asJsonLd10ForType(obj, String type) {
@@ -106,8 +134,8 @@ class TDTransform {
 					switch (k) {
 						case "properties":
 							return [
-								"http://www.w3.org/ns/td/schema#properties": v.collect({ id, s ->
-									["@id": id, *:asJsonLd10ForType(s, "Schema")]
+								"http://www.w3.org/ns/td/schema#properties": v.collect({ s ->
+									asJsonLd10ForType(s, "ObjectSchema")
 								})
 							]
 						case "items":
@@ -116,6 +144,11 @@ class TDTransform {
 							return [(k): (v)]
 					}
 				})
+				
+			case "ObjectSchema":
+				def id = obj.key
+				def s = obj.value
+				return ["@id": id, *:s]
 			
 			default:
 				return obj
@@ -127,10 +160,7 @@ class TDTransform {
 			case "Thing":
 				def td = obj
 				
-				if (td."@graph") {
-					td = td."@graph".find()
-					td."@context" = TD_CONTEXT_URI
-				}
+				td."@context" = TD_CONTEXT_URI
 				
 				td = td.collectEntries({ k, v ->
 					switch (k) {
@@ -169,20 +199,27 @@ class TDTransform {
 				return [(id): e] // TODO
 			
 			case "Schema":
+				if (obj instanceof String) obj = resolve(object, obj) // schema reference
 				return obj.collectEntries({ k, v ->
 					switch (k) {
 						case "http://www.w3.org/ns/td/schema#properties":
 							return [
 								"properties": v.collectEntries({ s ->
-									[(s."@id"): asJsonLd11ForType(s.findAll({ it.key != "@id" }), "Schema")]
+									asJsonLd11ForType(s, "ObjectSchema")
 								})
 							]
 						case "items":
 							return ["items": asJsonLd11ForType(v, "Schema")]
+						case "@id":
+							return [:]
 						default:
 							return [(k): (v)]
 					}
 				})
+				
+			case "ObjectSchema":
+				def id = obj instanceof String ? obj : obj."@id"
+				return [(id): asJsonLd11ForType(obj, "Schema")]
 			
 			default:
 				return obj
