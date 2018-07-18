@@ -16,8 +16,6 @@ package org.eclipse.thingweb.directory.rest;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.Collection;
-import java.util.HashSet;
 import java.util.Iterator;
 
 import javax.servlet.ServletException;
@@ -27,7 +25,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.eclipse.thingweb.directory.ThingDirectory;
 
 public class CollectionServlet extends RESTServlet {
-	
+
 	public static final String LOCATION_HEADER = "Location";
 	
 	private static final String[] ACCEPTED = { "application/json" };
@@ -63,7 +61,7 @@ public class CollectionServlet extends RESTServlet {
 			out.write(']');
 		} catch (IOException e) {
 			ThingDirectory.LOG.error("Cannot write byte array", e);
-			resp.sendError(500, e.getMessage()); // Internal Server Error
+			resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
 		}
 	}
 
@@ -74,10 +72,10 @@ public class CollectionServlet extends RESTServlet {
 		delta = itemServlet.getAllItems().size() - delta;
 		
 		if (delta > 0) {
-			resp.setStatus(201); // Created
+			resp.setStatus(HttpServletResponse.SC_CREATED);
 		} else {
 			ThingDirectory.LOG.info("Item already registered: " + id);
-			resp.setStatus(204); // No Content
+			resp.setStatus(HttpServletResponse.SC_NO_CONTENT);
 		}
 		
 		resp.setHeader(LOCATION_HEADER, id);

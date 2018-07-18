@@ -80,6 +80,10 @@ public class Queries {
 			+ "} "
 			+ "}";
 	
+	private Queries() {
+		// never used
+	}
+	
 	/**
 	 * ASK WHERE {
 	 *   ?res dct:valid ?date

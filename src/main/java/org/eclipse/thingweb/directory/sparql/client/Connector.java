@@ -32,6 +32,10 @@ public class Connector {
 	
 	private static RepositoryConnection connection;
 	
+	private Connector() {
+		// never used
+	}
+	
 	public static void init(String queryEndpoint, String updateEndpoint, String username, String password) {
 		SPARQLRepository repo = new SPARQLRepository(queryEndpoint, updateEndpoint);
 		repo.initialize();

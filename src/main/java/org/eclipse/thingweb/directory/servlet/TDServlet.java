@@ -33,6 +33,7 @@ import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 import org.eclipse.rdf4j.model.util.ModelBuilder;
 import org.eclipse.rdf4j.model.vocabulary.RDF;
+import org.eclipse.rdf4j.query.QueryEvaluationException;
 import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.eclipse.rdf4j.rio.RDFFormat;
 import org.eclipse.rdf4j.rio.RDFHandlerException;
@@ -73,7 +74,7 @@ public class TDServlet extends RDFDocumentServlet {
 				
 				items = ids;
 			}
-		} catch (Exception e) {
+		} catch (QueryEvaluationException e) {
 			ThingDirectory.LOG.error("Cannot fetch existing TDs from the RDF store", e);
 		}
 
@@ -119,7 +120,7 @@ public class TDServlet extends RDFDocumentServlet {
 				resp.getOutputStream().write(td.getBytes());
 			} catch (JsonLdError e) {
 				ThingDirectory.LOG.error("Could not frame TD output (JSON-LD)", e);
-				resp.sendError(500); // Internal Server Error
+				resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 			}
 		} else {
 			super.writeContent(m, req, resp);

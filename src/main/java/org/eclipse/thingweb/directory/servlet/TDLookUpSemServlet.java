@@ -103,7 +103,7 @@ public class TDLookUpSemServlet extends RESTServlet {
 			out.close(); // sends response
 		} catch (IOException e) {
 			ThingDirectory.LOG.error("Cannot write byte array", e);
-			resp.sendError(500, e.getMessage()); // Internal Server Error
+			resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
 		}
 		
 		// TODO basic SPARQL-based text search

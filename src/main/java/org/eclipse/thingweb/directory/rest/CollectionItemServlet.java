@@ -23,8 +23,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.eclipse.thingweb.directory.ThingDirectory;
-
 /**
  * 
  *  Assumes it maps to a path of the form {@code collection/*}.

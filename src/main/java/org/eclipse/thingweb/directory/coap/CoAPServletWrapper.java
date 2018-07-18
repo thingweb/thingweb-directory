@@ -16,15 +16,12 @@ package org.eclipse.thingweb.directory.coap;
 
 import java.io.IOException;
 
-import javax.servlet.Servlet;
 import javax.servlet.ServletException;
-import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletResponse;
 
 import org.eclipse.californium.core.CoapResource;
 import org.eclipse.californium.core.network.Exchange;
-import org.eclipse.thingweb.directory.rest.CollectionItemServlet;
 import org.eclipse.thingweb.directory.rest.CollectionServlet;
 
 public class CoAPServletWrapper extends CoapResource {

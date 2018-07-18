@@ -15,13 +15,10 @@
 package org.eclipse.thingweb.directory.servlet.utils;
 
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 import javax.servlet.ReadListener;
 import javax.servlet.ServletInputStream;
-import javax.servlet.ServletOutputStream;
-import javax.servlet.WriteListener;
 	
 public class ByteArrayServletInputStream extends ServletInputStream {
 

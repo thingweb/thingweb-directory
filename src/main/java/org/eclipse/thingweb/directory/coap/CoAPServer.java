@@ -17,8 +17,6 @@ package org.eclipse.thingweb.directory.coap;
 import org.eclipse.californium.core.CoapResource;
 import org.eclipse.californium.core.CoapServer;
 import org.eclipse.californium.core.server.resources.Resource;
-import org.eclipse.thingweb.directory.rest.CollectionItemServlet;
-import org.eclipse.thingweb.directory.rest.CollectionServlet;
 import org.eclipse.thingweb.directory.rest.RESTServlet;
 import org.eclipse.thingweb.directory.rest.RESTServletContainer;
 

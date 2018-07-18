@@ -20,6 +20,10 @@ import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 public class TD {
 
 	public static final Resource Thing = SimpleValueFactory.getInstance().createIRI(getURI() + "Thing");
+	
+	private TD() {
+		// never used
+	}
 
 	public static String getURI() {
 		return "http://www.w3.org/ns/td#";

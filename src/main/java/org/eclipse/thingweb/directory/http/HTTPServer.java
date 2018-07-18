@@ -14,6 +14,7 @@
  ********************************************************************************/
 package org.eclipse.thingweb.directory.http;
 
+import java.io.File;
 import java.net.URL;
 import java.util.EnumSet;
 
@@ -51,7 +52,7 @@ public class HTTPServer extends RESTServletContainer {
 		ctx.setWelcomeFiles(new String[] { "index.html" });
 		
 		ServletHolder h = new ServletHolder("default", DefaultServlet.class);
-		h.setInitParameter("resourceBase", Resource.newClassPathResource("public").toString());
+		h.setInitParameter("resourceBase", getPublicFolderBase());
 		h.setInitParameter("dirAllowed", "true");
 		ctx.addServlet(h, "/");
 
@@ -102,6 +103,15 @@ public class HTTPServer extends RESTServletContainer {
 			server.join();
 		} catch (InterruptedException e) {
 			e.printStackTrace();
+		}
+	}
+	
+	private String getPublicFolderBase() {
+		Resource folder = Resource.newClassPathResource("public");
+		try {
+			return folder.toString();
+		} finally {
+			folder.close();
 		}
 	}
 

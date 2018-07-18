@@ -54,7 +54,7 @@ import org.eclipse.thingweb.directory.sparql.client.Connector;
                              email = "victor.charpenay@siemens.com"),
           license = @License(name = "MIT",
                              url = "https://spdx.org/licenses/MIT.html")))
-public class ThingDirectory {
+public final class ThingDirectory {
 	
 	public static final Logger LOG = Logger.getRootLogger();
 	
@@ -62,7 +62,7 @@ public class ThingDirectory {
 	public static final int DEFAULT_HTTP_PORT = 8080;
     
 	// TODO fix addressing
-    private final static String baseURI = "http://localhost";
+    private static final String baseURI = "http://localhost";
 
     private final Set<RESTServletContainer> servers = new HashSet<>();
     
