@@ -15,7 +15,6 @@
 package org.eclipse.thingweb.directory.servlet;
 
 import java.io.IOException;
-import java.util.Map;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -35,6 +34,8 @@ import org.eclipse.thingweb.directory.rest.CollectionItemServlet;
  */
 public abstract class RegistrationResourceServlet extends CollectionItemServlet {
 
+	private static final long serialVersionUID = -1803741562937257698L;
+
 	/**
 	 * Default lifetime: 24h (86,400s)
 	 */
@@ -50,7 +51,7 @@ public abstract class RegistrationResourceServlet extends CollectionItemServlet 
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		String id = getItemID(req);
 		if (hasExpired(id)) {
-			resp.sendError(404); // Not Found
+			resp.sendError(HttpServletResponse.SC_NOT_FOUND);
 		}
 		
 		// TODO implement CoRE Link format representation

@@ -52,7 +52,7 @@ public class Connector {
 			init();
 		}
 		
-		// TODO close connection		
+		// TODO close connection
 	}
 	
 	public static void init(String queryEndpoint, String updateEndpoint) {
@@ -62,14 +62,18 @@ public class Connector {
 	public static void init() {
 		try {
 			connection = EmbeddedGraphDB.openConnectionToTemporaryRepository("owl2-rl-optimized");
-		} catch (RepositoryConfigException | RepositoryException
-				| RDFParseException | RDFHandlerException | IOException e) {
-			// TODO throw instead?
-			e.printStackTrace();
+		} catch (IOException e) {
+			ThingDirectory.LOG.error("Could not initialize embedded GraphDB", e);
 		}
 	}
 	
 	public static RepositoryConnection getRepositoryConnection() {
+		if (connection == null) {
+			// try again in case IO error was temporary
+			// TODO what about remote endpoint init?
+			init();
+		}
+		
 		return connection;
 	}
 

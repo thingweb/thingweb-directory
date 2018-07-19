@@ -24,6 +24,8 @@ import org.eclipse.thingweb.directory.rest.RESTServlet;
 
 public class TDLookUpEpServlet extends RESTServlet {
 
+	private static final long serialVersionUID = 6011896803323184949L;
+
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		super.doGet(req, resp);

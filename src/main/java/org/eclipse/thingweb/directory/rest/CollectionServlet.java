@@ -26,6 +26,8 @@ import org.eclipse.thingweb.directory.ThingDirectory;
 
 public class CollectionServlet extends RESTServlet {
 
+	private static final long serialVersionUID = -64141798667349727L;
+
 	public static final String LOCATION_HEADER = "Location";
 	
 	private static final String[] ACCEPTED = { "application/json" };

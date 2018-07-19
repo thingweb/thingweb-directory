@@ -15,28 +15,40 @@
 package org.eclipse.thingweb.directory.rest;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
 
 import java.io.IOException;
 
 import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
 
 import org.eclipse.thingweb.directory.BaseTest;
-import org.eclipse.thingweb.directory.rest.CollectionItemServlet;
 import org.eclipse.thingweb.directory.servlet.utils.MockHttpServletRequest;
 import org.eclipse.thingweb.directory.servlet.utils.MockHttpServletResponse;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class CollectionItemServletTest extends BaseTest {
 
-	private static class MockCollectionItemServlet extends CollectionItemServlet {
+	static class MockCollectionItemServlet extends CollectionItemServlet {
+		
+		private static int counter = 0;
 		
 		private final static String[] ct = { "text/plain" };
 		
 		@Override
 		protected String[] getAcceptedContentTypes() {
 			return ct;
+		}
+		
+		@Override
+		protected String generateItemID() {
+			return Integer.toString(counter++);
+		}
+		
+		@Override
+		protected String getItemID(HttpServletRequest req) {
+			String uri = req.getRequestURI();
+			String id = uri.substring(uri.lastIndexOf("/") + 1, uri.length());
+			return id;
 		}
 	}
 	
@@ -68,16 +80,6 @@ public class CollectionItemServletTest extends BaseTest {
 		
 		assertEquals("Collection did not add provided item", 1, servlet.getAllItems().size());
 		assertEquals("Returned item ID was not as expected", servlet.getAllItems().iterator().next(), id);
-	}
-
-	@Test
-	public void testGenerateItemID() {
-		CollectionItemServlet servlet = new MockCollectionItemServlet();
-		
-		String id = servlet.generateItemID();
-		String otherId = servlet.generateItemID();
-		
-		assertNotEquals("The collection items generated IDs collide", id, otherId);
 	}
 
 }

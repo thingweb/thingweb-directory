@@ -107,7 +107,7 @@ public class TDServletTest extends BaseTest {
 		
 		String id = servlet.generateItemID(m);
 		
-		assertEquals("Child resource name should be the TD @id", id, "urn%3AFan");
+		assertEquals("Child resource name should be the TD @id", id, "urn:Fan");
 	}
 	
 	@Test

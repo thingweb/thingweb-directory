@@ -54,6 +54,8 @@ import com.github.jsonldjava.utils.JsonUtils;
 
 public class TDServlet extends RDFDocumentServlet {
 	
+	private static final long serialVersionUID = -3886120697160324604L;
+	
 	protected static final String TD_CONTEXT_URI = "https://w3c.github.io/wot/w3c-wot-td-context.jsonld";
 	
 	@Override
@@ -67,9 +69,7 @@ public class TDServlet extends RDFDocumentServlet {
 			try (TupleQueryResult res = Queries.listResources(pattern)) {
 				while (res.hasNext()) {
 					String uri = res.next().getValue("res").stringValue();
-					String id = getItemId(uri);
-					
-					ids.add(id);
+					ids.add(uri);
 				}
 				
 				items = ids;
@@ -137,7 +137,7 @@ public class TDServlet extends RDFDocumentServlet {
 		}
 		
 		Resource res = iterator.next();
-		String id = res instanceof IRI ? URLEncoder.encode(res.toString()) : super.generateItemID();
+		String id = res instanceof IRI ? res.stringValue() : super.generateItemID();
 		
 		if (iterator.hasNext()) {
 			// TODO should split TD documents

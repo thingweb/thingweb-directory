@@ -19,6 +19,7 @@ import static org.junit.Assert.*;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -149,6 +150,8 @@ public class RDFDocumentServletTest extends BaseTest {
 		MockHttpServletResponse resp = new MockHttpServletResponse();
 		
 		String id = servlet.doAdd(req, resp);
+		
+		assertTrue("RDF document ID is not a URI (as per RFC 3986)", id.matches("^(([^:/?#]+):)?(//([^/?#]*))?([^?#]*)(\\?([^#]*))?(#(.*))?"));
 
 		req = new MockHttpServletRequest("/" + id);
 		resp = new MockHttpServletResponse();

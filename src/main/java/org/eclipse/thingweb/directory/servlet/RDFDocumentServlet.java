@@ -15,6 +15,9 @@
 package org.eclipse.thingweb.directory.servlet;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.util.UUID;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -32,7 +35,9 @@ import org.eclipse.thingweb.directory.servlet.exception.MalformedDocumentExcepti
 import org.eclipse.thingweb.directory.sparql.client.Queries;
 
 public class RDFDocumentServlet extends RegistrationResourceServlet {
-	
+
+	private static final long serialVersionUID = -5515251842793698062L;
+
 	public final static String DEFAULT_FORMAT = "JSON-LD";
 
 	public final static RDFFormat DEFAULT_RDF_FORMAT = RDFFormat.JSONLD;
@@ -50,15 +55,14 @@ public class RDFDocumentServlet extends RegistrationResourceServlet {
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		super.doGet(req, resp);
 
-		String id = getItemID(req);
-		String uri = getRDFDocumentURI(id);
+		String uri = getItemID(req);
 		Model m = Queries.getResource(uri);
 		
 		if (!m.isEmpty()) {
 			writeContent(m, req, resp);
 		} else {
-			items.remove(id);
-			resp.sendError(404); // Not Found
+			items.remove(uri);
+			resp.sendError(HttpServletResponse.SC_NOT_FOUND);
 		}
 	}
 	
@@ -69,7 +73,7 @@ public class RDFDocumentServlet extends RegistrationResourceServlet {
 		try {
 			Model m = Rio.parse(req.getInputStream(), getBaseURI(req), getContentFormat(req));
 
-			String uri = getRDFDocumentURI(getItemID(req));
+			String uri = getItemID(req);
 			Queries.replaceResource(uri, m);
 		} catch (RDFParseException | UnsupportedRDFormatException | IOException e) {
 			throw new ServletException(e);
@@ -80,7 +84,7 @@ public class RDFDocumentServlet extends RegistrationResourceServlet {
 	protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		super.doDelete(req, resp);
 
-		String uri = getRDFDocumentURI(getItemID(req));
+		String uri = getItemID(req);
 		Queries.deleteResource(uri);
 		
 		ThingDirectory.LOG.info("Deleted RDF document: " + uri);
@@ -91,19 +95,18 @@ public class RDFDocumentServlet extends RegistrationResourceServlet {
 		try {
 			Model m = readContent(req, resp);
 			
-			String id = generateItemID(m);
+			String uri = generateItemID(m);
 			
-			if (!items.contains(id)) {
-				String uri = getRDFDocumentURI(id);
+			if (!items.contains(uri)) {
 				Queries.loadResource(uri, m);
 				
 				// TODO normalize RDF graph (by giving URIs to blank nodes)
 
-				items.add(id);
+				items.add(uri);
 				ThingDirectory.LOG.info(String.format("Added RDF document: %s (%d triples)", uri, m.size()));
 			}
 			
-			return id;
+			return uri;
 		} catch (MalformedDocumentException e) {
 			ThingDirectory.LOG.error("Malformed RDF document", e);
 			resp.sendError(HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
@@ -116,6 +119,29 @@ public class RDFDocumentServlet extends RegistrationResourceServlet {
 	}
 	
 	/**
+	 * @return by default, random UUID URN (see https://tools.ietf.org/html/rfc4122)
+	 */
+	@Override
+	protected String generateItemID() {
+		return UUID_URN_PREFIX + UUID.randomUUID();
+	}
+
+	/**
+	 * Assumes resource name is a URL-encoded URI
+	 */
+	@Override
+	protected String getItemID(HttpServletRequest req) {
+		String uri = req.getRequestURI();
+		String id = uri.substring(uri.lastIndexOf("/") + 1, uri.length());
+		try {
+			return URLDecoder.decode(id, "UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			ThingDirectory.LOG.warn("Cannot URL-decode resource identifier: " + id, e);
+			return null;
+		}
+	}
+	
+	/**
 	 * Alternative to generateItemID()
 	 * 
 	 * @param m
@@ -123,26 +149,17 @@ public class RDFDocumentServlet extends RegistrationResourceServlet {
 	 * @throws MalformedDocumentException 
 	 */
 	protected String generateItemID(Model m) throws MalformedDocumentException {
-		return super.generateItemID();
+		return generateItemID();
 	}
 	
 	@Override
 	protected boolean hasExpired(String id) {
-		return Queries.hasExpired(getRDFDocumentURI(id));
+		return Queries.hasExpired(id);
 	}
 
 	@Override
 	protected void updateTimeout(String id, int lifetime) {
-		Queries.updateTimeout(getRDFDocumentURI(id), lifetime);
-	}
-	
-	protected String getRDFDocumentURI(String id) {
-		// TODO better scheme?
-		return "urn:" + id;
-	}
-	
-	protected String getItemId(String documentURI) {
-		return documentURI.substring(4); // remove 'urn:'
+		Queries.updateTimeout(id, lifetime);
 	}
 	
 	protected RDFFormat getContentFormat(HttpServletRequest req) {

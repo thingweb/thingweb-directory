@@ -15,6 +15,8 @@
 package org.eclipse.thingweb.directory.rest;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.UUID;
@@ -22,6 +24,8 @@ import java.util.UUID;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import org.eclipse.thingweb.directory.ThingDirectory;
 
 /**
  * 
@@ -33,6 +37,10 @@ import javax.servlet.http.HttpServletResponse;
  */
 public abstract class CollectionItemServlet extends RESTServlet {
 
+	private static final long serialVersionUID = 7928330177767194572L;
+	
+	protected static final String UUID_URN_PREFIX = "urn:uuid:";
+	
 	protected Collection<String> items = new HashSet<>();
 	
 	@Override
@@ -60,14 +68,8 @@ public abstract class CollectionItemServlet extends RESTServlet {
 		return items;
 	}
 	
-	protected String generateItemID() {
-		String id = UUID.randomUUID().toString();
-		return id.substring(0, id.indexOf('-'));
-	}
+	protected abstract String generateItemID();
 	
-	protected String getItemID(HttpServletRequest req) {
-		String uri = req.getRequestURI();
-		return uri.substring(uri.lastIndexOf("/") + 1, uri.length());
-	}
+	protected abstract String getItemID(HttpServletRequest req);
 	
 }

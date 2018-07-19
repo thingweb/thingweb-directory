@@ -15,19 +15,11 @@
 package org.eclipse.thingweb.directory.rest;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.StringWriter;
-import java.util.Collection;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import org.eclipse.rdf4j.rio.RDFFormat;
-import org.eclipse.rdf4j.rio.Rio;
-import org.eclipse.thingweb.directory.ThingDirectory;
 
 /**
  * 
@@ -40,13 +32,15 @@ import org.eclipse.thingweb.directory.ThingDirectory;
  */
 public abstract class RESTServlet extends HttpServlet {
 	
+	private static final long serialVersionUID = -4241859870694994605L;
+	
 	protected static final String ACCEPT_HEADER = "Accept";
 	
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		String ct = req.getHeader(ACCEPT_HEADER);
 		if (ct != null && !acceptsContentType(ct)) {
-			resp.sendError(406); // Not Acceptable
+			resp.sendError(HttpServletResponse.SC_NOT_ACCEPTABLE);
 		}
 	}
 

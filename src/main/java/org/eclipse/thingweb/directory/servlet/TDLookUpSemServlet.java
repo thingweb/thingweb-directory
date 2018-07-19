@@ -33,6 +33,8 @@ import org.eclipse.thingweb.directory.sparql.client.Queries;
 
 public class TDLookUpSemServlet extends RESTServlet {
 	
+	private static final long serialVersionUID = 5679530570591631536L;
+
 	private static final String QUERY_PARAMETER = "query";
 	
 	// TODO add CoRE Link format
@@ -61,9 +63,7 @@ public class TDLookUpSemServlet extends RESTServlet {
 		try (TupleQueryResult res = Queries.listResources(query)) {
 			while (res.hasNext()) {
 				String uri = res.next().getValue("res").stringValue();
-				String id = uri.substring(4); // TODO harmonize with RDFDocumentServlet
-
-				filtered.add(id);
+				filtered.add(uri);
 			}
 		}
 

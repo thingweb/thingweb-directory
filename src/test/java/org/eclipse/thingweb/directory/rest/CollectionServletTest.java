@@ -14,7 +14,8 @@
  ********************************************************************************/
 package org.eclipse.thingweb.directory.rest;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.util.List;
@@ -22,8 +23,7 @@ import java.util.List;
 import javax.servlet.ServletException;
 
 import org.eclipse.thingweb.directory.BaseTest;
-import org.eclipse.thingweb.directory.rest.CollectionItemServlet;
-import org.eclipse.thingweb.directory.rest.CollectionServlet;
+import org.eclipse.thingweb.directory.rest.CollectionItemServletTest.MockCollectionItemServlet;
 import org.eclipse.thingweb.directory.servlet.utils.MockHttpServletRequest;
 import org.eclipse.thingweb.directory.servlet.utils.MockHttpServletResponse;
 import org.junit.Test;
@@ -31,17 +31,6 @@ import org.junit.Test;
 import com.github.jsonldjava.utils.JsonUtils;
 
 public class CollectionServletTest extends BaseTest {
-	
-	private static class MockCollectionItemServlet extends CollectionItemServlet {
-		
-		private final String[] ct = { "text/plain" };
-		
-		@Override
-		protected String[] getAcceptedContentTypes() {
-			return ct;
-		}
-		
-	}
 
 	@Test
 	public void testDoPost() throws ServletException, IOException {
