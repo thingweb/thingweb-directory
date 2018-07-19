@@ -75,12 +75,16 @@ public class TDLookUpSemServlet extends RESTServlet {
 			while (it.hasNext()) {
 				String id = it.next();
 
-				// FIXME get actual servlet mapping if not 'td/{id}'?
-				RedirectedRequestWrapper reqWrapper = new RedirectedRequestWrapper(req, "td/" + id);
+				RedirectedRequestWrapper reqWrapper = new RedirectedRequestWrapper(req, "/" + id);
 				BufferedResponseWrapper respWrapper = new BufferedResponseWrapper(resp);
-				tdServlet.doGet(reqWrapper, respWrapper);
 				
-				if (respWrapper.getStatus() < HttpServletResponse.SC_BAD_REQUEST) {
+				try {
+					tdServlet.doGet(reqWrapper, respWrapper);
+					
+					if (respWrapper.getStatus() >= HttpServletResponse.SC_BAD_REQUEST) {
+						throw new IOException("Wrapped request returned error status code: " + respWrapper.getStatus());
+					}
+					
 					out.write('\"');
 					out.write(id.getBytes());
 					out.write('\"');
@@ -92,8 +96,8 @@ public class TDLookUpSemServlet extends RESTServlet {
 					if (it.hasNext()) {
 						out.write(',');
 					}
-				} else {
-					ThingDirectory.LOG.warn("Trying to access non-existing (or expired) TD: " + id);
+				} catch(IOException | ServletException e) {
+					ThingDirectory.LOG.warn("Cannot access TD: " + id, e);
 				}
 			}
 			
