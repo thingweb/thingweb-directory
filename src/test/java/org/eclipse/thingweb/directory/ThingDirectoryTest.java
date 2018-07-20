@@ -41,7 +41,7 @@ import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 
-public class ThingDirectoryTest extends BaseTest {
+public class ThingDirectoryTest {
 	
 	public static final int COAP_PORT = 5684;
 	public static final int HTTP_PORT = 8081;
@@ -83,6 +83,7 @@ public class ThingDirectoryTest extends BaseTest {
 	@Test
 	@Ignore
 	public void testServerSynchronicity() throws Exception {
+		ClassLoader cl = this.getClass().getClassLoader();
 		InputStream in = cl.getResourceAsStream("samples/fanTD.jsonld");
 		
 		StringBuilder builder = new StringBuilder();

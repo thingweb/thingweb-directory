@@ -19,22 +19,41 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import org.eclipse.rdf4j.repository.RepositoryConnection;
-import org.eclipse.thingweb.directory.ThingDirectory;
+import org.eclipse.thingweb.directory.rest.CollectionItemServletTest;
+import org.eclipse.thingweb.directory.rest.CollectionServletTest;
+import org.eclipse.thingweb.directory.servlet.RDFDocumentServletTest;
+import org.eclipse.thingweb.directory.servlet.TDLookUpSemServletTest;
+import org.eclipse.thingweb.directory.servlet.TDServletTest;
 import org.eclipse.thingweb.directory.sparql.client.Connector;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.runner.RunWith;
+import org.junit.runners.Suite;
+import org.junit.runners.Suite.SuiteClasses;
 
 /**
- * configuration common to all unit tests
+ * Test suite for all servlet tests
+ *
+ * @author Victor Charpenay
+ * @creation 19.07.2018
+ *
  */
-public class BaseTest {
+@RunWith(Suite.class)
+@SuiteClasses({
+	CollectionItemServletTest.class,
+	CollectionServletTest.class,
+	RDFDocumentServletTest.class,
+	TDLookUpSemServletTest.class,
+	TDServletTest.class
+})
+public class ServletTestSuite {
 	
-	protected static final String BASE_URI = "http://example.org";
+	public static final String BASE_URI = "http://example.org";
 	
-	protected static ThingDirectory directory;
+	private static ThingDirectory directory;
 	
-	protected final ClassLoader cl = ThingDirectory.get().getClass().getClassLoader();
+	private static final ClassLoader cl = ThingDirectory.get().getClass().getClassLoader();
 	
 	@BeforeClass
 	public static void setUpRDFStore() throws Exception {
@@ -46,16 +65,16 @@ public class BaseTest {
 
 	@AfterClass
 	public static void destroyRDFStore() throws Exception {
-		// nothing to do
+		RepositoryConnection conn = Connector.getRepositoryConnection();
+		conn.close();
 	}
 
-	@Before
-	public void cleanRDFStore() throws Exception {
+	public static void cleanRDFStore() throws Exception {
 		RepositoryConnection conn = Connector.getRepositoryConnection();
 		conn.clear(); // delete all content in repository
 	}
 
-	protected byte[] loadResource(String location) throws IOException {
+	public static byte[] loadResource(String location) throws IOException {
 		InputStream in = cl.getResourceAsStream(location);
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		
@@ -69,5 +88,5 @@ public class BaseTest {
 
 		return out.toByteArray();
 	}
-
+	
 }

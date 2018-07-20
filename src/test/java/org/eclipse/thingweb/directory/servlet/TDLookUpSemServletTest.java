@@ -26,18 +26,22 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.eclipse.thingweb.directory.BaseTest;
+import org.eclipse.thingweb.directory.ServletTestSuite;
 import org.eclipse.thingweb.directory.rest.CollectionItemServlet;
 import org.eclipse.thingweb.directory.rest.CollectionServlet;
 import org.eclipse.thingweb.directory.servlet.TDLookUpSemServlet;
 import org.eclipse.thingweb.directory.servlet.TDServlet;
 import org.eclipse.thingweb.directory.servlet.utils.MockHttpServletRequest;
 import org.eclipse.thingweb.directory.servlet.utils.MockHttpServletResponse;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 
 import com.github.jsonldjava.utils.JsonUtils;
 
-public class TDLookUpSemServletTest extends BaseTest {
+public class TDLookUpSemServletTest {
 	
 	private static class MockCollectionServlet extends CollectionServlet {
 		
@@ -52,6 +56,21 @@ public class TDLookUpSemServletTest extends BaseTest {
 		}
 		
 	}
+	
+	@BeforeClass
+	public static void setUpRDFStore() throws Exception {
+		ServletTestSuite.setUpRDFStore();
+	}
+
+	@AfterClass
+	public static void destroyRDFStore() throws Exception {
+		ServletTestSuite.destroyRDFStore();
+	}
+	
+	@Before
+	public void cleanRDFStore() throws Exception {
+		ServletTestSuite.cleanRDFStore();
+	}
 
 	@Test
 	public void testDoGetWithQuery() throws Exception {
@@ -59,13 +78,13 @@ public class TDLookUpSemServletTest extends BaseTest {
 		MockCollectionServlet collServlet = new MockCollectionServlet(servlet);
 		TDLookUpSemServlet lookUpServlet = new TDLookUpSemServlet(servlet);
 		
-		byte[] b = loadResource("samples/fanTD.jsonld");
+		byte[] b = ServletTestSuite.loadResource("samples/fanTD.jsonld");
 		MockHttpServletRequest req = new MockHttpServletRequest("/", b, "application/ld+json");
 		MockHttpServletResponse resp = new MockHttpServletResponse();
 
 		collServlet.doPost(req, resp);
 		
-		b = loadResource("samples/temperatureSensorTD.jsonld");
+		b = ServletTestSuite.loadResource("samples/temperatureSensorTD.jsonld");
 		req = new MockHttpServletRequest("/", b, "application/ld+json");
 		resp = new MockHttpServletResponse();
 

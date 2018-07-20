@@ -33,6 +33,7 @@ import org.eclipse.rdf4j.model.util.Models;
 import org.eclipse.rdf4j.rio.RDFFormat;
 import org.eclipse.rdf4j.rio.Rio;
 import org.eclipse.thingweb.directory.BaseTest;
+import org.eclipse.thingweb.directory.ServletTestSuite;
 import org.eclipse.thingweb.directory.ThingDirectory;
 import org.eclipse.thingweb.directory.rest.CollectionItemServlet;
 import org.eclipse.thingweb.directory.rest.CollectionServlet;
@@ -40,10 +41,23 @@ import org.eclipse.thingweb.directory.servlet.RDFDocumentServlet;
 import org.eclipse.thingweb.directory.servlet.RegistrationResourceServlet;
 import org.eclipse.thingweb.directory.servlet.utils.MockHttpServletRequest;
 import org.eclipse.thingweb.directory.servlet.utils.MockHttpServletResponse;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 
-public class RDFDocumentServletTest extends BaseTest {
+public class RDFDocumentServletTest {
+	
+	private static class MockRDFDocumentServlet extends RDFDocumentServlet {
+		
+		@Override
+		protected String generateItemID() {
+			// only used for proper testing of protected method
+			return super.generateItemID();
+		}
+		
+	}
 	
 	private static class MockCollectionServlet extends CollectionServlet {
 		
@@ -59,11 +73,26 @@ public class RDFDocumentServletTest extends BaseTest {
 		
 	}
 	
+	@BeforeClass
+	public static void setUpRDFStore() throws Exception {
+		ServletTestSuite.setUpRDFStore();
+	}
+
+	@AfterClass
+	public static void destroyRDFStore() throws Exception {
+		ServletTestSuite.destroyRDFStore();
+	}
+	
+	@Before
+	public void cleanRDFStore() throws Exception {
+		ServletTestSuite.cleanRDFStore();
+	}
+	
 	@Test
 	public void testDoGetWithContentNegotiation() throws Exception {
 		RDFDocumentServlet servlet = new RDFDocumentServlet();
 		
-		byte[] b = loadResource("samples/fanTD.jsonld");
+		byte[] b = ServletTestSuite.loadResource("samples/fanTD.jsonld");
 		MockHttpServletRequest req = new MockHttpServletRequest("/", b, "application/ld+json");
 		MockHttpServletResponse resp = new MockHttpServletResponse();
 		
@@ -77,7 +106,7 @@ public class RDFDocumentServletTest extends BaseTest {
 		servlet.doGet(req, resp);
 		
 		ByteArrayInputStream in = new ByteArrayInputStream(resp.getBytes());
-		Model m = Rio.parse(in, BaseTest.BASE_URI, RDFFormat.TURTLE);
+		Model m = Rio.parse(in, ServletTestSuite.BASE_URI, RDFFormat.TURTLE);
 		assertFalse("RDF document could not be serialized (Turtle)", m.isEmpty());
 	}
 	
@@ -85,16 +114,16 @@ public class RDFDocumentServletTest extends BaseTest {
 	public void testDoPut() throws Exception {
 		RDFDocumentServlet servlet = new RDFDocumentServlet();
 		
-		byte[] b = loadResource("samples/fanTD.jsonld");
+		byte[] b = ServletTestSuite.loadResource("samples/fanTD.jsonld");
 		MockHttpServletRequest req = new MockHttpServletRequest("/", b, "application/ld+json");
 		MockHttpServletResponse resp = new MockHttpServletResponse();
 		
 		String id = servlet.doAdd(req, resp);
 		
 		ByteArrayInputStream in = new ByteArrayInputStream(b);
-		Model original = Rio.parse(in, BaseTest.BASE_URI, RDFFormat.JSONLD);
+		Model original = Rio.parse(in, ServletTestSuite.BASE_URI, RDFFormat.JSONLD);
 		
-		b = loadResource("samples/fanTD_update.jsonld");
+		b = ServletTestSuite.loadResource("samples/fanTD_update.jsonld");
 		req = new MockHttpServletRequest("/" + id, b, "application/ld+json");
 		resp = new MockHttpServletResponse();
 		
@@ -106,7 +135,7 @@ public class RDFDocumentServletTest extends BaseTest {
 		servlet.doGet(req, resp);
 		
 		in = new ByteArrayInputStream(resp.getBytes());
-		Model updated = Rio.parse(in, BaseTest.BASE_URI, RDFFormat.JSONLD);
+		Model updated = Rio.parse(in, ServletTestSuite.BASE_URI, RDFFormat.JSONLD);
 		assertFalse("Update on RDF document was not performed", Models.isomorphic(original, updated));
 	}
 	
@@ -114,7 +143,7 @@ public class RDFDocumentServletTest extends BaseTest {
 	public void testDoDelete() throws Exception {
 		RDFDocumentServlet servlet = new RDFDocumentServlet();
 		
-		byte[] b = loadResource("samples/fanTD.jsonld");
+		byte[] b = ServletTestSuite.loadResource("samples/fanTD.jsonld");
 		MockHttpServletRequest req = new MockHttpServletRequest("/", b, "application/ld+json");
 		MockHttpServletResponse resp = new MockHttpServletResponse();
 		
@@ -139,9 +168,9 @@ public class RDFDocumentServletTest extends BaseTest {
 	public void testDoAdd() throws Exception {
 		RDFDocumentServlet servlet = new RDFDocumentServlet();
 		
-		byte[] b = loadResource("samples/fanTD.jsonld");
+		byte[] b = ServletTestSuite.loadResource("samples/fanTD.jsonld");
 		ByteArrayInputStream in = new ByteArrayInputStream(b);
-		Model m = Rio.parse(in, BaseTest.BASE_URI, RDFFormat.JSONLD);
+		Model m = Rio.parse(in, ServletTestSuite.BASE_URI, RDFFormat.JSONLD);
 
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		Rio.write(m, out, RDFFormat.TURTLE);
@@ -150,8 +179,6 @@ public class RDFDocumentServletTest extends BaseTest {
 		MockHttpServletResponse resp = new MockHttpServletResponse();
 		
 		String id = servlet.doAdd(req, resp);
-		
-		assertTrue("RDF document ID is not a URI (as per RFC 3986)", id.matches("^(([^:/?#]+):)?(//([^/?#]*))?([^?#]*)(\\?([^#]*))?(#(.*))?"));
 
 		req = new MockHttpServletRequest("/" + id);
 		resp = new MockHttpServletResponse();
@@ -159,6 +186,14 @@ public class RDFDocumentServletTest extends BaseTest {
 		servlet.doGet(req, resp);
 		
 		assertEquals("RDF document could not be parsed (Turtle)", 200, resp.getStatus());
+	}
+	
+	@Test
+	public void testGenerateItemID() throws Exception {
+		MockRDFDocumentServlet servlet = new MockRDFDocumentServlet();
+		
+		String id = servlet.generateItemID();
+		assertTrue("RDF document ID is not a URI (as per RFC 3986)", id.matches("^(([^:/?#]+):)?(//([^/?#]*))?([^?#]*)(\\?([^#]*))?(#(.*))?"));
 	}
 
 	@Test

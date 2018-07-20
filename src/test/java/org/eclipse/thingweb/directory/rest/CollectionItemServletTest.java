@@ -22,11 +22,15 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 
 import org.eclipse.thingweb.directory.BaseTest;
+import org.eclipse.thingweb.directory.ServletTestSuite;
 import org.eclipse.thingweb.directory.servlet.utils.MockHttpServletRequest;
 import org.eclipse.thingweb.directory.servlet.utils.MockHttpServletResponse;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
-public class CollectionItemServletTest extends BaseTest {
+public class CollectionItemServletTest {
 
 	static class MockCollectionItemServlet extends CollectionItemServlet {
 		
@@ -50,6 +54,21 @@ public class CollectionItemServletTest extends BaseTest {
 			String id = uri.substring(uri.lastIndexOf("/") + 1, uri.length());
 			return id;
 		}
+	}
+	
+	@BeforeClass
+	public static void setUpRDFStore() throws Exception {
+		ServletTestSuite.setUpRDFStore();
+	}
+
+	@AfterClass
+	public static void destroyRDFStore() throws Exception {
+		ServletTestSuite.destroyRDFStore();
+	}
+	
+	@Before
+	public void cleanRDFStore() throws Exception {
+		ServletTestSuite.cleanRDFStore();
 	}
 	
 	@Test

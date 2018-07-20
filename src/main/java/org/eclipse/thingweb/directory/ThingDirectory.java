@@ -74,6 +74,7 @@ public final class ThingDirectory {
     
     public static ThingDirectory get() {
     	if (singleton == null) {
+    		// TODO ensure Connector is initialized (IllegalStateException)
     		singleton = new ThingDirectory();
     	}
         return singleton;

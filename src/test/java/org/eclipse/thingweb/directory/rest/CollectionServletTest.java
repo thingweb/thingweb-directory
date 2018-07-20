@@ -23,14 +23,33 @@ import java.util.List;
 import javax.servlet.ServletException;
 
 import org.eclipse.thingweb.directory.BaseTest;
+import org.eclipse.thingweb.directory.ServletTestSuite;
 import org.eclipse.thingweb.directory.rest.CollectionItemServletTest.MockCollectionItemServlet;
 import org.eclipse.thingweb.directory.servlet.utils.MockHttpServletRequest;
 import org.eclipse.thingweb.directory.servlet.utils.MockHttpServletResponse;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.github.jsonldjava.utils.JsonUtils;
 
-public class CollectionServletTest extends BaseTest {
+public class CollectionServletTest {
+	
+	@BeforeClass
+	public static void setUpRDFStore() throws Exception {
+		ServletTestSuite.setUpRDFStore();
+	}
+
+	@AfterClass
+	public static void destroyRDFStore() throws Exception {
+		ServletTestSuite.destroyRDFStore();
+	}
+	
+	@Before
+	public void cleanRDFStore() throws Exception {
+		ServletTestSuite.cleanRDFStore();
+	}
 
 	@Test
 	public void testDoPost() throws ServletException, IOException {
