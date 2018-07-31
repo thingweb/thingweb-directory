@@ -14,29 +14,25 @@
  ********************************************************************************/
 package org.eclipse.thingweb.directory.servlet;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.eclipse.thingweb.directory.BaseTest;
 import org.eclipse.thingweb.directory.ServletTestSuite;
 import org.eclipse.thingweb.directory.rest.CollectionItemServlet;
 import org.eclipse.thingweb.directory.rest.CollectionServlet;
-import org.eclipse.thingweb.directory.servlet.TDLookUpSemServlet;
-import org.eclipse.thingweb.directory.servlet.TDServlet;
 import org.eclipse.thingweb.directory.servlet.utils.MockHttpServletRequest;
 import org.eclipse.thingweb.directory.servlet.utils.MockHttpServletResponse;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import com.github.jsonldjava.utils.JsonUtils;

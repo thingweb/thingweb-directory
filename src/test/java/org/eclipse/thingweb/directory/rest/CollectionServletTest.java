@@ -22,7 +22,6 @@ import java.util.List;
 
 import javax.servlet.ServletException;
 
-import org.eclipse.thingweb.directory.BaseTest;
 import org.eclipse.thingweb.directory.ServletTestSuite;
 import org.eclipse.thingweb.directory.rest.CollectionItemServletTest.MockCollectionItemServlet;
 import org.eclipse.thingweb.directory.servlet.utils.MockHttpServletRequest;
