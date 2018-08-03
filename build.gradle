@@ -44,6 +44,7 @@ repositories {
 
 dependencies {
 	compile 'org.eclipse.californium:californium-core:1.0.0-M3'
+	// TODO change dep to RDF4J
 	compile 'com.ontotext.graphdb:graphdb-free-runtime:8.5.0'
 	compile 'com.github.jsonld-java:jsonld-java:0.12.0'
 	compile 'log4j:log4j:1.2.17'

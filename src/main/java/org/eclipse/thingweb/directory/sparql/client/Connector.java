@@ -14,19 +14,13 @@
  ********************************************************************************/
 package org.eclipse.thingweb.directory.sparql.client;
 
-import java.io.IOException;
-
-import org.apache.commons.httpclient.UsernamePasswordCredentials;
-import org.eclipse.rdf4j.query.BooleanQuery;
 import org.eclipse.rdf4j.repository.Repository;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.eclipse.rdf4j.repository.RepositoryException;
-import org.eclipse.rdf4j.repository.config.RepositoryConfigException;
+import org.eclipse.rdf4j.repository.sail.SailRepository;
 import org.eclipse.rdf4j.repository.sparql.SPARQLRepository;
-import org.eclipse.rdf4j.rio.RDFHandlerException;
-import org.eclipse.rdf4j.rio.RDFParseException;
+import org.eclipse.rdf4j.sail.memory.MemoryStore;
 import org.eclipse.thingweb.directory.ThingDirectory;
-import org.eclipse.thingweb.directory.graphdb.EmbeddedGraphDB;
 
 public class Connector {
 	
@@ -60,11 +54,9 @@ public class Connector {
 	}
 	
 	public static void init() {
-		try {
-			connection = EmbeddedGraphDB.openConnectionToTemporaryRepository("owl2-rl-optimized");
-		} catch (IOException e) {
-			ThingDirectory.LOG.error("Could not initialize embedded GraphDB", e);
-		}
+		Repository repo = new SailRepository(new MemoryStore());
+		repo.initialize();
+		connection = repo.getConnection();
 	}
 	
 	public static RepositoryConnection getRepositoryConnection() {
