@@ -30,6 +30,7 @@ import org.eclipse.rdf4j.rio.RDFParseException;
 import org.eclipse.rdf4j.rio.Rio;
 import org.eclipse.rdf4j.rio.UnsupportedRDFormatException;
 import org.eclipse.thingweb.directory.ThingDirectory;
+import org.eclipse.thingweb.directory.rest.ContentNegotiationFilter;
 import org.eclipse.thingweb.directory.rest.RESTServlet;
 import org.eclipse.thingweb.directory.servlet.exception.MalformedDocumentException;
 import org.eclipse.thingweb.directory.sparql.client.Queries;
@@ -43,13 +44,6 @@ public class RDFDocumentServlet extends RegistrationResourceServlet {
 	public final static RDFFormat DEFAULT_RDF_FORMAT = RDFFormat.JSONLD;
 	
 	public final static String DEFAULT_MEDIA_TYPE = "application/ld+json";
-	
-	private final static String[] ACCEPTED = {
-		"application/n-triples",
-		"text/turtle",
-		"application/rdf+xml",
-		"application/ld+json"
-	};
 
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -177,8 +171,8 @@ public class RDFDocumentServlet extends RegistrationResourceServlet {
 	protected RDFFormat getAcceptedFormat(HttpServletRequest req) {
 		RDFFormat format = DEFAULT_RDF_FORMAT;
 		
-		if (req.getHeader(RESTServlet.ACCEPT_HEADER) != null) {
-			String mediaType = req.getHeader(RESTServlet.ACCEPT_HEADER);
+		if (req.getHeader(ContentNegotiationFilter.ACCEPT_HEADER) != null) {
+			String mediaType = req.getHeader(ContentNegotiationFilter.ACCEPT_HEADER);
 			format = Rio.getParserFormatForMIMEType(mediaType).orElse(format);
 		}
 		
@@ -212,12 +206,6 @@ public class RDFDocumentServlet extends RegistrationResourceServlet {
 		RDFFormat format = getAcceptedFormat(req);
 		resp.setContentType(format.getDefaultMIMEType());
 		Rio.write(m, resp.getOutputStream(), format);
-	}
-	
-	@Override
-	protected String[] getAcceptedContentTypes() {
-		// TODO get all media types from Rio?
-		return ACCEPTED;
 	}
 
 }

@@ -30,8 +30,6 @@ public class CollectionServlet extends RESTServlet {
 
 	public static final String LOCATION_HEADER = "Location";
 	
-	private static final String[] ACCEPTED = { "application/json" };
-	
 	protected final CollectionItemServlet itemServlet;
 	
 	public CollectionServlet(CollectionItemServlet child) {
@@ -81,11 +79,6 @@ public class CollectionServlet extends RESTServlet {
 		}
 		
 		resp.setHeader(LOCATION_HEADER, id);
-	}
-	
-	@Override
-	protected String[] getAcceptedContentTypes() {
-		return ACCEPTED;
 	}
 
 }

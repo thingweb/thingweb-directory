@@ -14,12 +14,7 @@
  ********************************************************************************/
 package org.eclipse.thingweb.directory.rest;
 
-import java.io.IOException;
-
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 /**
  * 
@@ -34,27 +29,6 @@ public abstract class RESTServlet extends HttpServlet {
 	
 	private static final long serialVersionUID = -4241859870694994605L;
 	
-	protected static final String ACCEPT_HEADER = "Accept";
-	
-	@Override
-	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-		String ct = req.getHeader(ACCEPT_HEADER);
-		if (ct != null && !acceptsContentType(ct)) {
-			resp.sendError(HttpServletResponse.SC_NOT_ACCEPTABLE);
-		}
-	}
-
-	// TODO use Servlet Filters instead?
-	protected abstract String[] getAcceptedContentTypes();
-	
-	private boolean acceptsContentType(String ct) {
-		String regex = ct.replaceAll("[*]", ".*");
-		for (String accepted : getAcceptedContentTypes()) {
-			if (accepted.matches(regex)) {
-				return true;
-			}
-		}
-		return false;
-	}
+	// TODO remove after code restructuring
 	
 }

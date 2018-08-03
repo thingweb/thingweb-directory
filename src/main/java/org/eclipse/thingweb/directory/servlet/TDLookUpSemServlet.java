@@ -21,6 +21,7 @@ import java.util.Iterator;
 import java.util.Set;
 
 import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -36,9 +37,6 @@ public class TDLookUpSemServlet extends RESTServlet {
 	private static final long serialVersionUID = 5679530570591631536L;
 
 	private static final String QUERY_PARAMETER = "query";
-	
-	// TODO add CoRE Link format
-	private static final String[] ACCEPTED = { "application/json" };
 	
 	protected final TDServlet tdServlet;
 	
@@ -112,11 +110,6 @@ public class TDLookUpSemServlet extends RESTServlet {
 		
 		// TODO basic SPARQL-based text search
 		// TODO add filter pattern
-	}
-
-	@Override
-	protected String[] getAcceptedContentTypes() {
-		return ACCEPTED;
 	}
 
 }

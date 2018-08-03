@@ -45,8 +45,6 @@ public abstract class RegistrationResourceServlet extends CollectionItemServlet 
 	
 	public static final String PARAMETER_ENDPOINT = "ep";
 	
-	private static final String[] ACCEPTED = { "application/json" };
-	
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		String id = getItemID(req);
@@ -69,11 +67,6 @@ public abstract class RegistrationResourceServlet extends CollectionItemServlet 
 	protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		// TODO ?
 		super.doDelete(req, resp);
-	}
-	
-	@Override
-	protected String[] getAcceptedContentTypes() {
-		return ACCEPTED;
 	}
 	
 	protected String getBaseURI(HttpServletRequest req) {
