@@ -45,13 +45,7 @@ public class TDLookUpSemServlet extends RESTServlet {
 	}
 	
 	@Override
-	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-		super.doGet(req, resp);
-		
-		if (resp.isCommitted()) {
-			return; // parent class returned an error status
-		}
-		
+	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {		
 		String query = req.getParameter(QUERY_PARAMETER);
 		if (query == null) {
 			query = "?s ?p ?o";
