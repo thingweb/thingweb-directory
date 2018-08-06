@@ -14,6 +14,8 @@
  ********************************************************************************/
 package org.eclipse.thingweb.directory.rest;
 
+import javax.servlet.Filter;
+
 /**
  * 
  * A Servlet container can add REST resources and collections.
@@ -29,6 +31,8 @@ public abstract class RESTServletContainer {
 			addServletWithMapping(path + "/*", ((CollectionServlet) servlet).getItemServlet());
 		}
 	}
+	
+	public abstract void addFilterWithMapping(String path, Filter filter);
 	
 	public abstract void start();
 	

@@ -14,28 +14,22 @@
  ********************************************************************************/
 package org.eclipse.thingweb.directory.http;
 
-import java.io.File;
-import java.net.URL;
 import java.util.EnumSet;
 
 import javax.servlet.DispatcherType;
+import javax.servlet.Filter;
 
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.DefaultHandler;
 import org.eclipse.jetty.server.handler.HandlerList;
-import org.eclipse.jetty.server.handler.ResourceHandler;
 import org.eclipse.jetty.servlet.DefaultServlet;
 import org.eclipse.jetty.servlet.FilterHolder;
-import org.eclipse.jetty.servlet.FilterMapping;
 import org.eclipse.jetty.servlet.ServletContextHandler;
-import org.eclipse.jetty.servlet.ServletHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.servlets.CrossOriginFilter;
-import org.eclipse.jetty.util.resource.PathResource;
 import org.eclipse.jetty.util.resource.Resource;
-import org.eclipse.thingweb.directory.rest.CollectionItemServlet;
-import org.eclipse.thingweb.directory.rest.CollectionServlet;
+import org.eclipse.jetty.webapp.WebAppContext;
 import org.eclipse.thingweb.directory.rest.RESTServlet;
 import org.eclipse.thingweb.directory.rest.RESTServletContainer;
 
@@ -77,6 +71,12 @@ public class HTTPServer extends RESTServletContainer {
 		ctx.addServlet(holder, path);
 		
 		super.addServletWithMapping(path, servlet);
+	}
+	
+	@Override
+	public void addFilterWithMapping(String path, Filter filter) {
+		FilterHolder holder = new FilterHolder(filter);
+		ctx.addFilter(holder, path, EnumSet.of(DispatcherType.REQUEST));
 	}
 
 	@Override

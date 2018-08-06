@@ -35,13 +35,6 @@ public class CollectionItemServletTest {
 		
 		private static int counter = 0;
 		
-		private final static String[] ct = { "text/plain" };
-		
-		@Override
-		protected String[] getAcceptedContentTypes() {
-			return ct;
-		}
-		
 		@Override
 		protected String generateItemID() {
 			return Integer.toString(counter++);

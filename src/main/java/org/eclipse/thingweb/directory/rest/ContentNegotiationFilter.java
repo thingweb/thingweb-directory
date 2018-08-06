@@ -64,8 +64,11 @@ public class ContentNegotiationFilter implements Filter {
 	@Override
 	public void init(FilterConfig config) throws ServletException {
 		String csv = config.getInitParameter(FILTER_PARAMETER);
-		for (String ct : csv.split(",")) {
-			acceptedContentTypes.add(ct);
+		
+		if (csv != null) {
+			for (String ct : csv.split(",")) {
+				acceptedContentTypes.add(ct);
+			}
 		}
 	}
 

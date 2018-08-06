@@ -14,6 +14,8 @@
  ********************************************************************************/
 package org.eclipse.thingweb.directory.coap;
 
+import javax.servlet.Filter;
+
 import org.eclipse.californium.core.CoapResource;
 import org.eclipse.californium.core.CoapServer;
 import org.eclipse.californium.core.server.resources.Resource;
@@ -46,6 +48,11 @@ public class CoAPServer extends RESTServletContainer {
 		}
 		
 		super.addServletWithMapping(path, servlet);
+	}
+	
+	@Override
+	public void addFilterWithMapping(String path, Filter filter) {
+		// TODO implement filters
 	}
 
 	@Override

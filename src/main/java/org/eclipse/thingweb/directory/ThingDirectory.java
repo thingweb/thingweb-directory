@@ -21,8 +21,13 @@ import io.swagger.annotations.SwaggerDefinition;
 import io.swagger.annotations.Tag;
 
 import java.util.Collection;
+import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Set;
+
+import javax.servlet.FilterConfig;
+import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -33,6 +38,7 @@ import org.apache.log4j.Logger;
 import org.eclipse.thingweb.directory.coap.CoAPServer;
 import org.eclipse.thingweb.directory.http.HTTPServer;
 import org.eclipse.thingweb.directory.rest.CollectionServlet;
+import org.eclipse.thingweb.directory.rest.ContentNegotiationFilter;
 import org.eclipse.thingweb.directory.rest.RESTServletContainer;
 import org.eclipse.thingweb.directory.servlet.RDFDocumentServlet;
 import org.eclipse.thingweb.directory.servlet.TDLookUpEpServlet;
@@ -101,12 +107,22 @@ public final class ThingDirectory {
     	TDLookUpResServlet tdLookUpRes = new TDLookUpResServlet();
     	TDLookUpSemServlet tdLookUpSem = new TDLookUpSemServlet(td);
     	
+//    	ContentNegotiationFilter filter = new ContentNegotiationFilter();
+//    	FilterConfig config = null;
+//    	try {
+//			filter.init(config);
+//		} catch (ServletException e) {
+//			LOG.warn("Could not set proper content negotation", e);
+//		}
+    	
     	for (RESTServletContainer s : containers) {
     		s.addServletWithMapping("/td", tdCollection);
     		s.addServletWithMapping("/vocab", vocabCollection);
     		s.addServletWithMapping("/td-lookup/ep", tdLookUpEp);
     		s.addServletWithMapping("/td-lookup/res", tdLookUpRes);
     		s.addServletWithMapping("/td-lookup/sem", tdLookUpSem);
+    		    		
+//    		s.addFilterWithMapping("/td/*", filter);
     		
     		s.start();
     	}
