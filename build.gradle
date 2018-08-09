@@ -22,10 +22,13 @@
  * THE SOFTWARE.
  */
 
-apply plugin: 'java'
-apply plugin: 'groovy'
-apply plugin: 'application'
-apply plugin: 'eclipse'
+plugins {
+	id 'java'
+	id 'groovy'
+	id 'war'
+	id 'org.akhikhl.gretty' version '2.0.0'
+	id 'eclipse'
+}
 
 /* Groovy should be compiled first */
 sourceSets {
@@ -43,7 +46,6 @@ repositories {
 }
 
 dependencies {
-	compile 'org.eclipse.californium:californium-core:1.0.0-M3'
 	// TODO change dep to RDF4J
 	compile 'com.ontotext.graphdb:graphdb-free-runtime:8.5.0'
 	compile 'com.github.jsonld-java:jsonld-java:0.12.0'
@@ -52,14 +54,13 @@ dependencies {
 	compile 'io.swagger:swagger-core:1.5.16'
 	compile 'org.eclipse.jetty:jetty-maven-plugin:9.3.6.v20151106'
 	compile 'org.eclipse.jetty:jetty-servlets:9.3.6.v20151106'
-	compile 'commons-cli:commons-cli:1.4'
 	compile 'org.codehaus.groovy:groovy:3.0.0-alpha-2'
 	compile 'org.codehaus.groovy:groovy-json:3.0.0-alpha-2'
 	
 	testCompile 'junit:junit:4.8'
 	testCompile 'com.github.everit-org.json-schema:org.everit.json.schema:1.8.0'
+	testCompile 'org.codehaus.groovy:groovy-test:3.0.0-alpha-2'
 }
 
 version = '0.9.0'
 group = 'org.eclipse.thingweb'
-mainClassName = 'org.eclipse.thingweb.directory.ThingDirectory'

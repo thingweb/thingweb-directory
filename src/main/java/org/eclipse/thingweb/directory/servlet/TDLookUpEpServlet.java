@@ -17,12 +17,18 @@ package org.eclipse.thingweb.directory.servlet;
 import java.io.IOException;
 
 import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.eclipse.thingweb.directory.rest.RESTServlet;
-
-public class TDLookUpEpServlet extends RESTServlet {
+@WebServlet(
+	name="TDLookUpEp",
+	urlPatterns={"/td-lookup/ep"},
+	description=".",
+	loadOnStartup=1
+)
+public class TDLookUpEpServlet extends HttpServlet {
 
 	private static final long serialVersionUID = 6011896803323184949L;
 

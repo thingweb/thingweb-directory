@@ -15,95 +15,50 @@
 package org.eclipse.thingweb.directory.servlet;
 
 import java.io.IOException;
-import java.io.OutputStream;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.eclipse.rdf4j.query.TupleQueryResult;
-import org.eclipse.thingweb.directory.ThingDirectory;
-import org.eclipse.thingweb.directory.rest.RESTServlet;
-import org.eclipse.thingweb.directory.servlet.utils.BufferedResponseWrapper;
-import org.eclipse.thingweb.directory.servlet.utils.RedirectedRequestWrapper;
-import org.eclipse.thingweb.directory.sparql.client.Queries;
+import org.eclipse.thingweb.directory.ResourceManager;
+import org.eclipse.thingweb.directory.ResourceManagerFactory;
 
-public class TDLookUpSemServlet extends RESTServlet {
+@WebServlet(
+	name="TDLookUpSem",
+	urlPatterns={"/td-lookup/sem"},
+	description=".",
+	loadOnStartup=1
+)
+public class TDLookUpSemServlet extends HttpServlet {
 	
 	private static final long serialVersionUID = 5679530570591631536L;
+	
+	public final static String DEFAULT_MEDIA_TYPE = "application/json";
+	
+	public static final String DEFAULT_QUERY = "?s ?p ?o";
 
+	private static final String LOOKUP_SEM_TYPE = "sem";
+	
 	private static final String QUERY_PARAMETER = "query";
 	
-	protected final TDServlet tdServlet;
-	
-	public TDLookUpSemServlet(TDServlet servlet) {
-		tdServlet = servlet;
-	}
+	private final ResourceManager manager = ResourceManagerFactory.get("td");
 	
 	@Override
-	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {		
+	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+		String contentType = req.getHeader("Accept");
+		if (contentType == null) contentType = DEFAULT_MEDIA_TYPE;
+		
+		Map<String, String> parameters = new HashMap<>();
+		// TODO
+		
 		String query = req.getParameter(QUERY_PARAMETER);
-		if (query == null) {
-			query = "?s ?p ?o";
-		}
+		if (query == null) query = DEFAULT_QUERY;
 		
-		Set<String> filtered = new HashSet<>();
-		try (TupleQueryResult res = Queries.listResources(query)) {
-			while (res.hasNext()) {
-				String uri = res.next().getValue("res").stringValue();
-				filtered.add(uri);
-			}
-		}
-
-		OutputStream out = resp.getOutputStream();
-		try {
-			out.write('{');
-			
-			Iterator<String> it = filtered.iterator();
-			while (it.hasNext()) {
-				String id = it.next();
-
-				RedirectedRequestWrapper reqWrapper = new RedirectedRequestWrapper(req, "/" + id);
-				BufferedResponseWrapper respWrapper = new BufferedResponseWrapper(resp);
-				
-				try {
-					tdServlet.doGet(reqWrapper, respWrapper);
-					
-					if (respWrapper.getStatus() >= HttpServletResponse.SC_BAD_REQUEST) {
-						throw new IOException("Wrapped request returned error status code: " + respWrapper.getStatus());
-					}
-					
-					out.write('\"');
-					out.write(id.getBytes());
-					out.write('\"');
-					
-					out.write(':');
-					
-					out.write(respWrapper.getOutputBytes());
-					
-					if (it.hasNext()) {
-						out.write(',');
-					}
-				} catch(IOException | ServletException e) {
-					ThingDirectory.LOG.warn("Cannot access TD: " + id, e);
-				}
-			}
-			
-			out.write('}');
-			
-			resp.setContentType("application/json");
-			out.close(); // sends response
-		} catch (IOException e) {
-			ThingDirectory.LOG.error("Cannot write byte array", e);
-			resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
-		}
-		
-		// TODO basic SPARQL-based text search
-		// TODO add filter pattern
+		manager.lookUp(LOOKUP_SEM_TYPE, resp.getOutputStream(), contentType, parameters, query);
 	}
 
 }
