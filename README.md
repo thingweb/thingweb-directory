@@ -1,6 +1,6 @@
 # thingweb-directory
 
-The Thingweb Directory is an open source directory for Thing Descriptions. The [Thing Description (TD) model](https://www.w3.org/TR/wot-thing-description/) is a proposal of W3C Web of Things working group to describe Things.
+The Thingweb Directory is an open source directory for Thing Descriptions. The [Thing Description (TD) model](https://www.w3.org/TR/wot-thing-description/) is a recommendation of the W3C Web of Things working group to describe Things.
 The directory features an API to create, read, update and delete (CRUD) a TD. The directory can be used to *browse* and *discover* Things based on their TDs. This functionality includes but is not limited to following cases:
 
   - Searching for a Thing based on its metadata, properties, actions or events;
