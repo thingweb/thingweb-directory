@@ -15,7 +15,9 @@
 package org.eclipse.thingweb.directory.rdf
 
 import groovy.util.logging.Log
+
 import java.util.UUID
+
 import org.eclipse.rdf4j.model.IRI
 import org.eclipse.rdf4j.model.Model
 import org.eclipse.rdf4j.model.ModelFactory
@@ -31,7 +33,16 @@ import org.eclipse.rdf4j.query.QueryResults
 import org.eclipse.thingweb.directory.Resource as DirectoryResource
 
 /**
- * .
+ * Implementation of the {@link org.eclipse.thingweb.directory.Resource Resource}
+ * interface as an RDF dataset, where the actual content of a resource is stored
+ * in an RDF graph.
+ * <p>
+ * In this implementation, directory resources are interpreted as DCAT datasets.
+ * 
+ * @see
+ *   <a href="https://www.w3.org/TR/vocab-dcat/">
+ *     DCAT RDF vocabulary
+ *   </a>
  *
  * @author Victor Charpenay
  * @creation 07.08.2018
@@ -40,8 +51,14 @@ import org.eclipse.thingweb.directory.Resource as DirectoryResource
 @Log
 class RDFResource implements DirectoryResource {
 	
+	/**
+	 * Resource identifier (randomly generated UUID URN)
+	 */
 	final Resource iri
 	
+	/**
+	 * Underlying RDF dataset, including content (as an RDF graph) and DCAT meta-data
+	 */
 	final Model graph
 	
 	RDFResource(Model g) {

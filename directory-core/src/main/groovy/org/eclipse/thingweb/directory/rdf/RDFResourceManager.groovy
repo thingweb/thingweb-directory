@@ -36,7 +36,16 @@ import org.eclipse.thingweb.directory.Resource
 import org.eclipse.thingweb.directory.ResourceManager
 
 /**
- * .
+ * Implementation of the {@link org.eclipse.thingweb.directory.ResourceManager ResourceManager}
+ * class, backed by an RDF store. If no SPARQL endpoint is provided, a transient in-memory
+ * store is created. Connection to a remote SPARQL endpoint can be configured with the following
+ * parameters:
+ * <ul>
+ *   <li>{@link org.eclipse.rdf4j.repository.rdf.sparqlQueryEndpoint}</li>
+ *   <li>{@link org.eclipse.rdf4j.repository.rdf.sparqlUpdateEndpoint} (optional, defaults to query endpoint)</li>
+ *   <li>{@link org.eclipse.rdf4j.repository.rdf.sparqlUsername} (optional)</li>
+ *   <li>{@link org.eclipse.rdf4j.repository.rdf.sparqlPassword} (optional)</li>
+ * </ul>
  *
  * @author Victor Charpenay
  * @creation 06.08.2018
@@ -46,15 +55,25 @@ import org.eclipse.thingweb.directory.ResourceManager
 @Singleton
 class RDFResourceManager extends ResourceManager {
 
+	/**
+	 * URL of a remote SPARQL endpoint to use for persistence. SPARQL Update must be allowed.
+	 */
 	static final SPARQL_QUERY_ENDPOINT_PROPERTY = 'org.eclipse.rdf4j.repository.rdf.sparqlQueryEndpoint'
 
 	/**
-	 * defaults to query endpoint if not provided
+	 * URL of the update endpoint, if different from the SPARQL query endpoint.
+	 * Defaults to query endpoint, otherwise.
 	 */
 	static final SPARQL_UPDATE_ENDPOINT_PROPERTY = 'org.eclipse.rdf4j.repository.rdf.sparqlUpdateEndpoint'
 
+	/**
+	 * Username to use to connect to the provided SPARQL endpoint (HTTP basic authentication).
+	 */
 	static final SPARQL_USERNAME_PROPERTY = 'org.eclipse.rdf4j.repository.rdf.sparqlUsername'
 
+	/**
+	 * Password to use to connect to the provided SPARQL endpoint (HTTP basic authentication).
+	 */
 	static final SPARQL_PASSWORD_PROPERTY = 'org.eclipse.rdf4j.repository.rdf.sparqlPassword'
 	
 	Repository repo
@@ -62,8 +81,8 @@ class RDFResourceManager extends ResourceManager {
 	private final ValueFactory vf = SimpleValueFactory.instance
 	
 	/**
-	 * Every time the 'repo' attribute is accessed, an attempt is made to establish a connection
-	 * to a SPARQL endpoint or an in-memory store, if no connection is available.
+	 * Every time the {@code repo} attribute is accessed, an attempt is made to establish a
+	 * connection to a remote SPARQL endpoint or an in-memory store, if no connection is available.
 	 *
 	 * @return the repository object
 	 */

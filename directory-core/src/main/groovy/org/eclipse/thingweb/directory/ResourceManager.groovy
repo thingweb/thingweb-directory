@@ -23,7 +23,18 @@ import java.util.Map
 import static Attribute.*
 
 /**
- * .
+ * Programmatic interface aligned with the IETF CoRE Resource Directory Draft.
+ * This class includes generic processing of e.g. request attributes and delegates
+ * persistence-specific CRUD operations to sub-classes.
+ *
+ * @see
+ *   <a href="https://tools.ietf.org/html/draft-ietf-core-resource-directory-14">
+ *     CoRE Resource Directory Draft
+ *   </a>
+ *   
+ * @see Resource
+ * @see ResourceSerializer
+ * @see LookUpFilter
  *
  * @author Victor Charpenay
  * @creation 06.08.2018
@@ -34,19 +45,35 @@ abstract class ResourceManager {
 	
 	// TODO interfaces without attrs
 	
+	/**
+	 * Default value if no {@code ep} attribute is provided in the request.
+	 */
 	static final String DEFAULT_ENDPOINT = 'tag:unknown'
 	
+	/**
+	 * Default value for the {@code lt} attribute (25h).
+	 */
 	static final Integer DEFAULT_LIFETIME = 9000
 	
+	/**
+	 * Default value if no {@code base} attribute is provided in the request.
+	 */
 	static final String DEFAULT_BASE = 'coap://localhost' // TODO use source URI instead
 	
 	/**
-	 * See Section 5.3
+	 * Registration request interface.
+	 * <p>
+	 * Endpoint: {@code {+rd}{?ep,d,lt,base,extra-attrs*}}
 	 * 
-	 * @param stream
-	 * @param cf
-	 * @param attrs
-	 * @return the resource ID as a String
+	 * @see
+	 *   <a href="https://tools.ietf.org/html/draft-ietf-core-resource-directory-14#section-5.3">
+	 *     CoRE Resource Directory Draft (Section 5.3)
+	 *   </a>
+	 * 
+	 * @param i streamed resource content
+	 * @param cf resource content format, IANA-registered media type (e.g. {@code application/link-format})
+	 * @param attrs request attributes (e.g. {@code ep}, {@code d}, {@code lt}, {@code base})
+	 * @return resource identifier, for later reference (also called {@code location})
 	 */
 	String register(InputStream i, String cf, Map attrs) {
 		ResourceSerializer rs = ResourceSerializerFactory.get(cf)
@@ -68,12 +95,19 @@ abstract class ResourceManager {
 	}
 	
 	/**
-	 * See Section A.3
+	 * Read request interface.
+	 * <p>
+	 * Endpoint: {@code {+location}{?href,rel,rt,if,ct}}
 	 * 
-	 * @param id
-	 * @param stream
-	 * @param cf
-	 * @return
+	 * @see
+	 *   <a href="https://tools.ietf.org/html/draft-ietf-core-resource-directory-14#appendix-A.3">
+	 *     CoRE Resource Directory Draft (Section A.3)
+	 *   </a>
+	 * 
+	 * @param id resource identifier (aka {@code location})
+	 * @param o stream to which resource content will be written (in the format specified by {@code cf})
+	 * @param cf resource content format, IANA-registered media type (e.g. {@code application/link-format})
+	 * @param attrs request attributes ({@code href}, {@code rel}, {@code rt}, {@code if}, {@code ct})
 	 */
 	void get(String id, OutputStream o, String cf, Map attrs) {
 		def res = get(id)
@@ -85,13 +119,19 @@ abstract class ResourceManager {
 	}
 
 	/**
-	 * See Section A.1
+	 * Update registration request interface.
+	 * <p>
+	 * Endpoint: {@code {+location}{?lt,con,extra-attrs*}}
 	 * 
-	 * @param id
-	 * @param InputStream
-	 * @param cf
-	 * @param attrs
-	 * @return
+	 * @see
+	 *   <a href="https://tools.ietf.org/html/draft-ietf-core-resource-directory-14#appendix-A.1">
+	 *     CoRE Resource Directory Draft (Section A.1)
+	 *   </a>
+	 * 
+	 * @param id id resource identifier (aka {@code location})
+	 * @param i streamed resource content to substitute to current content
+	 * @param cf resource content format, IANA-registered media type (e.g. {@code application/link-format})
+	 * @param attrs request attributes (e.g. {@code lt}, {@code con})
 	 */
 	void replace(String id, InputStream i, String cf, Map attrs) {
 		ResourceSerializer rs = ResourceSerializerFactory.get(cf)
@@ -107,19 +147,37 @@ abstract class ResourceManager {
 	}
 	
 	/**
-	 * See Section A.2
 	 * 
-	 * @param id
-	 * @return
+	 * Removal request interface.
+	 * <p>
+	 * Endpoint: {@code {+location}}
+	 * 
+	 * @see
+	 *   <a href="https://tools.ietf.org/html/draft-ietf-core-resource-directory-14#appendix-A.2">
+	 *     CoRE Resource Directory Draft (Section A.2)
+	 *   </a>
+	 * 
+	 * @param id id resource identifier (aka {@code location})
 	 */
 	void delete(String id) {
 		delete(get(id))
 	}
 	
 	/**
-	 * See Section 7.2
+	 * Lookup interface.
+	 * <p>
+	 * Endpoint: {@code {+type-lookup-location}{?page,count,search*}}
 	 * 
-	 * @return
+	 * @see
+	 *   <a href="https://tools.ietf.org/html/draft-ietf-core-resource-directory-14#section-7.2">
+	 *     CoRE Resource Directory Draft (Section 7.2)
+	 *   </a>
+	 * 
+	 * @param type type of lookup (e.g. {@code ep}, {@code res})
+	 * @param o stream to which resource content will be written (in the format specified by {@code cf})
+	 * @param cf resource content format, IANA-registered media type (e.g. {@code application/link-format})
+	 * @param attrs request attributes ({@code page}, {@code count})
+	 * @param search search query (depending on the type of lookup)
 	 */
 	void lookUp(String type, OutputStream o, String cf, Map attrs, search) {
 		LookUpFilter f = LookUpFilterFactory.get(type, this)

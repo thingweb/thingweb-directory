@@ -20,7 +20,13 @@ import org.eclipse.rdf4j.repository.util.Repositories
 import org.eclipse.thingweb.directory.LookUpFilter
 
 /**
- * .
+ * Implementation of the {@link org.eclipse.thingweb.directory.LookUpFilter LookUpFilter}
+ * interface for search queries expressed in the SPARQL query language.
+ *
+ * @see
+ *   <a href="http://www.w3.org/TR/sparql11-query/">
+ *     SPARQL 1.1 Query Language
+ *   </a>
  *
  * @author Victor Charpenay
  * @creation 06.08.2018
@@ -28,8 +34,16 @@ import org.eclipse.thingweb.directory.LookUpFilter
  */
 class SPARQLFilter implements LookUpFilter {
 	
+	/**
+	 * RDF repository against which filter queries are run
+	 */
 	Repository repo
 
+	/**
+	 * Filters resources that match the given SPARQL graph pattern
+	 * 
+	 * @param search a SPARQL graph pattern, as a plain string
+	 */
 	@Override
 	Set<String> filter(search) {
 		def q = "SELECT DISTINCT ?id WHERE { GRAPH ?id { ${search} }}"

@@ -17,7 +17,13 @@ package org.eclipse.thingweb.directory
 import java.util.Set
 
 /**
- * .
+ * Common interface for the different lookup types specified by the IETF CoRE
+ * Resource Directory (e.g. by endpoint or by resource attributes).
+ *
+ * @see
+ *   <a href="https://tools.ietf.org/html/draft-ietf-core-resource-directory-14">
+ *     CoRE Resource Directory Draft
+ *   </a>
  *
  * @author Victor Charpenay
  * @creation 06.08.2018
@@ -25,6 +31,13 @@ import java.util.Set
  */
 interface LookUpFilter {
 
+	/**
+	 * Filters resources known by a {@link ResourceManager ResourceManager} instance
+	 * that match the given search query.
+	 * 
+	 * @param search search query (depends on lookup type)
+	 * @return a set of resource identifiers (or {@code location}s)
+	 */
 	Set<String> filter(search)
 	
 }

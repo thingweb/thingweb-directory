@@ -15,7 +15,14 @@
 package org.eclipse.thingweb.directory
 
 /**
- * .
+ * Resource as specified in the IETF CoRE Resource Directory Draft. A resource
+ * typically includes links to other resources (hypermedia reference, relation
+ * type, content type, etc).
+ *
+ * @see
+ *   <a href="https://tools.ietf.org/html/draft-ietf-core-resource-directory-14">
+ *     CoRE Resource Directory Draft
+ *   </a>
  *
  * @author Victor Charpenay
  * @creation 06.08.2018
@@ -23,14 +30,37 @@ package org.eclipse.thingweb.directory
  */
 interface Resource {
 	
+	/**
+	 * Endpoint from which resource registration originates.
+	 */
 	String ep
 	
+	/**
+	 * Resource lifetime, after which the resource is automatically de-registered.
+	 */
 	Integer lt
 	
+	/**
+	 * Optional base URI to resolve links to other resources.
+	 */
 	String base
 	
+	/**
+	 * Each resource must be uniquely identified among the resources managed by a
+	 * {@link org.eclipse.thingweb.directory.ResourceManager ResourceManager} instance
+	 * 
+	 * @return resource identifier (also called {@code location})
+	 */
 	String getId()
 	
+	/**
+	 * Merges the content of another resource with current resource. The result of a
+	 * lookup is the merge of all resources matching the search criteria.
+	 * 
+	 * @see ResourceManager#lookUp()
+	 * 
+	 * @param res other resource to merge 
+	 */
 	void merge(Resource res)
 	
 }

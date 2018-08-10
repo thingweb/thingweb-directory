@@ -22,7 +22,8 @@ import org.eclipse.thingweb.directory.Resource
 import org.eclipse.thingweb.directory.ResourceSerializer
 
 /**
- * .
+ * Implementation of the {@link org.eclipse.thingweb.directory.ResourceSerializer ResourceSerializer}
+ * interface supporting RDF formats.
  *
  * @author Victor Charpenay
  * @creation 06.08.2018
