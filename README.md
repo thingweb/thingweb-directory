@@ -9,6 +9,10 @@ The directory features an API to create, read, update and delete (CRUD) a TD. Th
   - CRUD operations are supported either over HTTP or CoAP;
   - Generating a servient based on a discovered Thing.
 
+## Structure of the repository
+
+![Component diagram for thingweb-directory](components.png)
+  
 ## Getting Started
 
 The Thingweb Directory requires Java 1.8.
