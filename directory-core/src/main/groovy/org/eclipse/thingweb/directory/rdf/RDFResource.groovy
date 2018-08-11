@@ -117,9 +117,12 @@ class RDFResource implements DirectoryResource {
 	
 	@Override
 	void merge(DirectoryResource res) {
-		def rdf = res as RDFResource // TODO try serdes if not rdfresource
-		
-		graph.addAll(rdf.graph)
+		if (RDFResource.isInstance(res)) {
+			def rdf = res as RDFResource
+			graph.addAll(rdf.graph)
+		} else {
+			log.warn('Trying to merge an RDF resource with a non-RDF resource; nothing done...')
+		}
 	}
 	
 	protected IRI idFromGraph(Model g) {

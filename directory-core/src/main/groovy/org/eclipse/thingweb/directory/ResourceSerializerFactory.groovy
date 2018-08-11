@@ -34,7 +34,7 @@ class ResourceSerializerFactory {
 			case 'application/rdf+xml':
 			case 'application/ld+json':
 				return RDFSerializer.instance
-			case 'application/td+json':
+			case TDSerializer.TD_CONTENT_FORMAT:
 				return TDSerializer.instance
 			default:
 				throw new RuntimeException('No suitable resource serializer found')

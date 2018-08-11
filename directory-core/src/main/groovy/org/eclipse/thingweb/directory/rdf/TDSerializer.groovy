@@ -14,31 +14,67 @@
  ********************************************************************************/
 package org.eclipse.thingweb.directory.rdf
 
+import groovy.json.*
+
 import java.io.InputStream
 import java.io.OutputStream
 
 import org.eclipse.thingweb.directory.Resource
 import org.eclipse.thingweb.directory.ResourceSerializer
+import org.eclipse.thingweb.directory.utils.TDTransform
+
+import com.github.jsonldjava.core.JsonLdOptions
+import com.github.jsonldjava.core.JsonLdProcessor
 
 /**
- *  - Insert description here.
+ * Serializer implementation for Thing Description documents,
+ * interpreted as JSON-LD 1.1 objects with normative context.
  *
- * @author z003dp6d
+ * @see
+ *   <a href="http://www.w3.org/TR/wot-thing-description">
+ *     W3C Thing Description Model
+ *   </a>
+ *
+ * @author Victor Charpenay
  * @creation 06.08.2018
  *
  */
 class TDSerializer extends RDFSerializer {
+	
+	public static final TD_FRAME = '{"@context": "' + TDTransform.TD_CONTEXT_URI + '", "@type": "Thing"}'
+	
+	public static final TD_CONTENT_FORMAT = 'application/td+json'
+	
+	private static final JSON_LD_CONTENT_FORMAT = 'application/ld+json'
 
 	@Override
 	public Resource readContent(InputStream i, String cf) {
-		// TODO Auto-generated method stub
-		return null;
+		assert cf == TD_CONTENT_FORMAT
+		
+		def str = new TDTransform(i).asJsonLd10()
+		i = new ByteArrayInputStream(str.bytes)
+		
+		return super.readContent(i, JSON_LD_CONTENT_FORMAT);
 	}
 
 	@Override
 	void writeContent(Resource res, OutputStream o, String cf) {
-		// TODO Auto-generated method stub
-		return null;
+		assert cf == TD_CONTENT_FORMAT
+		
+		def buf = new ByteArrayOutputStream()
+		super.writeContent(res, buf, JSON_LD_CONTENT_FORMAT)
+		
+		// applies JSON-LD framing first
+		def i = new ByteArrayInputStream(buf.toByteArray())
+		def obj = new JsonSlurper().parse(i)
+		def opts = new JsonLdOptions()
+		// TODO use Groovy destructuring?
+		opts.compactArrays = true
+		opts.pruneBlankNodeIdentifiers = true
+		def framed = JsonLdProcessor.frame(obj, TD_FRAME, opts)
+		
+		def str = new TDTransform(framed).asJsonLd10()
+		o.write(str.bytes)
 	}
 
 }

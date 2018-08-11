@@ -93,14 +93,20 @@ class RDFResourceManager extends ResourceManager {
 	
 	@Override
 	protected void register(Resource res) {
-		def rdf = res as RDFResource // TODO try serdes if not rdfresource
-		def iri = rdf.iri
+		def iri = vf.createIRI(res.id)
+		def g = new LinkedHashModel()
+		
+		if (RDFResource.isInstance(res)) {
+			g = (res as RDFResource).graph
+		} else {
+			log.warn('Trying to register a non-RDF resource; content not read...')
+		}
 
 		// TODO check it does not already exist
 		Repositories.consume(getRepo(), { RepositoryConnection con ->
 			con.add(iri, RDF.TYPE, DCAT.DATASET)
 			con.add(iri, DCTERMS.ISSUED, vf.createLiteral(new Date()))
-			con.add(rdf.graph)
+			con.add(g)
 		})
 	}
 	
@@ -138,13 +144,20 @@ class RDFResourceManager extends ResourceManager {
 	@Override
 	protected void replace(Resource res, Resource other) {
 		def iri = vf.createIRI(res.id)
-		def rdf = other as RDFResource // TODO try serdes if not rdfresource
+		def g = new LinkedHashModel()
+
+		if (RDFResource.isInstance(other)) {
+			def rdf = other as RDFResource
+			g = rdf.graph.filter(null, null as IRI, null, rdf.iri)
+		} else {
+			log.warn('Trying to replace RDF resource by a non-RDF resource; content not read...')
+		}
 		
 		// TODO check base, lt
 		Repositories.consume(getRepo(), { RepositoryConnection con ->
 			con.add(iri, DCTERMS.MODIFIED, vf.createLiteral(new Date()))
 			con.clear(iri)
-			con.add(rdf.graph.filter(null, null as IRI, null, rdf.iri), iri)
+			con.add(g, iri)
 		})
 	}
 	

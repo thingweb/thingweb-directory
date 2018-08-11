@@ -18,7 +18,7 @@ import groovy.json.*
 
 /**
  * 
- *  Compatibility script for JSON-LD 1.1.
+ * Compatibility script for JSON-LD 1.1.
  *
  * @author Victor Charpenay
  * @creation 20.06.2018
@@ -26,8 +26,7 @@ import groovy.json.*
  */
 class TDTransform {
 	
-	// TODO unify with TDServlet.TD_CONTEXT_URI
-	private final TD_CONTEXT_URI = "https://w3c.github.io/wot/w3c-wot-td-context.jsonld"
+	public static final TD_CONTEXT_URI = "https://w3c.github.io/wot/w3c-wot-td-context.jsonld"
 	
 	Object object
 	
@@ -140,6 +139,7 @@ class TDTransform {
 				}
 				
 				// TODO
+				// - @base = @id
 				// - add default values
 				// - context and type can be arrays
 				return td
