@@ -80,7 +80,7 @@ public class ContentNegotiationFilter implements Filter {
 		String[] accepted = config.getInitParameter(ACCEPTED_CONFIG_PARAMETER).replaceAll(blankRegex, "").split(",");
 		
 		for (String ct : accepted) {
-			if (!ct.matches("\\w+/[\\w\\+]+")) {
+			if (!ct.matches("\\w+/[\\w\\+-]+")) {
 				throw new ServletException("Content negotiation init parameter is not correct");
 			}
 			
