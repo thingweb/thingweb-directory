@@ -15,6 +15,7 @@
 package org.eclipse.thingweb.directory.rdf
 
 import groovy.util.logging.Log
+
 import org.eclipse.rdf4j.model.IRI
 import org.eclipse.rdf4j.model.Model
 import org.eclipse.rdf4j.model.Statement
@@ -102,11 +103,18 @@ class RDFResourceManager extends ResourceManager {
 			log.warn('Trying to register a non-RDF resource; content not read...')
 		}
 
-		// TODO check it does not already exist
 		Repositories.consume(getRepo(), { RepositoryConnection con ->
 			con.add(iri, RDF.TYPE, DCAT.DATASET)
 			con.add(iri, DCTERMS.ISSUED, vf.createLiteral(new Date()))
 			con.add(g)
+		})
+	}
+	
+	@Override
+	protected boolean exists(String id) {
+		return Repositories.get(getRepo(), { RepositoryConnection con ->
+			def q = "ASK WHERE { <${id}> a <${DCAT.DATASET}> }"
+			return con.prepareBooleanQuery(q).evaluate()
 		})
 	}
 	

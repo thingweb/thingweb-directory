@@ -74,10 +74,13 @@ abstract class ResourceManager {
 	 * @param cf resource content format, IANA-registered media type (e.g. {@code application/link-format})
 	 * @param attrs request attributes (e.g. {@code ep}, {@code d}, {@code lt}, {@code base})
 	 * @return resource identifier, for later reference (also called {@code location})
+	 * @throws ResourceAlreadyRegisteredException if a resource with the same identifier already exists
 	 */
-	String register(InputStream i, String cf, Map attrs) {
+	String register(InputStream i, String cf, Map attrs) throws ResourceAlreadyRegisteredException {
 		ResourceSerializer rs = ResourceSerializerFactory.get(cf)
 		def res = rs.readContent(i, cf)
+		
+		if (exists(res.id)) throw new ResourceAlreadyRegisteredException(res.id)
 		
 		// TODO ep is quasi-mandatory
 		def ep = attrs[ep] ?: DEFAULT_ENDPOINT
@@ -200,6 +203,8 @@ abstract class ResourceManager {
 	}
 	
 	abstract protected void register(Resource res)
+	
+	abstract protected boolean exists(String id)
 	
 	abstract protected Resource get(String id)
 	

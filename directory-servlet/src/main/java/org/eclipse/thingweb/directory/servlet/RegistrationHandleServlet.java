@@ -54,12 +54,13 @@ public class RegistrationHandleServlet extends HttpServlet {
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		String id = getItemID(req);
 		
-		String contentType = req.getHeader("Content-Type");
+		String contentType = req.getHeader("Accept");
 		if (contentType == null) contentType = DEFAULT_MEDIA_TYPE;
 		
 		Map<String, String> parameters = new HashMap<>();
 		// TODO
 		
+		resp.setContentType(contentType);
 		manager.get(id, resp.getOutputStream(), contentType, parameters);
 	}
 	
@@ -67,18 +68,20 @@ public class RegistrationHandleServlet extends HttpServlet {
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		String id = getItemID(req);
 		
-		String contentType = req.getHeader("Accept");
+		String contentType = req.getHeader("Content-Type");
 		if (contentType == null) contentType = DEFAULT_MEDIA_TYPE;
 		
 		Map<String, String> parameters = new HashMap<>();
 		// TODO
 		
 		manager.replace(id, req.getInputStream(), contentType, parameters);
+		resp.setStatus(HttpServletResponse.SC_NO_CONTENT);
 	}
 	
 	@Override
 	protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {		
 		manager.delete(getItemID(req));
+		resp.setStatus(HttpServletResponse.SC_NO_CONTENT);
 	}
 	
 	/**

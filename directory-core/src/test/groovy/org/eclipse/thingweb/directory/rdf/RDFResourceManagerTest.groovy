@@ -94,6 +94,25 @@ class RDFResourceManagerTest {
 	}
 	
 	@Test
+	void testExists() {
+		def cl = getClass().getClassLoader()
+		
+		def exists = RDFResourceManager.instance.exists('tag:someresource')
+		
+		assert !exists : 'Unregistered resource should not have been recognized by the RDF resource manager'
+		
+		InputStream i = cl.getResourceAsStream('samples/fanTD.jsonld')
+		Model g = Rio.parse(i, '', RDFFormat.JSONLD)
+
+		def res = new RDFResource(g)
+		RDFResourceManager.instance.register(res)
+		
+		exists = RDFResourceManager.instance.exists(res.id)
+		
+		assert exists : 'Registered resource was not recognized by the RDF resource manager'
+	}
+	
+	@Test
 	void testGet() {
 		Resource res = RDFResourceManager.instance.get('tag:someresource')
 		

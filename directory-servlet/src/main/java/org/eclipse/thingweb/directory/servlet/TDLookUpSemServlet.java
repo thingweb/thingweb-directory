@@ -58,6 +58,7 @@ public class TDLookUpSemServlet extends HttpServlet {
 		String query = req.getParameter(QUERY_PARAMETER);
 		if (query == null) query = DEFAULT_QUERY;
 		
+		resp.setContentType(contentType);
 		manager.lookUp(LOOKUP_SEM_TYPE, resp.getOutputStream(), contentType, parameters, query);
 	}
 

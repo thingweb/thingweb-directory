@@ -57,6 +57,11 @@ class ResourceManagerTest {
 		}
 		
 		@Override
+		protected boolean exists(String id) {
+			return resources.contains(id);
+		}
+		
+		@Override
 		protected Resource get(String id) {
 			return new EmptyResource(id)
 		}
@@ -78,11 +83,13 @@ class ResourceManagerTest {
 		def i = new ByteArrayInputStream('{}'.bytes)
 		String id = EmptyResourceManager.instance.register(i, 'application/ld+json', [:])
 		
-		assert EmptyResourceManager.instance.resources.contains(id) : 'Resource is not registered'
+		assert EmptyResourceManager.instance.resources.contains(id) : 'Resource has not been registered'
+		
+		// TODO test multiple registration
 	}
 	
 	@Test
-	@Ignore
+	@Ignore // TODO
 	void testGet() {
 		def i = new ByteArrayInputStream('{}'.bytes)
 		String id = EmptyResourceManager.instance.register(i, 'application/ld+json', [:])

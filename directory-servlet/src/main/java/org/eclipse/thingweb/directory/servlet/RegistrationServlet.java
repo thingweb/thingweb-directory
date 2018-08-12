@@ -24,6 +24,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.eclipse.thingweb.directory.ResourceAlreadyRegisteredException;
 import org.eclipse.thingweb.directory.ResourceManager;
 import org.eclipse.thingweb.directory.ResourceManagerFactory;
 
@@ -56,11 +57,14 @@ public class RegistrationServlet extends HttpServlet {
 		Map<String, String> parameters = new HashMap<>();
 		// TODO
 		
-		String id = manager.register(req.getInputStream(), contentType, parameters);
-		// TODO return 204 No Content if already registered
-		
-		resp.setStatus(HttpServletResponse.SC_CREATED);
-		resp.setHeader("Location", id);
+		try {
+			String id = manager.register(req.getInputStream(), contentType, parameters);	
+			resp.setStatus(HttpServletResponse.SC_CREATED);
+			resp.setHeader("Location", id);
+		} catch (ResourceAlreadyRegisteredException e) {
+			resp.setStatus(HttpServletResponse.SC_NO_CONTENT);
+			resp.setHeader("Location", e.getId());
+		}
 	}
 
 }
