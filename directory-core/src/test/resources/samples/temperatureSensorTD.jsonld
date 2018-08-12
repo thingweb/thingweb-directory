@@ -1,6 +1,6 @@
 {
 	"@context": [
-		"https://w3c.github.io/wot/w3c-wot-td-context.jsonld",
+		"http://www.w3.org/ns/td",
 		{
 			"geo": "http://www.w3.org/2003/01/geo/wgs84_pos#",
 			"saref": "http://uri.etsi.org/m2m/saref#",

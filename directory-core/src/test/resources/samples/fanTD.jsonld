@@ -1,13 +1,17 @@
 {
 	"@context": [
-		"https://w3c.github.io/wot/w3c-wot-td-context.jsonld",
+		"http://www.w3.org/ns/td",
 		{
 			"geo": "http://www.w3.org/2003/01/geo/wgs84_pos#",
 			"saref": "http://uri.etsi.org/m2m/saref#",
 			"Sensor": "saref:Sensor",
 			"Temperature": "saref:Temperature",
+			"OnOff": "saref:OnOffState",
 			"Toggle": "saref:ToggleCommand",
-			"unit": "saref:isMeasuredIn",
+			"unit": {
+				"@id": "saref:isMeasuredIn",
+				"@type": "@vocab"
+			},
 			"celsius": "http://www.wurvoc.org/vocabularies/om-1.8/degree_Celsius"
 		}
 	],

@@ -110,6 +110,20 @@ class RDFResource implements DirectoryResource {
 		// TODO
 	}
 	
+	/**
+	 * Returns the resource content only (without meta-data)
+	 * 
+	 * @return an RDF graph representing the resource content
+	 */
+	Model getContent() {
+		def g = new LinkedHashModel()		
+		graph.filter(null, null as IRI, null, iri).forEach({ Statement st ->
+			g.add(st.subject, st.predicate, st.object)
+		})
+		
+		return g
+	}
+	
 	@Override
 	String getId() {
 		return iri.stringValue()

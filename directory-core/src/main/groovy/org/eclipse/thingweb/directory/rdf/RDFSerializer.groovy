@@ -46,7 +46,7 @@ class RDFSerializer implements ResourceSerializer {
 	@Override
 	void writeContent(Resource res, OutputStream o, String cf) {
 		def format = Rio.getParserFormatForMIMEType(cf).orElse(DEFAULT_FORMAT)
-		Rio.write((res as RDFResource).graph, o, format)
+		Rio.write((res as RDFResource).content, o, format)
 	}
 
 }

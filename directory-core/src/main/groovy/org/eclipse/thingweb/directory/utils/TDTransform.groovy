@@ -26,27 +26,32 @@ import groovy.json.*
  */
 class TDTransform {
 	
-	public static final TD_CONTEXT_URI = "https://w3c.github.io/wot/w3c-wot-td-context.jsonld"
+	public static final TD_CONTEXT_URI = 'http://www.w3.org/ns/td'
 	
-	Object object
+	final Object object
+	
+	final String base
 	
 	TDTransform(input) {
 		object = new JsonSlurper().parse(input)
 				
-		if (object."@graph") {
-			object = object."@graph".find()
+		if (object.'@graph') {
+			object = object.'@graph'.find()
 			object = withNativeTypes(object)
 		}
 		
+		if (object.'id') base = object.'id' + '/'
+		else if (object.'@id') base = object.'@id' + '/'
+		else base = '/'
 	}
 
 	String asJsonLd10() {
-		def td = asJsonLd10ForType(object, "Thing")
+		def td = asJsonLd10ForType(object, 'Thing')
 		JsonOutput.toJson(td)
 	}
 
 	String asJsonLd11() {
-		def td = asJsonLd11ForType(object, "Thing")
+		def td = asJsonLd11ForType(object, 'Thing')
 		JsonOutput.toJson(td)
 	}
 	
@@ -60,14 +65,14 @@ class TDTransform {
 	private withNativeTypes(obj) {
 		switch (obj) {
 			case Map:
-				if (obj."@value") {
-					switch (obj."@type") {
-						case "xsd:integer":
-							return obj."@value".toInteger()
-						case "xsd:double":
-							return obj."@value".toDouble()
-						case "xsd:boolean":
-							return obj."@value".asBoolean()
+				if (obj.'@value') {
+					switch (obj.'@type') {
+						case 'xsd:integer':
+							return obj.'@value'.toInteger()
+						case 'xsd:double':
+							return obj.'@value'.toDouble()
+						case 'xsd:boolean':
+							return obj.'@value'.asBoolean()
 						default:
 							return obj
 					}
@@ -77,8 +82,8 @@ class TDTransform {
 				return obj.collect({ i -> withNativeTypes(i) })
 			case String:
 				switch (obj) {
-					case "true":
-					case "false":
+					case 'true':
+					case 'false':
 						return obj.asBoolean()
 					default:
 						return obj
@@ -103,7 +108,7 @@ class TDTransform {
 		
 		switch (obj) {
 			case Map:
-				if (ref == obj."@id") return obj
+				if (ref == obj.'@id') return obj
 				return obj.values().inject([:], nav)
 			case List:
 				return obj.inject([:], nav)
@@ -114,29 +119,25 @@ class TDTransform {
 	
 	private Map asJsonLd10ForType(obj, String type) {
 		switch (type) {
-			case "Thing":
+			case 'Thing':
 				def td = obj.collectEntries({ k, v ->
 					switch (k) {
-						case "properties":
-							return ["properties": v.collect({ p -> asJsonLd10ForType(p, "Property") })]
-						case "actions":
-							return ["actions": v.collect({ a -> asJsonLd10ForType(a, "Action") })]
-						case "events":
-							return ["events": v.collect({ a -> asJsonLd10ForType(a, "Event") })]
-						case "id":
-							return ["@id": v]
+						case 'properties':
+							return ['properties': v.collect({ p -> asJsonLd10ForType(p, 'Property') })]
+						case 'actions':
+							return ['actions': v.collect({ a -> asJsonLd10ForType(a, 'Action') })]
+						case 'events':
+							return ['events': v.collect({ a -> asJsonLd10ForType(a, 'Event') })]
+						case 'id':
+							return ['@id': v]
 						default:
 							return [(k): (v)]
 					}
 				})
 		
-				if (!td."@context") {
-					td."@context" = TD_CONTEXT_URI
-				}
+				if (!td.'@context') td.'@context' = TD_CONTEXT_URI
 				
-				if (!td."@type") {
-					td."@type" = "Thing"
-				}
+				if (!td.'@type') td.'@type' = 'Thing'
 				
 				// TODO
 				// - @base = @id
@@ -144,51 +145,51 @@ class TDTransform {
 				// - context and type can be arrays
 				return td
 				
-			case "Property":
-				def id = obj.key
+			case 'Property':
+				def id = base + obj.key
 				def p = obj.value
-				if (!p."writable") p."writable" 
+				if (!p.'writable') p.'writable' 
 				return [
-					"@id": id,
-					*:asJsonLd10ForType(p, "Schema"),
-					"writable": p."writable" ?: false,
-					"observable": p."observable" ?: false
+					'@id': id,
+					*:asJsonLd10ForType(p, 'Schema'),
+					'writable': p.'writable' ?: false,
+					'observable': p.'observable' ?: false
 				]
 			
-			case "Action":
-				def id = obj.key
+			case 'Action':
+				def id = base + obj.key
 				def a = obj.value
-				def i = a."input"
-				def o = a."output"
-				if (i) a."input" = asJsonLd10ForType(i, "Schema")
-				if (o) a."input" = asJsonLd10ForType(o, "Schema")
-				return ["@id": id, *:a]
+				def i = a.'input'
+				def o = a.'output'
+				if (i) a.'input' = asJsonLd10ForType(i, 'Schema')
+				if (o) a.'input' = asJsonLd10ForType(o, 'Schema')
+				return ['@id': id, *:a]
 			
-			case "Event":
-				def id = obj.key
+			case 'Event':
+				def id = base + obj.key
 				def e = obj.value
-				return ["@id": id, *:e] // TODO
+				return ['@id': id, *:e] // TODO
 
-			case "Schema":
+			case 'Schema':
 				return obj.collectEntries({ k, v ->
 					switch (k) {
-						case "properties":
+						case 'properties':
 							return [
-								"http://www.w3.org/ns/td/schema#properties": v.collect({ s ->
-									asJsonLd10ForType(s, "ObjectSchema")
+								'http://www.w3.org/ns/td/schema#properties': v.collect({ s ->
+									asJsonLd10ForType(s, 'ObjectSchema')
 								})
 							]
-						case "items":
-							return ["items": asJsonLd10ForType(v, "Schema")]
+						case 'items':
+							return ['items': asJsonLd10ForType(v, 'Schema')]
 						default:
 							return [(k): (v)]
 					}
 				})
 				
-			case "ObjectSchema":
-				def id = obj.key
+			case 'ObjectSchema':
+				def id = base + obj.key
 				def s = obj.value
-				return ["@id": id, *:s]
+				return ['@id': id, *:s]
 			
 			default:
 				return obj
@@ -197,21 +198,21 @@ class TDTransform {
 	
 	private Map asJsonLd11ForType(obj, String type) {
 		switch (type) {
-			case "Thing":
+			case 'Thing':
 				def td = obj
 				
-				td."@context" = TD_CONTEXT_URI
+				td.'@context' = TD_CONTEXT_URI
 				
 				td = td.collectEntries({ k, v ->
 					switch (k) {
-						case "properties":
-							return ["properties": v.collectEntries({ p -> asJsonLd11ForType(p, "Property")})]
-						case "actions":
-							return ["actions": v.collectEntries({ a -> asJsonLd11ForType(a, "Action")})]
-						case "events":
-							return ["events": v.collectEntries({ e -> asJsonLd11ForType(e, "Event")})]
-						case "@id":
-							return ["id": v]
+						case 'properties':
+							return ['properties': v.collectEntries({ p -> asJsonLd11ForType(p, 'Property')})]
+						case 'actions':
+							return ['actions': v.collectEntries({ a -> asJsonLd11ForType(a, 'Action')})]
+						case 'events':
+							return ['events': v.collectEntries({ e -> asJsonLd11ForType(e, 'Event')})]
+						case '@id':
+							return ['id': v]
 						default:
 							return [(k): (v)]
 					}
@@ -219,47 +220,48 @@ class TDTransform {
 				
 				return td
 			
-			case "Property":
-				def id = obj."@id"
-				def p = obj.findAll({ it.key != "@id" })
-				return [(id): asJsonLd11ForType(p, "Schema")]
+			case 'Property':
+				def id = obj.'@id'.replace(base, '')
+				def p = obj.findAll({ it.key != '@id' })
+				return [(id): asJsonLd11ForType(p, 'Schema')]
 			
-			case "Action":
-				def id = obj."@id"
-				def a = obj.findAll({ it.key != "@id" })
-				def i = a."input"
-				def o = a."output"
-				if (i) a."input" = asJsonLd11ForType(i, "Schema")
-				if (o) a."output" = asJsonLd11ForType(o, "Schema")
+			case 'Action':
+				def id = obj.'@id'.replace(base, '')
+				def a = obj.findAll({ it.key != '@id' })
+				def i = a.'input'
+				def o = a.'output'
+				if (i) a.'input' = asJsonLd11ForType(i, 'Schema')
+				if (o) a.'output' = asJsonLd11ForType(o, 'Schema')
 				return [(id): a]
 			
-			case "Event":
-				def id = obj."@id"
-				def e = obj.findAll({ it.key != "@id" })
+			case 'Event':
+				def id = obj.'@id'.replace(base, '')
+				def e = obj.findAll({ it.key != '@id' })
 				return [(id): e] // TODO
 			
-			case "Schema":
+			case 'Schema':
 				if (obj instanceof String) obj = resolve(object, obj) // schema reference
 				return obj.collectEntries({ k, v ->
 					switch (k) {
-						case "http://www.w3.org/ns/td/schema#properties":
+						case 'http://www.w3.org/ns/td/schema#properties':
 							return [
-								"properties": v.collectEntries({ s ->
-									asJsonLd11ForType(s, "ObjectSchema")
+								'properties': v.collectEntries({ s ->
+									asJsonLd11ForType(s, 'ObjectSchema')
 								})
 							]
-						case "items":
-							return ["items": asJsonLd11ForType(v, "Schema")]
-						case "@id":
+						case 'items':
+							return ['items': asJsonLd11ForType(v, 'Schema')]
+						case '@id':
 							return [:]
 						default:
 							return [(k): (v)]
 					}
 				})
 				
-			case "ObjectSchema":
-				def id = obj instanceof String ? obj : obj."@id"
-				return [(id): asJsonLd11ForType(obj, "Schema")]
+			case 'ObjectSchema':
+				def id = obj instanceof String ? obj : obj.'@id'
+				id = id.replace(base, '')
+				return [(id): asJsonLd11ForType(obj, 'Schema')]
 			
 			default:
 				return obj

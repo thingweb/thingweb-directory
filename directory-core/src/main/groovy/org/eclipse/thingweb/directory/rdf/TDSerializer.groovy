@@ -25,6 +25,8 @@ import org.eclipse.thingweb.directory.utils.TDTransform
 
 import com.github.jsonldjava.core.JsonLdOptions
 import com.github.jsonldjava.core.JsonLdProcessor
+import com.github.jsonldjava.core.JsonLdUtils
+import com.github.jsonldjava.utils.JsonUtils
 
 /**
  * Serializer implementation for Thing Description documents,
@@ -39,9 +41,10 @@ import com.github.jsonldjava.core.JsonLdProcessor
  * @creation 06.08.2018
  *
  */
-class TDSerializer extends RDFSerializer {
+@Singleton
+class TDSerializer implements ResourceSerializer {
 	
-	public static final TD_FRAME = '{"@context": "' + TDTransform.TD_CONTEXT_URI + '", "@type": "Thing"}'
+	public static final TD_FRAME = ['@context': TDTransform.TD_CONTEXT_URI, '@type': 'Thing']
 	
 	public static final TD_CONTENT_FORMAT = 'application/td+json'
 	
@@ -54,7 +57,7 @@ class TDSerializer extends RDFSerializer {
 		def str = new TDTransform(i).asJsonLd10()
 		i = new ByteArrayInputStream(str.bytes)
 		
-		return super.readContent(i, JSON_LD_CONTENT_FORMAT);
+		return RDFSerializer.instance.readContent(i, JSON_LD_CONTENT_FORMAT);
 	}
 
 	@Override
@@ -62,18 +65,21 @@ class TDSerializer extends RDFSerializer {
 		assert cf == TD_CONTENT_FORMAT
 		
 		def buf = new ByteArrayOutputStream()
-		super.writeContent(res, buf, JSON_LD_CONTENT_FORMAT)
+		RDFSerializer.instance.writeContent(res, buf, JSON_LD_CONTENT_FORMAT)
 		
-		// applies JSON-LD framing first
-		def i = new ByteArrayInputStream(buf.toByteArray())
-		def obj = new JsonSlurper().parse(i)
 		def opts = new JsonLdOptions()
 		// TODO use Groovy destructuring?
 		opts.compactArrays = true
+		opts.useNativeTypes = true
 		opts.pruneBlankNodeIdentifiers = true
+		
+		// applies JSON-LD framing
+		def i = new ByteArrayInputStream(buf.toByteArray())
+		def obj = new JsonSlurper().parse(i)
 		def framed = JsonLdProcessor.frame(obj, TD_FRAME, opts)
 		
-		def str = new TDTransform(framed).asJsonLd10()
+		i = new ByteArrayInputStream(JsonOutput.toJson(framed).bytes)
+		def str = new TDTransform(i).asJsonLd11()
 		o.write(str.bytes)
 	}
 
