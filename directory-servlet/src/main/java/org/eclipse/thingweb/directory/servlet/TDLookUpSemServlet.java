@@ -37,7 +37,7 @@ public class TDLookUpSemServlet extends HttpServlet {
 	
 	private static final long serialVersionUID = 5679530570591631536L;
 	
-	public final static String DEFAULT_MEDIA_TYPE = "application/json";
+	public final static String DEFAULT_MEDIA_TYPE = "application/td+json";
 	
 	public static final String DEFAULT_QUERY = "?s ?p ?o";
 

@@ -16,8 +16,9 @@ package org.eclipse.thingweb.directory.filter;
 
 import java.io.IOException;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -31,8 +32,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.http.client.methods.HttpRequestWrapper;
-
 /**
  * 
  * .
@@ -43,8 +42,7 @@ import org.apache.http.client.methods.HttpRequestWrapper;
  */
 @WebFilter(
 	filterName="ContentNegotiation",
-	servletNames={"RegistrationHandle"},
-	urlPatterns={"/td/*", "/vocab/*"},
+	servletNames={"RegistrationHandle", "TDLookUpSem"},
 	initParams={
 		@WebInitParam(
 			name="accepted",
@@ -60,6 +58,8 @@ public class ContentNegotiationFilter implements Filter {
 	public static final String ACCEPTED_CONFIG_PARAMETER = "accepted";
 	
 	private static final String FALLBACK_CONTENT_TYPE = "*/*";
+	
+	private static final Pattern CONTENT_TYPE_REGEX = Pattern.compile("(\\w+|\\*)/([\\w\\+-]+|\\*)");
 	
 	/**
 	 * 
@@ -94,7 +94,6 @@ public class ContentNegotiationFilter implements Filter {
 		
 	}
 	
-	
 	private final Set<String> acceptedContentTypes = new HashSet<String>();
 	
 	public ContentNegotiationFilter() {
@@ -112,10 +111,13 @@ public class ContentNegotiationFilter implements Filter {
 			if (accept != null) {
 				Set<String> cts = new HashSet<>();
 				
-				for (String entry : accept.split(",")) {
-					String ct = entry.split(";")[0]; // ignoring other parameters
-					cts.add(ct);
+				// ignores preference coefficient
+				Matcher m = CONTENT_TYPE_REGEX.matcher(accept);
+				while (m.find()) {
+					cts.add(m.group());
 				}
+				
+				System.out.println(cts);
 				
 				cts.retainAll(acceptedContentTypes);
 				
@@ -138,11 +140,10 @@ public class ContentNegotiationFilter implements Filter {
 	}
 
 	public void init(FilterConfig config) throws ServletException {
-		String blankRegex = "\\s";
-		String[] accepted = config.getInitParameter(ACCEPTED_CONFIG_PARAMETER).replaceAll(blankRegex, "").split(",");
+		String[] accepted = config.getInitParameter(ACCEPTED_CONFIG_PARAMETER).replaceAll("\\s", "").split(",");
 		
 		for (String ct : accepted) {
-			if (!ct.matches("\\w+/[\\w\\+-]+")) {
+			if (!CONTENT_TYPE_REGEX.matcher(ct).matches()) {
 				throw new ServletException("Content negotiation init parameter is not correct");
 			}
 			

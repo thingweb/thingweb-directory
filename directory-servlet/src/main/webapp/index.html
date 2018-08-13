@@ -135,6 +135,7 @@
       		var q = document.getElementById("filter-field").value;
 			if (q === "") { q = "?s ?p ?o"; }
       		xhr.open("GET", "td-lookup/sem?query=" + encodeURIComponent(q));
+      		xhr.setRequestHeader("Accept", "application/td+json");
       		
       		xhr.send();
       		
