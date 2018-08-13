@@ -28,6 +28,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.eclipse.thingweb.directory.ResourceManager;
 import org.eclipse.thingweb.directory.ResourceManagerFactory;
+import org.eclipse.thingweb.directory.ResourceNotRegisteredException;
 
 /**
  * .
@@ -60,8 +61,12 @@ public class RegistrationHandleServlet extends HttpServlet {
 		Map<String, String> parameters = new HashMap<>();
 		// TODO
 		
-		resp.setContentType(contentType);
-		manager.get(id, resp.getOutputStream(), contentType, parameters);
+		try {
+			resp.setContentType(contentType);
+			manager.get(id, resp.getOutputStream(), contentType, parameters);
+		} catch (ResourceNotRegisteredException e) {
+			resp.sendError(HttpServletResponse.SC_NOT_FOUND);
+		}
 	}
 	
 	@Override
@@ -74,14 +79,22 @@ public class RegistrationHandleServlet extends HttpServlet {
 		Map<String, String> parameters = new HashMap<>();
 		// TODO
 		
-		manager.replace(id, req.getInputStream(), contentType, parameters);
-		resp.setStatus(HttpServletResponse.SC_NO_CONTENT);
+		try {
+			manager.replace(id, req.getInputStream(), contentType, parameters);
+			resp.setStatus(HttpServletResponse.SC_NO_CONTENT);
+		} catch (ResourceNotRegisteredException e) {
+			resp.sendError(HttpServletResponse.SC_NOT_FOUND);
+		}
 	}
 	
 	@Override
 	protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {		
-		manager.delete(getItemID(req));
-		resp.setStatus(HttpServletResponse.SC_NO_CONTENT);
+		try {
+			manager.delete(getItemID(req));
+			resp.setStatus(HttpServletResponse.SC_NO_CONTENT);
+		} catch (ResourceNotRegisteredException e) {
+			resp.sendError(HttpServletResponse.SC_NOT_FOUND);
+		}
 	}
 	
 	/**

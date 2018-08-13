@@ -16,6 +16,7 @@ package org.eclipse.thingweb.directory.filter;
 
 import java.io.IOException;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 
 import javax.servlet.Filter;
@@ -27,6 +28,7 @@ import javax.servlet.ServletResponse;
 import javax.servlet.annotation.WebFilter;
 import javax.servlet.annotation.WebInitParam;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
 
 /**
@@ -55,7 +57,13 @@ public class ContentNegotiationFilter implements Filter {
 	 */
 	public static final String ACCEPTED_CONFIG_PARAMETER = "accepted";
 	
+	private static final String FALLBACK_CONTENT_TYPE = "*/*";
+	
 	private final Set<String> acceptedContentTypes = new HashSet<String>();
+	
+	public ContentNegotiationFilter() {
+		acceptedContentTypes.add(FALLBACK_CONTENT_TYPE);
+	}
 	
 	public void destroy() {
 		// nothing to do
@@ -63,12 +71,26 @@ public class ContentNegotiationFilter implements Filter {
 
 	public void doFilter(ServletRequest req, ServletResponse resp, FilterChain chain) throws IOException, ServletException {
 		if (req instanceof HttpServletRequest && resp instanceof HttpServletResponse) {
-			String ct = (((HttpServletRequest) req).getHeader("Accept"));
+			String accept = (((HttpServletRequest) req).getHeader("Accept"));
+			Set<String> cts = new HashSet<>();
 			
-			// TODO process ct (comma, semi-colon)
+			for (String entry : accept.split(",")) {
+				String ct = entry.split(";")[0]; // ignoring other parameters
+				cts.add(ct);
+			}
 			
-			if (!acceptedContentTypes.contains(ct)) {
+			cts.retainAll(acceptedContentTypes);
+			
+			if (cts.isEmpty()) {
 				((HttpServletResponse) resp).sendError(HttpServletResponse.SC_NOT_ACCEPTABLE);
+			} else {
+				HttpServletRequestWrapper wrapper = new HttpServletRequestWrapper((HttpServletRequest) req);
+				cts.removeIf(str -> str.contains("*"));
+				if (cts.isEmpty()) {
+					// TODO remove accept header
+				} else {
+					// TODO replace accept header
+				}
 			}
 		}
 		

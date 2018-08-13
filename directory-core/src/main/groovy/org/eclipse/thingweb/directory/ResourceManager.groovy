@@ -15,6 +15,7 @@
 package org.eclipse.thingweb.directory
 
 import groovy.util.logging.Log
+
 import java.io.InputStream
 import java.io.OutputStream
 import java.util.List
@@ -111,8 +112,11 @@ abstract class ResourceManager {
 	 * @param o stream to which resource content will be written (in the format specified by {@code cf})
 	 * @param cf resource content format, IANA-registered media type (e.g. {@code application/link-format})
 	 * @param attrs request attributes ({@code href}, {@code rel}, {@code rt}, {@code if}, {@code ct})
+	 * @throws ResourceNotRegisteredException if the resource identifier is unknown
 	 */
-	void get(String id, OutputStream o, String cf, Map attrs) {
+	void get(String id, OutputStream o, String cf, Map attrs) throws ResourceNotRegisteredException {
+		if (!exists(id)) throw new ResourceNotRegisteredException()
+		
 		def res = get(id)
 		
 		if (attrs.size() > 0) log.warning('No attribute supported')
@@ -135,8 +139,11 @@ abstract class ResourceManager {
 	 * @param i streamed resource content to substitute to current content
 	 * @param cf resource content format, IANA-registered media type (e.g. {@code application/link-format})
 	 * @param attrs request attributes (e.g. {@code lt}, {@code con})
+	 * @throws ResourceNotRegisteredException if the resource identifier is unknown
 	 */
-	void replace(String id, InputStream i, String cf, Map attrs) {
+	void replace(String id, InputStream i, String cf, Map attrs) throws ResourceNotRegisteredException {
+		if (!exists(id)) throw new ResourceNotRegisteredException()
+
 		ResourceSerializer rs = ResourceSerializerFactory.get(cf)
 		def res = rs.readContent(i, cf)
 		
@@ -161,8 +168,11 @@ abstract class ResourceManager {
 	 *   </a>
 	 * 
 	 * @param id id resource identifier (aka {@code location})
+	 * @throws ResourceNotRegisteredException if the resource identifier is unknown
 	 */
-	void delete(String id) {
+	void delete(String id) throws ResourceNotRegisteredException {
+		if (!exists(id)) throw new ResourceNotRegisteredException()
+
 		delete(get(id))
 	}
 	
