@@ -20,6 +20,7 @@ import java.net.URLDecoder;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -37,12 +38,6 @@ import org.eclipse.thingweb.directory.ResourceNotRegisteredException;
  * @creation 08.08.2018
  *
  */
-@WebServlet(
-	name="RegistrationHandle",
-	urlPatterns={"/td/*", "/vocab/*"},
-	description=".",
-	loadOnStartup=1
-)
 public class RegistrationHandleServlet extends HttpServlet {
 	
 	private static final long serialVersionUID = -6067916068657744771L;

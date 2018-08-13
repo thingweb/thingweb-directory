@@ -35,12 +35,6 @@ import org.eclipse.thingweb.directory.ResourceManagerFactory;
  * @creation 08.08.2018
  *
  */
-@WebServlet(
-	name="Registration",
-	urlPatterns={"/td", "/vocab"},
-	description=".",
-	loadOnStartup=1
-)
 public class RegistrationServlet extends HttpServlet {
 
 	private static final long serialVersionUID = -3499454239511376155L;

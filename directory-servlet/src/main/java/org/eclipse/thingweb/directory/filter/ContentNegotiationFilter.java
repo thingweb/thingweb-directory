@@ -40,16 +40,6 @@ import javax.servlet.http.HttpServletResponse;
  * @creation 12.08.2018
  *
  */
-@WebFilter(
-	filterName="ContentNegotiation",
-	servletNames={"RegistrationHandle", "TDLookUpSem"},
-	initParams={
-		@WebInitParam(
-			name="accepted",
-			value="application/n-triples,text/turtle,application/rdf+xml,application/ld+json,application/td+json"
-		)
-	}
-)
 public class ContentNegotiationFilter implements Filter {
 
 	/**

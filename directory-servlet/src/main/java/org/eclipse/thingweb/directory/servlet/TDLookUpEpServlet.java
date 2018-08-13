@@ -22,12 +22,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-@WebServlet(
-	name="TDLookUpEp",
-	urlPatterns={"/td-lookup/ep"},
-	description=".",
-	loadOnStartup=1
-)
 public class TDLookUpEpServlet extends HttpServlet {
 
 	private static final long serialVersionUID = 6011896803323184949L;

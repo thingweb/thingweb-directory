@@ -27,12 +27,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.eclipse.thingweb.directory.ResourceManager;
 import org.eclipse.thingweb.directory.ResourceManagerFactory;
 
-@WebServlet(
-	name="TDLookUpSem",
-	urlPatterns={"/td-lookup/sem"},
-	description=".",
-	loadOnStartup=1
-)
 public class TDLookUpSemServlet extends HttpServlet {
 	
 	private static final long serialVersionUID = 5679530570591631536L;
