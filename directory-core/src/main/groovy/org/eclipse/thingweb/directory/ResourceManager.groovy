@@ -62,6 +62,14 @@ abstract class ResourceManager {
 	static final String DEFAULT_BASE = 'coap://localhost' // TODO use source URI instead
 	
 	/**
+	 * Preferred resource content format to be process by this resource manager.
+	 * E.g. {@code application/link-format}.
+	 * 
+	 * @returns the manager object's preferred content format
+	 */
+	abstract String getPreferredContentFormat()
+	
+	/**
 	 * Registration request interface.
 	 * <p>
 	 * Endpoint: {@code {+rd}{?ep,d,lt,base,extra-attrs*}}

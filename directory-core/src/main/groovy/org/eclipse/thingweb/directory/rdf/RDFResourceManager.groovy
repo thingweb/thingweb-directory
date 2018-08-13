@@ -53,7 +53,6 @@ import org.eclipse.thingweb.directory.ResourceManager
  *
  */
 @Log
-@Singleton
 class RDFResourceManager extends ResourceManager {
 
 	/**
@@ -77,9 +76,15 @@ class RDFResourceManager extends ResourceManager {
 	 */
 	static final SPARQL_PASSWORD_PROPERTY = 'org.eclipse.rdf4j.repository.rdf.sparqlPassword'
 	
-	Repository repo
-	
 	private final ValueFactory vf = SimpleValueFactory.instance
+	
+	private final String preferredContentFormat
+	
+	private Repository repo
+	
+	RDFResourceManager(String cf) {
+		preferredContentFormat = cf
+	}
 	
 	/**
 	 * Every time the {@code repo} attribute is accessed, an attempt is made to establish a
@@ -89,7 +94,12 @@ class RDFResourceManager extends ResourceManager {
 	 */
 	Repository getRepo() {
 		if (!repo) connect()
-		return repo;
+		return repo
+	}
+	
+	@Override
+	public String getPreferredContentFormat() {
+		return preferredContentFormat
 	}
 	
 	@Override
@@ -100,7 +110,7 @@ class RDFResourceManager extends ResourceManager {
 		if (RDFResource.isInstance(res)) {
 			g = (res as RDFResource).graph
 		} else {
-			log.warn('Trying to register a non-RDF resource; content not read...')
+			log.warning('Trying to register a non-RDF resource; content not read...')
 		}
 
 		Repositories.consume(getRepo(), { RepositoryConnection con ->
@@ -160,7 +170,7 @@ class RDFResourceManager extends ResourceManager {
 			def rdf = other as RDFResource
 			g = rdf.graph.filter(null, null as IRI, null, rdf.iri)
 		} else {
-			log.warn('Trying to replace RDF resource by a non-RDF resource; content not read...')
+			log.warning('Trying to replace RDF resource by a non-RDF resource; content not read...')
 		}
 		
 		// TODO check base, lt

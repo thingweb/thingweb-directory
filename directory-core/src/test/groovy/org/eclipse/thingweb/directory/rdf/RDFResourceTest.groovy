@@ -59,17 +59,4 @@ class RDFResourceTest {
 		assert res.ep == ep : 'Attribute "ep" was not updated properly'
 	}
 	
-	@Test
-	void testMerge() {
-		def b = new ModelBuilder()
-		def g1 = b.add('tag:someresource', RDF.TYPE, RDFS.RESOURCE).build()
-		def g2 = b.add('tag:someotherresource', RDF.TYPE, RDFS.RESOURCE).build()
-		
-		def res = new RDFResource(g1)
-		def other = new RDFResource(g2)
-		res.merge(other)
-		
-		assert res.graph.contexts().size() == 2 : 'RDF documents are not merged'
-	}
-	
 }

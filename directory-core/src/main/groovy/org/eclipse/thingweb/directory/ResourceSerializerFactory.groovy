@@ -28,14 +28,15 @@ class ResourceSerializerFactory {
 
 	static ResourceSerializer get(String cf) {
 		switch (cf) {
-			case '*/*':
 			case 'application/n-triples':
 			case 'text/turtle':
 			case 'application/rdf+xml':
 			case 'application/ld+json':
 				return RDFSerializer.instance
+				
 			case TDSerializer.TD_CONTENT_FORMAT:
 				return TDSerializer.instance
+				
 			default:
 				throw new RuntimeException('No suitable resource serializer found')
 		}

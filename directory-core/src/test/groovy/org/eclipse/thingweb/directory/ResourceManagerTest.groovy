@@ -45,6 +45,11 @@ class ResourceManagerTest {
 	private class EmptyResourceManager extends ResourceManager {
 
 		private static final resources = []
+		
+		@Override
+		public String getPreferredContentFormat() {
+			return null; // none
+		}
 
 		@Override
 		protected void register(Resource res) {

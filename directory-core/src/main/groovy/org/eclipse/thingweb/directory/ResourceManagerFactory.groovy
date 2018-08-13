@@ -15,6 +15,8 @@
 package org.eclipse.thingweb.directory
 
 import org.eclipse.thingweb.directory.rdf.RDFResourceManager
+import org.eclipse.thingweb.directory.rdf.RDFSerializer
+import org.eclipse.thingweb.directory.rdf.TDSerializer
 
 /**
  * .
@@ -26,7 +28,16 @@ import org.eclipse.thingweb.directory.rdf.RDFResourceManager
 class ResourceManagerFactory {
 
 	static ResourceManager get(String rd) {
-		return RDFResourceManager.instance
+		switch (rd) {
+			case 'td': 
+				return new RDFResourceManager(TDSerializer.TD_CONTENT_FORMAT)
+				
+			case 'vocab':
+				return new RDFResourceManager(RDFSerializer.DEFAULT_RDF_FORMAT.getDefaultMIMEType())
+				
+			default:
+				throw new RuntimeException('No suitable resource manager found')
+		}
 	}
 	
 }

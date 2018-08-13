@@ -17,6 +17,7 @@ package org.eclipse.thingweb.directory.rdf
 import javax.xml.datatype.DatatypeConstants
 import javax.xml.datatype.DatatypeFactory
 import javax.xml.datatype.XMLGregorianCalendar
+
 import org.eclipse.rdf4j.model.IRI
 import org.eclipse.rdf4j.model.Literal
 import org.eclipse.rdf4j.model.Model
@@ -29,6 +30,7 @@ import org.eclipse.rdf4j.repository.util.Repositories
 import org.eclipse.rdf4j.rio.RDFFormat
 import org.eclipse.rdf4j.rio.Rio
 import org.eclipse.thingweb.directory.Resource
+import org.eclipse.thingweb.directory.ResourceManagerFactory
 import org.eclipse.thingweb.directory.vocabulary.TD
 import org.junit.Before
 import org.junit.Test
@@ -42,9 +44,11 @@ import org.junit.Test
  */
 class RDFResourceManagerTest {
 	
+	final RDFResourceManager m = ResourceManagerFactory.get('vocab')
+	
 	@Before
 	void cleanRepo() {
-		def repo = RDFResourceManager.instance.repo
+		def repo = m.repo
 		Repositories.consume(repo, { RepositoryConnection con ->
 			String q = 'DROP DEFAULT;'
 			
@@ -58,7 +62,7 @@ class RDFResourceManagerTest {
 
 	@Test
 	void testRepo() {
-		def repo = RDFResourceManager.instance.repo
+		def repo = m.repo
 		
 		assert repo.connection.isEmpty() : 'RDF resource manager did not connect to an empty RDF store'
 	}
@@ -71,9 +75,9 @@ class RDFResourceManagerTest {
 		Model g = Rio.parse(i, '', RDFFormat.JSONLD)
 
 		def res = new RDFResource(g)
-		RDFResourceManager.instance.register(res)
+		m.register(res)
 		
-		def repo = RDFResourceManager.instance.repo
+		def repo = m.repo
 		Repositories.consume(repo, { RepositoryConnection con ->
 			def r = con.getStatements(res.iri, DCTERMS.ISSUED, null)
 			assert r.hasNext() : 'RDF document was not properly inserted in the RDF store (no dct:issued statement)'
@@ -97,7 +101,7 @@ class RDFResourceManagerTest {
 	void testExists() {
 		def cl = getClass().getClassLoader()
 		
-		def exists = RDFResourceManager.instance.exists('tag:someresource')
+		def exists = m.exists('tag:someresource')
 		
 		assert !exists : 'Unregistered resource should not have been recognized by the RDF resource manager'
 		
@@ -105,16 +109,16 @@ class RDFResourceManagerTest {
 		Model g = Rio.parse(i, '', RDFFormat.JSONLD)
 
 		def res = new RDFResource(g)
-		RDFResourceManager.instance.register(res)
+		m.register(res)
 		
-		exists = RDFResourceManager.instance.exists(res.id)
+		exists = m.exists(res.id)
 		
 		assert exists : 'Registered resource was not recognized by the RDF resource manager'
 	}
 	
 	@Test
 	void testGet() {
-		Resource res = RDFResourceManager.instance.get('tag:someresource')
+		Resource res = m.get('tag:someresource')
 		
 		assert res.graph.isEmpty() : 'RDF resource manager returned an inconsistent resource object'
 	}
@@ -127,15 +131,15 @@ class RDFResourceManagerTest {
 		Model g = Rio.parse(i, '', RDFFormat.JSONLD)
 		
 		def res = new RDFResource(g)
-		RDFResourceManager.instance.register(res)
+		m.register(res)
 		
 		i = cl.getResourceAsStream('samples/fanTD_update.jsonld')
 		g = Rio.parse(i, '', RDFFormat.JSONLD)
 		
 		def other = new RDFResource(g)
-		RDFResourceManager.instance.replace(res, other)
+		m.replace(res, other)
 		
-		def repo = RDFResourceManager.instance.repo
+		def repo = m.repo
 		Repositories.consume(repo, { RepositoryConnection con ->
 			def r = con.getStatements(res.iri, DCTERMS.MODIFIED, null)
 			assert r.hasNext() : 'RDF document was not properly updated (no dct:modified statement)'
@@ -172,10 +176,10 @@ class RDFResourceManagerTest {
 		Model g = Rio.parse(i, '', RDFFormat.JSONLD)
 		
 		def res = new RDFResource(g)
-		RDFResourceManager.instance.register(res)
-		RDFResourceManager.instance.delete(res)
+		m.register(res)
+		m.delete(res)
 		
-		res = RDFResourceManager.instance.get(res.id) as RDFResource
+		res = m.get(res.id) as RDFResource
 		g = res.graph.filter(null, null as IRI, null, res.iri)
 		
 		assert g.isEmpty() : 'RDF document was not deleted'

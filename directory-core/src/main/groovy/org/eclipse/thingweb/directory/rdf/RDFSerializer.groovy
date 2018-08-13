@@ -39,13 +39,13 @@ import org.eclipse.thingweb.directory.ResourceSerializer
 @Singleton
 class RDFSerializer implements ResourceSerializer {
 
-	final static RDFFormat DEFAULT_FORMAT = RDFFormat.JSONLD
+	final static RDFFormat DEFAULT_RDF_FORMAT = RDFFormat.JSONLD
 	
 	final static String DEFAULT_BASE_IRI = 'tag:toremove'
 	
 	@Override
 	Resource readContent(InputStream i, String cf) {
-		def format = Rio.getParserFormatForMIMEType(cf).orElse(DEFAULT_FORMAT)
+		def format = Rio.getParserFormatForMIMEType(cf).orElse(DEFAULT_RDF_FORMAT)
 		def g = Rio.parse(i as InputStream, DEFAULT_BASE_IRI, format)
 		return new RDFResource(g)
 	}
@@ -58,7 +58,7 @@ class RDFSerializer implements ResourceSerializer {
 	 */
 	@Override
 	void writeContent(Resource res, OutputStream o, String cf) {
-		def format = Rio.getParserFormatForMIMEType(cf).orElse(DEFAULT_FORMAT)
+		def format = Rio.getParserFormatForMIMEType(cf).orElse(DEFAULT_RDF_FORMAT)
 		Model g = new LinkedHashModel()
 		
 		switch (res) {				

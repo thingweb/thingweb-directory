@@ -17,6 +17,8 @@ package org.eclipse.thingweb.directory.rdf
 import org.junit.Before
 import org.junit.Test
 
+import org.eclipse.thingweb.directory.ResourceManagerFactory
+
 /**
  * .
  *
@@ -25,19 +27,21 @@ import org.junit.Test
  *
  */
 class SPARQLFilterTest {
+	
+	final RDFResourceManager m = ResourceManagerFactory.get('vocab')
 
 	@Test
 	void testFilter() {
 		def cl = getClass().getClassLoader()
 		
 		def i = cl.getResourceAsStream('samples/fanTD.jsonld')
-		def fan = RDFResourceManager.instance.register(i, 'application/ld+json', [:])
+		def fan = m.register(i, 'application/ld+json', [:])
 		
 		i = cl.getResourceAsStream('samples/temperatureSensorTD.jsonld')
-		def temp = RDFResourceManager.instance.register(i, 'application/ld+json', [:])
+		def temp = m.register(i, 'application/ld+json', [:])
 		
 		def f = new SPARQLFilter()
-		f.repo = RDFResourceManager.instance.repo
+		f.repo = m.repo
 		
 		Set<String> filtered = f.filter('?s ?p ?o')
 		
