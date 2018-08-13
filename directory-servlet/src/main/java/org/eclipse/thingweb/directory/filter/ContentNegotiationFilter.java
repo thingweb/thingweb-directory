@@ -31,6 +31,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.http.client.methods.HttpRequestWrapper;
+
 /**
  * 
  * .
@@ -59,6 +61,40 @@ public class ContentNegotiationFilter implements Filter {
 	
 	private static final String FALLBACK_CONTENT_TYPE = "*/*";
 	
+	/**
+	 * 
+	 * Request wrapper that replaces the {@code Accept} header with the media type
+	 * selected by its parent filter.
+	 *
+	 * @author Victor Charpenay
+	 * @creation 13.08.2018
+	 *
+	 */
+	private static class ContentNegotiationRequestWrapper extends HttpServletRequestWrapper {
+		
+		private final String acceptedMediaType;
+		
+		public ContentNegotiationRequestWrapper(HttpServletRequest req) {
+			this(req, null);
+		}
+		
+		public ContentNegotiationRequestWrapper(HttpServletRequest req, String mediaType) {
+			super(req);
+			this.acceptedMediaType = mediaType;
+		}
+		
+		@Override
+		public String getHeader(String name) {
+			if (name.equals("Accept")) {
+				return acceptedMediaType;
+			} else {
+				return super.getHeader(name);
+			}
+		}
+		
+	}
+	
+	
 	private final Set<String> acceptedContentTypes = new HashSet<String>();
 	
 	public ContentNegotiationFilter() {
@@ -72,24 +108,28 @@ public class ContentNegotiationFilter implements Filter {
 	public void doFilter(ServletRequest req, ServletResponse resp, FilterChain chain) throws IOException, ServletException {
 		if (req instanceof HttpServletRequest && resp instanceof HttpServletResponse) {
 			String accept = (((HttpServletRequest) req).getHeader("Accept"));
-			Set<String> cts = new HashSet<>();
 			
-			for (String entry : accept.split(",")) {
-				String ct = entry.split(";")[0]; // ignoring other parameters
-				cts.add(ct);
-			}
-			
-			cts.retainAll(acceptedContentTypes);
-			
-			if (cts.isEmpty()) {
-				((HttpServletResponse) resp).sendError(HttpServletResponse.SC_NOT_ACCEPTABLE);
-			} else {
-				HttpServletRequestWrapper wrapper = new HttpServletRequestWrapper((HttpServletRequest) req);
-				cts.removeIf(str -> str.contains("*"));
+			if (accept != null) {
+				Set<String> cts = new HashSet<>();
+				
+				for (String entry : accept.split(",")) {
+					String ct = entry.split(";")[0]; // ignoring other parameters
+					cts.add(ct);
+				}
+				
+				cts.retainAll(acceptedContentTypes);
+				
 				if (cts.isEmpty()) {
-					// TODO remove accept header
+					((HttpServletResponse) resp).sendError(HttpServletResponse.SC_NOT_ACCEPTABLE);
 				} else {
-					// TODO replace accept header
+					cts.removeIf(str -> str.contains("*"));
+					
+					if (cts.isEmpty()) {
+						req = new ContentNegotiationRequestWrapper((HttpServletRequest) req);
+					} else {
+						String first = cts.iterator().next();
+						req = new ContentNegotiationRequestWrapper((HttpServletRequest) req, first);
+					}
 				}
 			}
 		}

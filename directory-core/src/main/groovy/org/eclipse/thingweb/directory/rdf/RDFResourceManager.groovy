@@ -180,6 +180,13 @@ class RDFResourceManager extends ResourceManager {
 		})
 	}
 	
+	/**
+	 * Resolves the input identifier to an absolute IRI. Relative IRIs are
+	 * appended to the default base IRI of the {@link RDFSerializer} class.
+	 * 
+	 * @param id a resource identifier
+	 * @return the identifier as a resolved (absolute) IRI
+	 */
 	private IRI resolve(String id) {
 		try {
 			return vf.createIRI(id)
@@ -190,7 +197,13 @@ class RDFResourceManager extends ResourceManager {
 		}
 	}
 	
-	private def connect() {
+	/**
+	 * Attemps to connect to a remote SPARQL endpoint if endpoint information
+	 * have been provided as JVM parameters. Otherwise, a transient in-memory
+	 * RDF store is created.
+	 * 
+	 */
+	private void connect() {
 		String queryEndpoint = System.getProperty(SPARQL_QUERY_ENDPOINT_PROPERTY)
 		String updateEndpoint = System.getProperty(SPARQL_UPDATE_ENDPOINT_PROPERTY, queryEndpoint)
 		
