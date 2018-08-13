@@ -55,7 +55,7 @@
 		<servlet-class>org.eclipse.thingweb.directory.servlet.RegistrationHandleServlet</servlet-class>
 		<init-param>
 			<param-name>registration-type</param-name>
-			<param-value>vocab</param-value>
+			<param-value>td</param-value>
 		</init-param>
 	</servlet>
 	

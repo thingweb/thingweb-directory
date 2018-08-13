@@ -76,6 +76,11 @@ class RDFResourceManager extends ResourceManager {
 	 */
 	static final SPARQL_PASSWORD_PROPERTY = 'org.eclipse.rdf4j.repository.rdf.sparqlPassword'
 	
+	/**
+	 * Single reference to an in-memory RDF store, shared across all RDF manager instances.
+	 */
+	private static Repository sharedRepo
+	
 	private final ValueFactory vf = SimpleValueFactory.instance
 	
 	private final String preferredContentFormat
@@ -210,7 +215,7 @@ class RDFResourceManager extends ResourceManager {
 	/**
 	 * Attempts to connect to a remote SPARQL endpoint if endpoint information
 	 * have been provided as JVM parameters. Otherwise, a transient in-memory
-	 * RDF store is created.
+	 * RDF store is used.
 	 */
 	private void connect() {
 		// TODO by config class or env
@@ -240,10 +245,16 @@ class RDFResourceManager extends ResourceManager {
 			}
 		}
 		
-		// transient in-memory store
-		if (!repo) repo = new SailRepository(new MemoryStore())
+		// transient in-memory store (instantiated once)
+		if (!repo) {
+			if (!sharedRepo) sharedRepo = new SailRepository(new MemoryStore())
+			repo = sharedRepo
+		}
 		
-		repo.initialize()
+		if (!repo.isInitialized()) {
+			// TODO create service class managing repositories
+			repo.initialize()
+		}
 	}
 
 }

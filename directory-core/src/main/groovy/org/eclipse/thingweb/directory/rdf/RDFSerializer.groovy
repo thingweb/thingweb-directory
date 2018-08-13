@@ -82,6 +82,7 @@ class RDFSerializer implements ResourceSerializer {
 			default:
 				log.warning('Trying to serialize in RDF the content of a non-RDF resource...')
 		}
+		
 		Rio.write(g, o, format)
 	}
 
