@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -35,18 +36,14 @@ import org.eclipse.thingweb.directory.ResourceManagerFactory;
  * @creation 08.08.2018
  *
  */
-public class RegistrationServlet extends HttpServlet {
+public class RegistrationServlet extends ManagerRelatedServlet {
 
 	private static final long serialVersionUID = -3499454239511376155L;
-	
-	public final static String DEFAULT_MEDIA_TYPE = "application/ld+json";
-	
-	private final ResourceManager manager = ResourceManagerFactory.get("td");
 	
 	@Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		String contentType = req.getHeader("Content-Type");
-		if (contentType == null) contentType = DEFAULT_MEDIA_TYPE;
+		if (contentType == null) contentType = manager.getPreferredContentFormat();
 		
 		Map<String, String> parameters = new HashMap<>();
 		// TODO

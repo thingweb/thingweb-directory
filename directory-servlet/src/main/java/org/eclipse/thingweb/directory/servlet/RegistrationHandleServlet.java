@@ -38,20 +38,16 @@ import org.eclipse.thingweb.directory.ResourceNotRegisteredException;
  * @creation 08.08.2018
  *
  */
-public class RegistrationHandleServlet extends HttpServlet {
+public class RegistrationHandleServlet extends ManagerRelatedServlet {
 	
 	private static final long serialVersionUID = -6067916068657744771L;
-
-	public final static String DEFAULT_MEDIA_TYPE = "application/ld+json";
-	
-	private final ResourceManager manager = ResourceManagerFactory.get("td");
 
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		String id = getItemID(req);
 		
 		String contentType = req.getHeader("Accept");
-		if (contentType == null) contentType = DEFAULT_MEDIA_TYPE;
+		if (contentType == null) contentType = manager.getPreferredContentFormat();
 		
 		Map<String, String> parameters = new HashMap<>();
 		// TODO
@@ -69,7 +65,7 @@ public class RegistrationHandleServlet extends HttpServlet {
 		String id = getItemID(req);
 		
 		String contentType = req.getHeader("Content-Type");
-		if (contentType == null) contentType = DEFAULT_MEDIA_TYPE;
+		if (contentType == null) contentType = manager.getPreferredContentFormat();
 		
 		Map<String, String> parameters = new HashMap<>();
 		// TODO

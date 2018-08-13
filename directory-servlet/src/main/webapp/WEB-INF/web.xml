@@ -23,24 +23,40 @@
 		<servlet-name>vocab</servlet-name>
 		<description>Registration servlet for RDF vocabularies/ontologies</description>
 		<servlet-class>org.eclipse.thingweb.directory.servlet.RegistrationServlet</servlet-class>
+		<init-param>
+			<param-name>registration-type</param-name>
+			<param-value>vocab</param-value>
+		</init-param>
 	</servlet>
 	
 	<servlet>
 		<servlet-name>vocab-handle</servlet-name>
 		<description>Registration handle servlet for registered RDF vocabularies/ontologies</description>
 		<servlet-class>org.eclipse.thingweb.directory.servlet.RegistrationHandleServlet</servlet-class>
+		<init-param>
+			<param-name>registration-type</param-name>
+			<param-value>vocab</param-value>
+		</init-param>
 	</servlet>
 	
 	<servlet>
 		<servlet-name>td</servlet-name>
 		<description>Registration servlet for TD documents</description>
 		<servlet-class>org.eclipse.thingweb.directory.servlet.RegistrationServlet</servlet-class>
+		<init-param>
+			<param-name>registration-type</param-name>
+			<param-value>td</param-value>
+		</init-param>
 	</servlet>
 	
 	<servlet>
 		<servlet-name>td-handle</servlet-name>
 		<description>Registration servlet for registered TD documents</description>
 		<servlet-class>org.eclipse.thingweb.directory.servlet.RegistrationHandleServlet</servlet-class>
+		<init-param>
+			<param-name>registration-type</param-name>
+			<param-value>vocab</param-value>
+		</init-param>
 	</servlet>
 	
 	<servlet>
