@@ -205,7 +205,7 @@ abstract class ResourceManager {
 		ids = ids.subList(page * count, (page + 1) * count)
 		
 		if (!ids.isEmpty()) {
-			def res = ids.collect({ id -> get(id) }).inject({ all, res -> all.merge(res) })
+			LookUpResult res = new LookUpResult(ids.collect({ id -> get(id) }))
 			
 			ResourceSerializer rs = ResourceSerializerFactory.get(cf)
 			rs.writeContent(res, o, cf)

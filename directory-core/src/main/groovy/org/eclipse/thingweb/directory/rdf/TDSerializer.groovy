@@ -73,6 +73,8 @@ class TDSerializer implements ResourceSerializer {
 		opts.useNativeTypes = true
 		opts.pruneBlankNodeIdentifiers = true
 		
+		// TODO process lookup result
+		
 		// applies JSON-LD framing
 		def i = new ByteArrayInputStream(buf.toByteArray())
 		def obj = new JsonSlurper().parse(i)
@@ -81,6 +83,7 @@ class TDSerializer implements ResourceSerializer {
 		i = new ByteArrayInputStream(JsonOutput.toJson(framed).bytes)
 		def str = new TDTransform(i).asJsonLd11()
 		o.write(str.bytes)
+		o.close()
 	}
 
 }

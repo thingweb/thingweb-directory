@@ -14,10 +14,16 @@
  ********************************************************************************/
 package org.eclipse.thingweb.directory.rdf
 
+import groovy.util.logging.Log
 import java.io.InputStream
 import java.io.OutputStream
+import org.eclipse.rdf4j.model.Model
+import org.eclipse.rdf4j.model.Statement
+import org.eclipse.rdf4j.model.impl.LinkedHashModel
 import org.eclipse.rdf4j.rio.RDFFormat
 import org.eclipse.rdf4j.rio.Rio
+import org.eclipse.thingweb.directory.LookUpFilter
+import org.eclipse.thingweb.directory.LookUpResult
 import org.eclipse.thingweb.directory.Resource
 import org.eclipse.thingweb.directory.ResourceSerializer
 
@@ -29,6 +35,7 @@ import org.eclipse.thingweb.directory.ResourceSerializer
  * @creation 06.08.2018
  *
  */
+@Log
 @Singleton
 class RDFSerializer implements ResourceSerializer {
 
@@ -46,7 +53,34 @@ class RDFSerializer implements ResourceSerializer {
 	@Override
 	void writeContent(Resource res, OutputStream o, String cf) {
 		def format = Rio.getParserFormatForMIMEType(cf).orElse(DEFAULT_FORMAT)
-		Rio.write((res as RDFResource).content, o, format)
+		Model g = new LinkedHashModel()
+		
+		switch (res) {				
+			case LookUpResult:
+				(res as LookUpResult).resources.forEach({ Resource  r ->
+					if (RDFResource.isInstance(r)) {
+						def rdf = r as RDFResource
+						rdf.content.forEach({ Statement st ->
+							g.add(st.subject, st.predicate, st.object, rdf.iri)
+						})
+					} else {
+						log.warning('Lookup result is not an RDF resource. Ignoring...')
+					}
+				})
+				break
+				
+			case RDFResource:
+				g = (res as RDFResource).content
+				break
+				
+			default:
+				log.warning('Trying to serialize in RDF the content of a non-RDF resource...')
+		}
+		Rio.write(g, o, format)
+	}
+	
+	private RDFFormat getLookUpFormat(RDFFormat format) {
+		
 	}
 
 }

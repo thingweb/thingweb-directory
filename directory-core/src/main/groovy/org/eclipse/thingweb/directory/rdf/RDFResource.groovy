@@ -129,16 +129,6 @@ class RDFResource implements DirectoryResource {
 		return iri.stringValue()
 	}
 	
-	@Override
-	void merge(DirectoryResource res) {
-		if (RDFResource.isInstance(res)) {
-			def rdf = res as RDFResource
-			graph.addAll(rdf.graph)
-		} else {
-			log.warn('Trying to merge an RDF resource with a non-RDF resource; nothing done...')
-		}
-	}
-	
 	protected IRI idFromGraph(Model g) {
 		// TODO normalize graph and always return the same id for the same graph
 		return SimpleValueFactory.instance.createIRI('urn:uuid:' + UUID.randomUUID())

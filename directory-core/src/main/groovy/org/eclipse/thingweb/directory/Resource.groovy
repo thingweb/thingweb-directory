@@ -53,14 +53,4 @@ interface Resource {
 	 */
 	String getId()
 	
-	/**
-	 * Merges the content of another resource with current resource. The result of a
-	 * lookup is the merge of all resources matching the search criteria.
-	 * 
-	 * @see ResourceManager#lookUp()
-	 * 
-	 * @param res other resource to merge 
-	 */
-	void merge(Resource res)
-	
 }
