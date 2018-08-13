@@ -94,7 +94,7 @@ class RDFResourceManager extends ResourceManager {
 	
 	@Override
 	protected void register(Resource res) {
-		def iri = vf.createIRI(res.id)
+		def iri = resolve(res.id)
 		def g = new LinkedHashModel()
 		
 		if (RDFResource.isInstance(res)) {
@@ -112,21 +112,23 @@ class RDFResourceManager extends ResourceManager {
 	
 	@Override
 	protected boolean exists(String id) {
+		def iri = resolve(id)
+		
 		return Repositories.get(getRepo(), { RepositoryConnection con ->
-			def q = "ASK WHERE { <${id}> a <${DCAT.DATASET}> }"
+			def q = "ASK WHERE { <${iri}> a <${DCAT.DATASET}> }"
 			return con.prepareBooleanQuery(q).evaluate()
 		})
 	}
 	
 	@Override
 	protected Resource get(String id) {
-		def iri = vf.createIRI(id)
+		def iri = resolve(id)
 		
 		def g = Repositories.get(getRepo(), { RepositoryConnection con ->
 			def g = new LinkedHashModel()
 			
 			// content
-			def q = "CONSTRUCT { ?s ?p ?o } WHERE { GRAPH <${id}> { ?s ?p ?o }}"
+			def q = "CONSTRUCT { ?s ?p ?o } WHERE { GRAPH <${iri}> { ?s ?p ?o }}"
 			def r = con.prepareGraphQuery(q).evaluate()
 			while (r.hasNext()) {
 				Statement st = r.next()
@@ -135,7 +137,7 @@ class RDFResourceManager extends ResourceManager {
 			
 			if (!g.isEmpty()) {
 				// meta-data
-				q = "CONSTRUCT { <${id}> ?p ?o } WHERE { <${id}> ?p ?o . FILTER NOT EXISTS { GRAPH <${id}> { ?s ?p ?o }}}"
+				q = "CONSTRUCT { <${iri}> ?p ?o } WHERE { <${iri}> ?p ?o . FILTER NOT EXISTS { GRAPH <${iri}> { ?s ?p ?o }}}"
 				r = con.prepareGraphQuery(q).evaluate()
 				while (r.hasNext()) {
 					Statement st = r.next()
@@ -151,7 +153,7 @@ class RDFResourceManager extends ResourceManager {
 	
 	@Override
 	protected void replace(Resource res, Resource other) {
-		def iri = vf.createIRI(res.id)
+		def iri = resolve(res.id)
 		def g = new LinkedHashModel()
 
 		if (RDFResource.isInstance(other)) {
@@ -171,11 +173,21 @@ class RDFResourceManager extends ResourceManager {
 	
 	@Override
 	protected void delete(Resource res) {
-		def iri = vf.createIRI(res.id)
+		def iri = resolve(res.id)
 		
 		Repositories.consume(getRepo(), { RepositoryConnection con ->
 			con.clear(iri)
 		})
+	}
+	
+	private IRI resolve(String id) {
+		try {
+			return vf.createIRI(id)
+		} catch (IllegalArgumentException e) {
+			// TODO case where id contains invalid chars
+			log.info('Provided resource identifier is not an absolute IRI. Resolving with default base IRI...')
+			return vf.createIRI(RDFSerializer.DEFAULT_BASE_IRI + '/', id)
+		}
 	}
 	
 	private def connect() {
@@ -200,7 +212,7 @@ class RDFResourceManager extends ResourceManager {
 				repo.getConnection().isEmpty();
 			} catch (RepositoryException e) {
 				repo = null
-				log.warning('SPARQL endpoint cannot be reached, switching to main memory RDF store...');
+				log.warning('SPARQL endpoint cannot be reached, switching to in-memory RDF store...');
 			}
 		}
 		
