@@ -15,12 +15,12 @@
 package org.eclipse.thingweb.directory.rdf
 
 import groovy.json.*
-
 import org.eclipse.rdf4j.model.Model
 import org.eclipse.rdf4j.model.impl.SimpleValueFactory
 import org.eclipse.rdf4j.model.util.Models
 import org.eclipse.rdf4j.rio.RDFFormat
 import org.eclipse.rdf4j.rio.Rio
+import org.eclipse.thingweb.directory.LookUpResult
 import org.junit.Test
 
 class TDSerializerTest {
@@ -54,6 +54,28 @@ class TDSerializerTest {
 		
 		assert obj.'id' == 'urn:Fan' : 'TD content was not properly serialized (missing mandatory id)'
 		// TODO use JSON schema instead
+	}
+	
+	@Test
+	void testWriteLookUpResult() {
+		def cl = getClass().getClassLoader()
+		
+		def i = cl.getResourceAsStream('samples/fanTD.jsonld')
+		def fan = TDSerializer.instance.readContent(i, 'application/td+json') as RDFResource
+		
+		i = cl.getResourceAsStream('samples/temperatureSensorTD.jsonld')
+		def temp = TDSerializer.instance.readContent(i, 'application/td+json') as RDFResource
+		
+		def res = new LookUpResult([fan, temp])
+		
+		def o = new ByteArrayOutputStream()
+		TDSerializer.instance.writeContent(res, o, 'application/td+json')
+		
+		def obj = new JsonSlurper().parse(o.toByteArray())
+		
+		assert Map.isInstance(obj) : 'Lookup result on TD resources was not serialized as a map'
+		assert obj[fan.id] : 'Lookup result on TD resources does not include fan TD'
+		assert obj[temp.id] : 'Lookup result on TD resources does not include temperature sensor TD'
 	}
 	
 }

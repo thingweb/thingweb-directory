@@ -38,11 +38,6 @@ class ResourceManagerTest {
 		public String getId() {
 			return id;
 		}
-
-		@Override
-		public void merge(Resource res) {
-			// do nothing			
-		}
 		
 	}
 	

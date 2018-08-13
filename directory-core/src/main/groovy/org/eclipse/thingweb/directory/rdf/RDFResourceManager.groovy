@@ -198,12 +198,13 @@ class RDFResourceManager extends ResourceManager {
 	}
 	
 	/**
-	 * Attemps to connect to a remote SPARQL endpoint if endpoint information
+	 * Attempts to connect to a remote SPARQL endpoint if endpoint information
 	 * have been provided as JVM parameters. Otherwise, a transient in-memory
 	 * RDF store is created.
-	 * 
 	 */
 	private void connect() {
+		// TODO by config class or env
+		// TODO fail if connection not possible (no fallback)
 		String queryEndpoint = System.getProperty(SPARQL_QUERY_ENDPOINT_PROPERTY)
 		String updateEndpoint = System.getProperty(SPARQL_UPDATE_ENDPOINT_PROPERTY, queryEndpoint)
 		

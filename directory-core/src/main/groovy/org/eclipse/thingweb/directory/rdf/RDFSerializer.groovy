@@ -49,7 +49,13 @@ class RDFSerializer implements ResourceSerializer {
 		def g = Rio.parse(i as InputStream, DEFAULT_BASE_IRI, format)
 		return new RDFResource(g)
 	}
-
+	
+	/**
+	 * Note: if the input resource is an instance of
+	 * {@link org.eclipse.thingweb.directory.LookUpResult LookUpResult},
+	 * the content format must be one of TriG, TriX or JSON-LD to keep
+	 * resource identifiers in the output.
+	 */
 	@Override
 	void writeContent(Resource res, OutputStream o, String cf) {
 		def format = Rio.getParserFormatForMIMEType(cf).orElse(DEFAULT_FORMAT)
@@ -77,10 +83,6 @@ class RDFSerializer implements ResourceSerializer {
 				log.warning('Trying to serialize in RDF the content of a non-RDF resource...')
 		}
 		Rio.write(g, o, format)
-	}
-	
-	private RDFFormat getLookUpFormat(RDFFormat format) {
-		
 	}
 
 }

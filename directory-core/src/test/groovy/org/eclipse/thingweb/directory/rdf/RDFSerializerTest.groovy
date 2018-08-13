@@ -50,10 +50,10 @@ class RDFSerializerTest {
 		def cl = getClass().getClassLoader()
 		
 		def i = cl.getResourceAsStream('samples/fanTD.jsonld')
-		def fan = RDFSerializer.instance.readContent(i, 'application/ld+json') as RDFResource
+		def fan = RDFSerializer.instance.readContent(i, 'application/td+json') as RDFResource
 		
 		i = cl.getResourceAsStream('samples/temperatureSensorTD.jsonld')
-		def temp = RDFSerializer.instance.readContent(i, 'application/ld+json') as RDFResource
+		def temp = RDFSerializer.instance.readContent(i, 'application/td+json') as RDFResource
 		
 		def res = new LookUpResult([fan, temp])
 		

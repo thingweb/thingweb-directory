@@ -52,17 +52,18 @@ class TDSerializer implements ResourceSerializer {
 
 	@Override
 	public Resource readContent(InputStream i, String cf) {
-		assert cf == TD_CONTENT_FORMAT
+		assert cf == TD_CONTENT_FORMAT : 'TDSerializer can only parse content as application/td+json'
 		
-		def str = new TDTransform(i).asJsonLd10()
-		i = new ByteArrayInputStream(str.bytes)
+		def obj = new JsonSlurper().parse(i)
+		obj = new TDTransform(obj).asJsonLd10()
 		
-		return RDFSerializer.instance.readContent(i, JSON_LD_CONTENT_FORMAT);
+		i = new ByteArrayInputStream(JsonOutput.toJson(obj).bytes)		
+		return RDFSerializer.instance.readContent(i, JSON_LD_CONTENT_FORMAT)
 	}
 
 	@Override
 	void writeContent(Resource res, OutputStream o, String cf) {
-		assert cf == TD_CONTENT_FORMAT
+		assert cf == TD_CONTENT_FORMAT : 'TDSerializer can only serialize content as application/td+json'
 		
 		def buf = new ByteArrayOutputStream()
 		RDFSerializer.instance.writeContent(res, buf, JSON_LD_CONTENT_FORMAT)
@@ -73,16 +74,24 @@ class TDSerializer implements ResourceSerializer {
 		opts.useNativeTypes = true
 		opts.pruneBlankNodeIdentifiers = true
 		
-		// TODO process lookup result
+		def obj = new JsonSlurper().parse(buf.toByteArray())
+		def isGraphObject = { it.'@graph' && it.'@id' }
 		
-		// applies JSON-LD framing
-		def i = new ByteArrayInputStream(buf.toByteArray())
-		def obj = new JsonSlurper().parse(i)
-		def framed = JsonLdProcessor.frame(obj, TD_FRAME, opts)
+		if (obj.any(isGraphObject)) { // aggregated resource with named graphs (e.g. lookup result)
+			obj = obj.findAll(isGraphObject).collectEntries({ item ->
+				def id = item.'@id'
+				
+				def td = JsonLdProcessor.frame(item.'@graph', TD_FRAME, opts)
+				td = new TDTransform(td).asJsonLd11()
+
+				[(id): (td)]
+			})
+		} else { // single resource
+			obj = JsonLdProcessor.frame(obj, TD_FRAME, opts)
+			obj = new TDTransform(obj).asJsonLd11()
+		}
 		
-		i = new ByteArrayInputStream(JsonOutput.toJson(framed).bytes)
-		def str = new TDTransform(i).asJsonLd11()
-		o.write(str.bytes)
+		o.write(JsonOutput.toJson(obj).bytes)
 		o.close()
 	}
 

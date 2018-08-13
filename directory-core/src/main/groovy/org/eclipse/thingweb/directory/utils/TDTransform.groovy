@@ -33,7 +33,9 @@ class TDTransform {
 	final String base
 	
 	TDTransform(input) {
-		object = new JsonSlurper().parse(input)
+		assert Map.isInstance(input) : 'Object passed to TDTransform is not a JSON object'
+		
+		object = input
 				
 		if (object.'@graph') {
 			object = object.'@graph'.find()
@@ -45,14 +47,12 @@ class TDTransform {
 		else base = '/'
 	}
 
-	String asJsonLd10() {
-		def td = asJsonLd10ForType(object, 'Thing')
-		JsonOutput.toJson(td)
+	def asJsonLd10() {
+		return asJsonLd10ForType(object, 'Thing')
 	}
 
-	String asJsonLd11() {
-		def td = asJsonLd11ForType(object, 'Thing')
-		JsonOutput.toJson(td)
+	def asJsonLd11() {
+		return asJsonLd11ForType(object, 'Thing')
 	}
 	
 	/**
