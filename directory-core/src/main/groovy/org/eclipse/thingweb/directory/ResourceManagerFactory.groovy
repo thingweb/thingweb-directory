@@ -27,13 +27,32 @@ import org.eclipse.thingweb.directory.rdf.TDSerializer
  */
 class ResourceManagerFactory {
 
+	/**
+	 * Equivalent to {@code ResourceManagerFactory.get(rd, [:])} (empty parameter map).
+	 * 
+	 * @param rd registration type, e.g. {@code rd}, {@code td}, {@code rd} (mandatory parameter)
+	 * @return a resource manager object
+	 */
 	static ResourceManager get(String rd) {
+		return get(rd, [:])
+	}
+	
+	/**
+	 * Creates a resource manager object for given factory parameters
+	 * 
+	 * @param rd registration type, e.g. {@code rd}, {@code td}, {@code rd} (mandatory parameter)
+	 * @param opts other optional parameters
+	 * @return a resource manager object
+	 */
+	static ResourceManager get(String rd, Map params) {
 		switch (rd) {
-			case 'td': 
-				return new RDFResourceManager(TDSerializer.TD_CONTENT_FORMAT)
+			case 'td':
+				String cf = TDSerializer.TD_CONTENT_FORMAT
+				return new RDFResourceManager(cf, params)
 				
 			case 'vocab':
-				return new RDFResourceManager(RDFSerializer.DEFAULT_RDF_FORMAT.getDefaultMIMEType())
+				String cf = RDFSerializer.DEFAULT_RDF_FORMAT.getDefaultMIMEType()
+				return new RDFResourceManager(cf, params)
 				
 			default:
 				throw new RuntimeException('No suitable resource manager found')

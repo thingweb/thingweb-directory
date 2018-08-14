@@ -54,52 +54,20 @@ import org.eclipse.thingweb.directory.ResourceManager
  */
 @Log
 class RDFResourceManager extends ResourceManager {
-
-	/**
-	 * URL of a remote SPARQL endpoint to use for persistence. SPARQL Update must be allowed.
-	 */
-	static final SPARQL_QUERY_ENDPOINT_PROPERTY = 'org.eclipse.rdf4j.repository.rdf.sparqlQueryEndpoint'
-
-	/**
-	 * URL of the update endpoint, if different from the SPARQL query endpoint.
-	 * Defaults to query endpoint, otherwise.
-	 */
-	static final SPARQL_UPDATE_ENDPOINT_PROPERTY = 'org.eclipse.rdf4j.repository.rdf.sparqlUpdateEndpoint'
-
-	/**
-	 * Username to use to connect to the provided SPARQL endpoint (HTTP basic authentication).
-	 */
-	static final SPARQL_USERNAME_PROPERTY = 'org.eclipse.rdf4j.repository.rdf.sparqlUsername'
-
-	/**
-	 * Password to use to connect to the provided SPARQL endpoint (HTTP basic authentication).
-	 */
-	static final SPARQL_PASSWORD_PROPERTY = 'org.eclipse.rdf4j.repository.rdf.sparqlPassword'
-	
-	/**
-	 * Single reference to an in-memory RDF store, shared across all RDF manager instances.
-	 */
-	private static Repository sharedRepo
 	
 	private final ValueFactory vf = SimpleValueFactory.instance
 	
 	private final String preferredContentFormat
 	
-	private Repository repo
+	final Repository repo
 	
 	RDFResourceManager(String cf) {
-		preferredContentFormat = cf
+		this(cf, [:])
 	}
 	
-	/**
-	 * Every time the {@code repo} attribute is accessed, an attempt is made to establish a
-	 * connection to a remote SPARQL endpoint or an in-memory store, if no connection is available.
-	 *
-	 * @return the repository object
-	 */
-	Repository getRepo() {
-		if (!repo) connect()
-		return repo
+	RDFResourceManager(String cf, Map params) {
+		preferredContentFormat = cf
+		repo = RepositoryFactory.get(params)
 	}
 	
 	@Override
@@ -118,7 +86,7 @@ class RDFResourceManager extends ResourceManager {
 			log.warning('Trying to register a non-RDF resource; content not read...')
 		}
 
-		Repositories.consume(getRepo(), { RepositoryConnection con ->
+		Repositories.consume(repo, { RepositoryConnection con ->
 			con.add(iri, RDF.TYPE, DCAT.DATASET)
 			con.add(iri, DCTERMS.ISSUED, vf.createLiteral(new Date()))
 			con.add(g)
@@ -129,7 +97,7 @@ class RDFResourceManager extends ResourceManager {
 	protected boolean exists(String id) {
 		def iri = resolve(id)
 		
-		return Repositories.get(getRepo(), { RepositoryConnection con ->
+		return Repositories.get(repo, { RepositoryConnection con ->
 			def q = "ASK WHERE { <${iri}> a <${DCAT.DATASET}> }"
 			return con.prepareBooleanQuery(q).evaluate()
 		})
@@ -139,7 +107,7 @@ class RDFResourceManager extends ResourceManager {
 	protected Resource get(String id) {
 		def iri = resolve(id)
 		
-		def g = Repositories.get(getRepo(), { RepositoryConnection con ->
+		def g = Repositories.get(repo, { RepositoryConnection con ->
 			def g = new LinkedHashModel()
 			
 			// content
@@ -179,7 +147,7 @@ class RDFResourceManager extends ResourceManager {
 		}
 		
 		// TODO check base, lt
-		Repositories.consume(getRepo(), { RepositoryConnection con ->
+		Repositories.consume(repo, { RepositoryConnection con ->
 			con.add(iri, DCTERMS.MODIFIED, vf.createLiteral(new Date()))
 			con.clear(iri)
 			con.add(g, iri)
@@ -190,7 +158,7 @@ class RDFResourceManager extends ResourceManager {
 	protected void delete(Resource res) {
 		def iri = resolve(res.id)
 		
-		Repositories.consume(getRepo(), { RepositoryConnection con ->
+		Repositories.consume(repo, { RepositoryConnection con ->
 			con.clear(iri)
 		})
 	}
@@ -209,51 +177,6 @@ class RDFResourceManager extends ResourceManager {
 			// TODO case where id contains invalid chars
 			log.info('Provided resource identifier is not an absolute IRI. Resolving with default base IRI...')
 			return vf.createIRI(RDFSerializer.DEFAULT_BASE_IRI + '/', id)
-		}
-	}
-	
-	/**
-	 * Attempts to connect to a remote SPARQL endpoint if endpoint information
-	 * have been provided as JVM parameters. Otherwise, a transient in-memory
-	 * RDF store is used.
-	 */
-	private void connect() {
-		// TODO by config class or env
-		// TODO fail if connection not possible (no fallback)
-		String queryEndpoint = System.getProperty(SPARQL_QUERY_ENDPOINT_PROPERTY)
-		String updateEndpoint = System.getProperty(SPARQL_UPDATE_ENDPOINT_PROPERTY, queryEndpoint)
-		
-		if (queryEndpoint) {
-			repo = new SPARQLRepository(queryEndpoint, updateEndpoint)
-			
-			String username = System.getProperty(SPARQL_USERNAME_PROPERTY)
-			String password = System.getProperty(SPARQL_PASSWORD_PROPERTY)
-			
-			if (username && password) {
-				(repo as SPARQLRepository).setUsernameAndPassword(username, password)
-			} else if (username || password) {
-				log.warning('Provided SPARQL endpoint credentials are incomplete')
-			}
-		
-			try {
-				// probe to test SPARQL endpoint availability
-				// TODO request SPARQL service description and check for sd:UnionDefaultGraph
-				repo.getConnection().isEmpty();
-			} catch (RepositoryException e) {
-				repo = null
-				log.warning('SPARQL endpoint cannot be reached, switching to in-memory RDF store...');
-			}
-		}
-		
-		// transient in-memory store (instantiated once)
-		if (!repo) {
-			if (!sharedRepo) sharedRepo = new SailRepository(new MemoryStore())
-			repo = sharedRepo
-		}
-		
-		if (!repo.isInitialized()) {
-			// TODO create service class managing repositories
-			repo.initialize()
 		}
 	}
 
