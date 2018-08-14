@@ -32,7 +32,7 @@ class ResourceSerializerFactory {
 	 * @param cf resource content format, IANA-registered media type, e.g. {@code application/link-format}
 	 * @return a resource serializer object
 	 */
-	static ResourceSerializer(String cf) {
+	static ResourceSerializer get(String cf) {
 		return get(cf, [:])
 	}
 	

@@ -107,8 +107,6 @@ public class ContentNegotiationFilter implements Filter {
 					cts.add(m.group());
 				}
 				
-				System.out.println(cts);
-				
 				cts.retainAll(acceptedContentTypes);
 				
 				if (cts.isEmpty()) {
