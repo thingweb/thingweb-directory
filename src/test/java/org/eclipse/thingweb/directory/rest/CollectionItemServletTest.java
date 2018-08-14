@@ -21,7 +21,6 @@ import java.io.IOException;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 
-import org.eclipse.thingweb.directory.BaseTest;
 import org.eclipse.thingweb.directory.ServletTestSuite;
 import org.eclipse.thingweb.directory.servlet.utils.MockHttpServletRequest;
 import org.eclipse.thingweb.directory.servlet.utils.MockHttpServletResponse;

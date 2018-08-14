@@ -32,7 +32,6 @@ import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.util.Models;
 import org.eclipse.rdf4j.rio.RDFFormat;
 import org.eclipse.rdf4j.rio.Rio;
-import org.eclipse.thingweb.directory.BaseTest;
 import org.eclipse.thingweb.directory.ServletTestSuite;
 import org.eclipse.thingweb.directory.ThingDirectory;
 import org.eclipse.thingweb.directory.rest.CollectionItemServlet;

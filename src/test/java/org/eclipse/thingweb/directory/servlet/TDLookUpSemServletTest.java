@@ -25,7 +25,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.eclipse.thingweb.directory.BaseTest;
 import org.eclipse.thingweb.directory.ServletTestSuite;
 import org.eclipse.thingweb.directory.rest.CollectionItemServlet;
 import org.eclipse.thingweb.directory.rest.CollectionServlet;
