@@ -51,7 +51,7 @@ class SPARQLFilterTest {
 		
 		// TODO fix JSON-LD context first
 //		filtered = f.filter('?thing a <http://uri.etsi.org/m2m/saref#Sensor> .\n'
-//			+ 'FILTER NOT EXISTS {'
+//			+ 'FILTER NOT EXISTS {\n'
 //			+ '  ?thing <http://www.w3.org/ns/td#actions> ?i .\n'
 //			+ '  ?i a <http://uri.etsi.org/m2m/saref#ToggleCommand> .\n'
 //			+ '}')

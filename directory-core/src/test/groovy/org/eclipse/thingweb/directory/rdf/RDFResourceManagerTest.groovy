@@ -17,7 +17,6 @@ package org.eclipse.thingweb.directory.rdf
 import javax.xml.datatype.DatatypeConstants
 import javax.xml.datatype.DatatypeFactory
 import javax.xml.datatype.XMLGregorianCalendar
-
 import org.eclipse.rdf4j.model.IRI
 import org.eclipse.rdf4j.model.Literal
 import org.eclipse.rdf4j.model.Model
@@ -32,7 +31,7 @@ import org.eclipse.rdf4j.rio.Rio
 import org.eclipse.thingweb.directory.Resource
 import org.eclipse.thingweb.directory.ResourceManagerFactory
 import org.eclipse.thingweb.directory.vocabulary.TD
-import org.junit.Before
+import org.junit.After
 import org.junit.Test
 
 /**
@@ -46,7 +45,7 @@ class RDFResourceManagerTest {
 	
 	final RDFResourceManager m = ResourceManagerFactory.get('vocab')
 	
-	@Before
+	@After
 	void cleanRepo() {
 		def repo = m.repo
 		Repositories.consume(repo, { RepositoryConnection con ->

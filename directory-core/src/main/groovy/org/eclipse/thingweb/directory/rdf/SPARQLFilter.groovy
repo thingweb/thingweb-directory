@@ -42,7 +42,7 @@ class SPARQLFilter implements LookUpFilter {
 	/**
 	 * Filters resources that match the given SPARQL graph pattern
 	 * 
-	 * @param search a SPARQL graph pattern, as a plain string
+	 * @param search a SPARQL graph pattern, as plain string
 	 */
 	@Override
 	Set<String> filter(search) {
