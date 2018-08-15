@@ -47,6 +47,11 @@ class ResourceManagerTest {
 		private static final resources = []
 		
 		@Override
+		public String getRegistrationType() {
+			return 'vocab';
+		}
+		
+		@Override
 		public String getPreferredContentFormat() {
 			return null; // none
 		}

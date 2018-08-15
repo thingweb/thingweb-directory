@@ -34,9 +34,9 @@ class RDFSerializerTest {
 		def cl = getClass().getClassLoader()
 		
 		def i = cl.getResourceAsStream('samples/fanTD.jsonld')
-		def res = RDFSerializer.instance.readContent(i, 'application/ld+json')
+		RDFResource res = RDFSerializer.instance.readContent(i, 'application/ld+json')
 		
-		assert !res.graph.isEmpty() : 'RDF resource was not properly deserialized'
+		assert !res.content.isEmpty() : 'RDF resource was not properly deserialized'
 		
 		def o = new ByteArrayOutputStream()
 		RDFSerializer.instance.writeContent(res, o, 'text/turtle')

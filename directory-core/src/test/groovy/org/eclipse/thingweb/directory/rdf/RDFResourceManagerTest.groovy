@@ -117,9 +117,19 @@ class RDFResourceManagerTest {
 	
 	@Test
 	void testGet() {
-		Resource res = m.get('tag:someresource')
+		def cl = getClass().getClassLoader()
 		
-		assert res.graph.isEmpty() : 'RDF resource manager returned an inconsistent resource object'
+		RDFResource res = m.get('tag:someresource') as RDFResource
+		
+		assert res.content.empty : 'RDF resource manager returned an inconsistent resource object'
+		
+		InputStream i = cl.getResourceAsStream('samples/fanTD.jsonld')
+		Model g = Rio.parse(i, '', RDFFormat.JSONLD)
+		
+		m.repo.connection.add(g, res.iri)
+		res = m.get('tag:someresource') as RDFResource
+		
+		assert !res.content.empty : 'RDF resource manager returned an inconsistent resource object'
 	}
 	
 	@Test
@@ -179,7 +189,7 @@ class RDFResourceManagerTest {
 		m.delete(res)
 		
 		res = m.get(res.id) as RDFResource
-		g = res.graph.filter(null, null as IRI, null, res.iri)
+		g = res.content
 		
 		assert g.isEmpty() : 'RDF document was not deleted'
 	}

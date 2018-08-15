@@ -24,7 +24,7 @@ import java.util.Map
 import static Attribute.*
 
 /**
- * Programmatic interface aligned with the IETF CoRE Resource Directory Draft.
+ * Programmatic interface in line with the IETF CoRE Resource Directory Draft.
  * This class includes generic processing of e.g. request attributes and delegates
  * persistence-specific CRUD operations to sub-classes.
  *
@@ -63,7 +63,14 @@ abstract class ResourceManager {
 	 * Key-value pairs passed to the various factories used by this class.
 	 * Parameters depend on sub-classes.
 	 */
-	protected Map factoryParameters = [:]
+	protected final Map factoryParameters = [:]
+	
+	/**
+	 * Returns the manager's registration type as a string,e.g. {@code rd}, {@code td}, {@code rd}.
+	 * 
+	 * @return a registration type
+	 */
+	abstract String getRegistrationType()
 	
 	/**
 	 * Preferred resource content format to be process by this resource manager.
@@ -90,7 +97,7 @@ abstract class ResourceManager {
 	 * @throws ResourceAlreadyRegisteredException if a resource with the same identifier already exists
 	 */
 	String register(InputStream i, String cf, Map attrs = [:]) throws ResourceAlreadyRegisteredException {
-		ResourceSerializer rs = ResourceSerializerFactory.get(cf, factoryParameters)
+		ResourceSerializer rs = ResourceSerializerFactory.get(registrationType, factoryParameters)
 		def res = rs.readContent(i, cf)
 		
 		if (exists(res.id)) throw new ResourceAlreadyRegisteredException(res.id)
@@ -133,7 +140,7 @@ abstract class ResourceManager {
 		
 		if (attrs.size() > 0) log.warning('No attribute supported')
 		
-		ResourceSerializer rs = ResourceSerializerFactory.get(cf, factoryParameters)
+		ResourceSerializer rs = ResourceSerializerFactory.get(registrationType, factoryParameters)
 		rs.writeContent(res, o, cf)
 	}
 
@@ -156,7 +163,7 @@ abstract class ResourceManager {
 	void replace(String id, InputStream i, String cf, Map attrs = [:]) throws ResourceNotRegisteredException {
 		if (!exists(id)) throw new ResourceNotRegisteredException()
 
-		ResourceSerializer rs = ResourceSerializerFactory.get(cf, factoryParameters)
+		ResourceSerializer rs = ResourceSerializerFactory.get(registrationType, factoryParameters)
 		def res = rs.readContent(i, cf)
 		
 		def lt = attrs[lt] ?: (res.lt ? res.lt : DEFAULT_LIFETIME)

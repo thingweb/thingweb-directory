@@ -18,9 +18,14 @@ import groovy.json.*
 import groovy.util.logging.Log
 import java.io.InputStream
 import java.io.OutputStream
+import org.eclipse.rdf4j.model.IRI
+import org.eclipse.rdf4j.model.util.Models
+import org.eclipse.rdf4j.model.vocabulary.RDF
+import org.eclipse.rdf4j.rio.RDFFormat
 import org.eclipse.thingweb.directory.Resource
 import org.eclipse.thingweb.directory.ResourceSerializer
 import org.eclipse.thingweb.directory.utils.TDTransform
+import org.eclipse.thingweb.directory.vocabulary.TD
 import com.github.jsonldjava.core.JsonLdOptions
 import com.github.jsonldjava.core.JsonLdProcessor
 import com.github.jsonldjava.core.JsonLdUtils
@@ -29,6 +34,9 @@ import com.github.jsonldjava.utils.JsonUtils
 /**
  * Serializer implementation for Thing Description documents,
  * interpreted as JSON-LD 1.1 objects with normative context.
+ * <p>
+ * For non-TD formats, parsing and serialization are delegated
+ * to the {@link RDFSerializer} class.
  *
  * @see
  *   <a href="http://www.w3.org/TR/wot-thing-description">
@@ -46,26 +54,38 @@ class TDSerializer implements ResourceSerializer {
 	public static final TD_FRAME = ['@context': TDTransform.TD_CONTEXT_URI, '@type': 'Thing']
 	
 	public static final TD_CONTENT_FORMAT = 'application/td+json'
-	
-	private static final JSON_LD_CONTENT_FORMAT = 'application/ld+json'
 
 	@Override
 	public Resource readContent(InputStream i, String cf) {
-		assert cf == TD_CONTENT_FORMAT : 'TDSerializer can only parse content as application/td+json'
+		if (cf == TD_CONTENT_FORMAT) {
+			def obj = new JsonSlurper().parse(i)
+			obj = new TDTransform(obj).asJsonLd10()
+			
+			i = new ByteArrayInputStream(JsonOutput.toJson(obj).bytes)
+			cf = RDFFormat.JSONLD.defaultMIMEType
+		}
+
+		RDFResource res = RDFSerializer.instance.readContent(i, cf)
 		
-		def obj = new JsonSlurper().parse(i)
-		obj = new TDTransform(obj).asJsonLd10()
+		def iri = Models.subjectIRI(res.content.filter(null, RDF.TYPE, TD.THING))
+		assert iri.isPresent() : 'No instance of td:Thing found in TD content'
+		res.id = iri.get().stringValue()
 		
-		i = new ByteArrayInputStream(JsonOutput.toJson(obj).bytes)		
-		return RDFSerializer.instance.readContent(i, JSON_LD_CONTENT_FORMAT)
+		return res
 	}
 
 	@Override
 	void writeContent(Resource res, OutputStream o, String cf) {
-		assert cf == TD_CONTENT_FORMAT : 'TDSerializer can only serialize content as application/td+json'
+		def buf = o
 		
-		def buf = new ByteArrayOutputStream()
-		RDFSerializer.instance.writeContent(res, buf, JSON_LD_CONTENT_FORMAT)
+		if (cf == TD_CONTENT_FORMAT) {
+			buf = new ByteArrayOutputStream()
+			cf = RDFFormat.JSONLD.defaultMIMEType
+		}
+		
+		RDFSerializer.instance.writeContent(res, buf, cf)
+		
+		if (buf.is(o)) return // stream closed, no more processing required
 		
 		def opts = new JsonLdOptions(
 			compactArrays: true,

@@ -15,9 +15,7 @@
 package org.eclipse.thingweb.directory.rdf
 
 import groovy.util.logging.Log
-
 import java.util.UUID
-
 import org.eclipse.rdf4j.model.IRI
 import org.eclipse.rdf4j.model.Model
 import org.eclipse.rdf4j.model.ModelFactory
@@ -27,8 +25,11 @@ import org.eclipse.rdf4j.model.Value
 import org.eclipse.rdf4j.model.ValueFactory
 import org.eclipse.rdf4j.model.impl.LinkedHashModel
 import org.eclipse.rdf4j.model.impl.SimpleValueFactory
+import org.eclipse.rdf4j.model.util.ModelBuilder
 import org.eclipse.rdf4j.model.util.Models
+import org.eclipse.rdf4j.model.vocabulary.DCAT
 import org.eclipse.rdf4j.model.vocabulary.DCTERMS
+import org.eclipse.rdf4j.model.vocabulary.RDF
 import org.eclipse.rdf4j.query.QueryResults
 import org.eclipse.thingweb.directory.Resource as DirectoryResource
 
@@ -51,47 +52,49 @@ import org.eclipse.thingweb.directory.Resource as DirectoryResource
 @Log
 class RDFResource implements DirectoryResource {
 	
-	/**
-	 * Resource identifier (randomly generated UUID URN)
-	 */
-	final Resource iri
+	private static final ValueFactory VALUE_FACTORY = SimpleValueFactory.instance
 	
 	/**
-	 * Underlying RDF dataset, including content (as an RDF graph) and DCAT meta-data
+	 * DCAT meta-data
 	 */
-	final Model graph
+	final Model metadata = new LinkedHashModel()
 	
-	RDFResource(Model g) {
-		switch (g.contexts().size()) {
-			case { it > 2 }: // default graph, several named graphs
-				log.warning('RDF resource has more than one identifier; picking one...')
-				
-			case 2: // default graph, 1 named graph
-				this.iri = g.contexts().find()
-				g = g.filter(null, null as IRI, null, iri)
-				break
-				
-			default: // default graph only
-				this.iri = idFromGraph(g)
-				break
+	/**
+	 * Underlying RDF graph
+	 */
+	final Model content = new LinkedHashModel()
+	
+	/**
+	 * Resource identifier (defaults to randomly generated UUID URN)
+	 */
+	Resource iri
+	
+	RDFResource(Model content, Model metadata = new LinkedHashModel()) {
+		if (content.contexts().size() > 1) log.warning('Named graphs in RDF resource content ignored')
+		this.content.addAll(content)
+
+		def opt = Models.subjectIRI(metadata.filter(null, RDF.TYPE, DCAT.DATASET))
+		if (opt.isPresent()) {			
+			this.iri = opt.get()
+			
+			this.metadata.addAll(metadata.filter(iri, null as IRI, null))
+		} else {
+			this.iri = generate(content)
+			
+			this.metadata.add(iri, RDF.TYPE, DCAT.DATASET)
+			this.metadata.add(iri, DCTERMS.ISSUED, VALUE_FACTORY.createLiteral(new Date()))
 		}
 		
-		this.graph = new LinkedHashModel()
-		
-		g.forEach({ Statement st ->
-			graph.add(st.subject, st.predicate, st.object, iri)
-		})
+		log.fine('Creating RDF resource object with id: ' + iri)
 	}
 
 	String getEp() {
-		def st = graph.filter(iri, DCTERMS.PUBLISHER, null)
-		return Models.objectIRI(st).orElse(null)
+		def opt = Models.getPropertyIRI(metadata, iri, DCTERMS.PUBLISHER)
+		return opt.isPresent() ? opt.get().stringValue() : null
 	}
 	
 	def setEp(String ep) {
-		def vf = SimpleValueFactory.instance
-		graph.remove(iri, DCTERMS.PUBLISHER, null)
-		graph.add(iri, DCTERMS.PUBLISHER, vf.createIRI(ep))
+		Models.setProperty(metadata, iri, DCTERMS.PUBLISHER, VALUE_FACTORY.createIRI(ep))
 	}
 	
 	String getLt() {
@@ -110,28 +113,65 @@ class RDFResource implements DirectoryResource {
 		// TODO
 	}
 	
-	/**
-	 * Returns the resource content only (without meta-data)
-	 * 
-	 * @return an RDF graph representing the resource content
-	 */
-	Model getContent() {
-		def g = new LinkedHashModel()		
-		graph.filter(null, null as IRI, null, iri).forEach({ Statement st ->
-			g.add(st.subject, st.predicate, st.object)
-		})
-		
-		return g
-	}
-	
 	@Override
 	String getId() {
 		return iri.stringValue()
 	}
 	
-	protected IRI idFromGraph(Model g) {
-		// TODO normalize graph and always return the same id for the same graph
+	/**
+	 * The identifier of an RDF resource is allowed to change over time
+	 * 
+	 * @param id new identifier
+	 */
+	void setId(String id) {
+		def newIri = resolve(id)
+		def newContent = new ModelBuilder().subject(newIri)
+		
+		def properties = metadata.filter(iri, null as IRI, null)
+		properties.forEach({ Statement st ->
+			newContent.add(st.predicate, st.object)
+		})
+		
+		properties.clear()
+		metadata.addAll(newContent.build())
+		
+		iri = newIri
+	}
+	
+	void setContent(Model content) {
+		this.content.clear()
+		this.content.addAll(content)
+		
+		this.metadata.add(iri, DCTERMS.MODIFIED, VALUE_FACTORY.createLiteral(new Date()))
+	}
+	
+	/**
+	 * Generates a default IRI for the given RDF graph
+	 * 
+	 * @param g an RDF graph
+	 * @return a UUID URN
+	 */
+	static IRI generate(Model g) {
+		// TODO normalize graph and always return the same id for a fixed graph
 		return SimpleValueFactory.instance.createIRI('urn:uuid:' + UUID.randomUUID())
+	}
+	
+	/**
+	 * Resolves the input identifier to an absolute IRI. Relative IRIs are
+	 * appended to the default base IRI of the {@link RDFSerializer} class.
+	 * 
+	 * @param id a resource identifier
+	 * @return the identifier as a resolved (absolute) IRI
+	 */
+	static IRI resolve(String id) {
+		try {
+			return VALUE_FACTORY.createIRI(id)
+		} catch (IllegalArgumentException e) {
+			log.info('Provided resource identifier is not an absolute IRI. Resolving with default base IRI...')
+			
+			// TODO case where id contains invalid chars
+			return VALUE_FACTORY.createIRI(RDFSerializer.DEFAULT_BASE_IRI + '/', id)
+		}
 	}
 
 }

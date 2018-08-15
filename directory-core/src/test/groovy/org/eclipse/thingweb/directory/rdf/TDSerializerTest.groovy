@@ -33,9 +33,9 @@ class TDSerializerTest {
 		def res = TDSerializer.instance.readContent(i, TDSerializer.TD_CONTENT_FORMAT) as RDFResource
 		
 		i = cl.getResourceAsStream('samples/fanTD.ttl')
-		def ref = Rio.parse(i, '', RDFFormat.TURTLE, res.iri)
+		def ref = Rio.parse(i, '', RDFFormat.TURTLE)
 
-		assert Models.isomorphic(res.graph, ref) : 'TD content was not properly parsed'
+		assert Models.isomorphic(res.content, ref) : 'TD content was not properly parsed'
 	}
 	
 	@Test

@@ -38,11 +38,11 @@ class ResourceManagerFactory {
 		switch (rd) {
 			case 'td':
 				String cf = TDSerializer.TD_CONTENT_FORMAT
-				return new RDFResourceManager(cf, params)
+				return new RDFResourceManager(rd, cf, params)
 				
 			case 'vocab':
 				String cf = RDFSerializer.DEFAULT_RDF_FORMAT.getDefaultMIMEType()
-				return new RDFResourceManager(cf, params)
+				return new RDFResourceManager(rd, cf, params)
 				
 			default:
 				throw new RuntimeException('No suitable resource manager found')

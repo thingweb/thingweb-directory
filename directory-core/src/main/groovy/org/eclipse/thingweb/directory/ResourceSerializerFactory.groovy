@@ -29,20 +29,17 @@ class ResourceSerializerFactory {
 	/**
 	 * Returns a content serializer capable of parsing and serializing resource content in the provided format.
 	 * 
-	 * @param cf resource content format, IANA-registered media type, e.g. {@code application/link-format} (mandatory parameter)
+	 * @param cf registration type, e.g. {@code rd}, {@code td}, {@code rd} (mandatory parameter)
 	 * @param params other optional parameters
 	 * @return a serializer object
 	 */
-	static ResourceSerializer get(String cf, Map params = [:]) {
-		switch (cf) {
-			case 'application/n-triples':
-			case 'text/turtle':
-			case 'application/rdf+xml':
-			case 'application/ld+json':
-				return RDFSerializer.instance
-				
-			case TDSerializer.TD_CONTENT_FORMAT:
+	static ResourceSerializer get(String rd, Map params = [:]) {
+		switch (rd) {
+			case 'td':
 				return TDSerializer.instance
+				
+			case 'vocab':
+				return RDFSerializer.instance
 				
 			default:
 				throw new RuntimeException('No suitable resource serializer found')
