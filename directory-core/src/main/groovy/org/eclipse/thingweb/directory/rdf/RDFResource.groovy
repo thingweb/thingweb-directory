@@ -85,7 +85,7 @@ class RDFResource implements DirectoryResource {
 			this.metadata.add(iri, DCTERMS.ISSUED, VALUE_FACTORY.createLiteral(new Date()))
 		}
 		
-		log.fine('Creating RDF resource object with id: ' + iri)
+		log.fine("Creating RDF resource object with id <${iri}>")
 	}
 
 	String getEp() {

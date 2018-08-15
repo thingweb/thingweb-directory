@@ -114,6 +114,8 @@ abstract class ResourceManager {
 		
 		register(res)
 		
+		log.fine("Registered \"${registrationType}\" resource ${res.id} (${cf})")
+		
 		return res.id
 	}
 	
@@ -142,6 +144,8 @@ abstract class ResourceManager {
 		
 		ResourceSerializer rs = ResourceSerializerFactory.get(registrationType, factoryParameters)
 		rs.writeContent(res, o, cf)
+		
+		log.fine("Serialized \"${registrationType}\" resource ${res.id} (${cf})")
 	}
 
 	/**
@@ -173,6 +177,8 @@ abstract class ResourceManager {
 		res.base = base
 		
 		replace(get(id), res)
+		
+		log.fine("Replaced content of \"${registrationType}\" resource ${res.id} with input payload (${cf})")
 	}
 	
 	/**
@@ -193,6 +199,8 @@ abstract class ResourceManager {
 		if (!exists(id)) throw new ResourceNotRegisteredException()
 
 		delete(get(id))
+		
+		log.fine("Deleted \"${registrationType}\" resource ${res.id}")
 	}
 	
 	/**
@@ -226,9 +234,11 @@ abstract class ResourceManager {
 		if (!ids.isEmpty()) {
 			LookUpResult res = new LookUpResult(ids.collect({ id -> get(id) }))
 			
-			ResourceSerializer rs = ResourceSerializerFactory.get(cf)
+			ResourceSerializer rs = ResourceSerializerFactory.get(registrationType)
 			rs.writeContent(res, o, cf)
 		}
+		
+		log.fine("Performed lookup on \"${registrationType}\" resources. Search query: ${search}. Result: ${ids} (${cf})")
 	}
 	
 	abstract protected void register(Resource res)

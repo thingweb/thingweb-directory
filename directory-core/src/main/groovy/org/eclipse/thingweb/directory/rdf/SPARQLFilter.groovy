@@ -51,10 +51,12 @@ class SPARQLFilter implements LookUpFilter {
 	@Override
 	Set<String> filter(search) {
 		def q = "SELECT DISTINCT ?id WHERE { GRAPH ?id { ${search} }}"
+		
 		def ids = Repositories.tupleQuery(repo, q, { r ->
 			def iris = QueryResults.asSet(r)
 			return iris.collect({ b -> b.getValue('id').stringValue() })
 		})
+		
 		return ids;
 	}
 	

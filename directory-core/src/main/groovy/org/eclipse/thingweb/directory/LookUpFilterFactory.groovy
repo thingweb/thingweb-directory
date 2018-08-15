@@ -30,8 +30,7 @@ class LookUpFilterFactory {
 	static LookUpFilter get(String type, Map params) {
 		switch (type) {
 			case 'sem':
-				def f = new SPARQLFilter(params)
-				return f
+				return new SPARQLFilter(params)
 				
 			case 'res':
 			case 'ep':

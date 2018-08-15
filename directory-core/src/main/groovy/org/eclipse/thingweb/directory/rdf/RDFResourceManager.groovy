@@ -97,6 +97,8 @@ class RDFResourceManager extends ResourceManager {
 			con.add(rdf.metadata)
 			con.add(rdf.content, rdf.iri)
 		})
+		
+		log.fine("Registered RDF resource (${rdf.content.size()} triples)")
 	}
 	
 	@Override
@@ -128,12 +130,14 @@ class RDFResourceManager extends ResourceManager {
 		// TODO if non-existing, then id different. Return null instead?
 		if (res.id != id) res.id = id
 		
+		log.fine("Fetched RDF resource ${res.id} from RDF store (${res.content.size()} triples)")
+		
 		return res
 	}
 	
 	@Override
 	protected void replace(Resource res, Resource other) {
-		RDFResource rdf, otherRdf
+		RDFResource rdf
 
 		if (RDFResource.isInstance(res)) {
 			rdf = res as RDFResource
@@ -154,6 +158,8 @@ class RDFResourceManager extends ResourceManager {
 			con.clear(rdf.iri)
 			con.add(rdf.content, rdf.iri)
 		})
+		
+		log.fine("Content of RDF resource ${res.id} updated in RDF store (${rdf.content.size()} triples)")
 	}
 	
 	@Override
@@ -163,6 +169,8 @@ class RDFResourceManager extends ResourceManager {
 		Repositories.consume(repo, { RepositoryConnection con ->
 			con.clear(iri)
 		})
+		
+		log.fine("Content of RDF resource ${res.id} cleared in RDF store (0 triples)")
 	}
 
 }
