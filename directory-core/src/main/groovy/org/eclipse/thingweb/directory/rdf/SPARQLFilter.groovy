@@ -37,7 +37,11 @@ class SPARQLFilter implements LookUpFilter {
 	/**
 	 * RDF repository against which filter queries are run
 	 */
-	Repository repo
+	final Repository repo
+	
+	SPARQLFilter(Map params = [:]) {
+		repo = RepositoryFactory.get(params)
+	}
 
 	/**
 	 * Filters resources that match the given SPARQL graph pattern

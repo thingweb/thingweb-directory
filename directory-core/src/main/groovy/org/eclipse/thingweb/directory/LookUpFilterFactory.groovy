@@ -27,21 +27,16 @@ import org.eclipse.thingweb.directory.rdf.SPARQLFilter
  */
 class LookUpFilterFactory {
 
-	static LookUpFilter get(String type, ResourceManager rm) {
-		switch (rm) {
-			case RDFResourceManager:
-				switch (type) {
-					case 'sem':
-						def f = new SPARQLFilter()
-						f.repo = rm.repo
-						return f
-						
-					case 'res':
-					case 'ep':
-						// TODO
-						throw new NotImplementedException()
-				}
-				break
+	static LookUpFilter get(String type, Map params) {
+		switch (type) {
+			case 'sem':
+				def f = new SPARQLFilter(params)
+				return f
+				
+			case 'res':
+			case 'ep':
+				// TODO
+				throw new NotImplementedException()
 				
 			default:
 				throw new RuntimeException('No suitable look up filter was found')

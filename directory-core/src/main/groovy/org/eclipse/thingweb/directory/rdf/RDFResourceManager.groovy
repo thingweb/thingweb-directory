@@ -61,13 +61,10 @@ class RDFResourceManager extends ResourceManager {
 	
 	final Repository repo
 	
-	RDFResourceManager(String cf) {
-		this(cf, [:])
-	}
-	
-	RDFResourceManager(String cf, Map params) {
+	RDFResourceManager(String cf, Map params = [:]) {
 		preferredContentFormat = cf
 		repo = RepositoryFactory.get(params)
+		factoryParameters = params
 	}
 	
 	@Override

@@ -41,7 +41,6 @@ class SPARQLFilterTest {
 		def temp = m.register(i, 'application/ld+json', [:])
 		
 		def f = new SPARQLFilter()
-		f.repo = m.repo
 		
 		Set<String> filtered = f.filter('?s ?p ?o')
 		

@@ -60,6 +60,12 @@ abstract class ResourceManager {
 	static final String DEFAULT_BASE = 'coap://localhost' // TODO use source URI instead
 	
 	/**
+	 * Key-value pairs passed to the various factories used by this class.
+	 * Parameters depend on sub-classes.
+	 */
+	protected Map factoryParameters = [:]
+	
+	/**
 	 * Preferred resource content format to be process by this resource manager.
 	 * E.g. {@code application/link-format}.
 	 * 
@@ -84,7 +90,7 @@ abstract class ResourceManager {
 	 * @throws ResourceAlreadyRegisteredException if a resource with the same identifier already exists
 	 */
 	String register(InputStream i, String cf, Map attrs = [:]) throws ResourceAlreadyRegisteredException {
-		ResourceSerializer rs = ResourceSerializerFactory.get(cf)
+		ResourceSerializer rs = ResourceSerializerFactory.get(cf, factoryParameters)
 		def res = rs.readContent(i, cf)
 		
 		if (exists(res.id)) throw new ResourceAlreadyRegisteredException(res.id)
@@ -127,7 +133,7 @@ abstract class ResourceManager {
 		
 		if (attrs.size() > 0) log.warning('No attribute supported')
 		
-		ResourceSerializer rs = ResourceSerializerFactory.get(cf)
+		ResourceSerializer rs = ResourceSerializerFactory.get(cf, factoryParameters)
 		rs.writeContent(res, o, cf)
 	}
 
@@ -150,7 +156,7 @@ abstract class ResourceManager {
 	void replace(String id, InputStream i, String cf, Map attrs = [:]) throws ResourceNotRegisteredException {
 		if (!exists(id)) throw new ResourceNotRegisteredException()
 
-		ResourceSerializer rs = ResourceSerializerFactory.get(cf)
+		ResourceSerializer rs = ResourceSerializerFactory.get(cf, factoryParameters)
 		def res = rs.readContent(i, cf)
 		
 		def lt = attrs[lt] ?: (res.lt ? res.lt : DEFAULT_LIFETIME)
@@ -199,7 +205,7 @@ abstract class ResourceManager {
 	 * @param attrs request attributes ({@code page}, {@code count})
 	 */
 	void lookUp(String type, OutputStream o, String cf, search, Map attrs = [:]) {
-		LookUpFilter f = LookUpFilterFactory.get(type, this)
+		LookUpFilter f = LookUpFilterFactory.get(type, factoryParameters)
 		def ids = f.filter(search).asList()
 		
 		def page = attrs[page] ?: 0
