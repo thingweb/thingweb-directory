@@ -25,16 +25,6 @@ import org.eclipse.thingweb.directory.rdf.TDSerializer
  *
  */
 class ResourceSerializerFactory {
-
-	/**
-	 * Equivalent to {@code ResourceSerializerFactory.get(cf, [:])} (empty parameter map).
-	 * 
-	 * @param cf resource content format, IANA-registered media type, e.g. {@code application/link-format}
-	 * @return a resource serializer object
-	 */
-	static ResourceSerializer get(String cf) {
-		return get(cf, [:])
-	}
 	
 	/**
 	 * Returns a content serializer capable of parsing and serializing resource content in the provided format.
@@ -43,7 +33,7 @@ class ResourceSerializerFactory {
 	 * @param params other optional parameters
 	 * @return a serializer object
 	 */
-	static ResourceSerializer get(String cf, Map params) {
+	static ResourceSerializer get(String cf, Map params = [:]) {
 		switch (cf) {
 			case 'application/n-triples':
 			case 'text/turtle':

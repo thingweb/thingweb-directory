@@ -61,15 +61,6 @@ class RepositoryFactory {
 	 * Single reference to an in-memory RDF store, shared across all RDF manager instances.
 	 */
 	private static Repository sharedRepo
-	
-	/**
-	 * Equivalent to {@code RepositoryFactory.get([:])} (empty parameter map).
-	 * 
-	 * @return an RDF repository object
-	 */
-	static Repository get() {
-		get([:])
-	}
 
 	/**
 	 * Performs the following operations until one succeeds (in this order):
@@ -83,7 +74,7 @@ class RepositoryFactory {
 	 * @param params factory parameters
 	 * @return an RDF store object
 	 */
-	static Repository get(Map params) {
+	static Repository get(Map params = [:]) {
 		RepositoryInit init
 
 		if (params[SPARQL_QUERY_ENDPOINT_PROPERTY]) {

@@ -68,18 +68,6 @@ abstract class ResourceManager {
 	abstract String getPreferredContentFormat()
 	
 	/**
-	 * Equivalent to {@code ResourceManager.resgister(i, cf, [:])} (empty attribute map).
-	 * 
-	 * @param i streamed resource content
-	 * @param cf resource content format, IANA-registered media type (e.g. {@code application/link-format})
-	 * @return resource identifier, for later reference (also called {@code location})
-	 * @throws ResourceAlreadyRegisteredException if a resource with the same identifier already exists
-	 */
-	String register(InputStream i, String cf) throws ResourceAlreadyRegisteredException {
-		return register(i, cf, [:])
-	}
-	
-	/**
 	 * Registration request interface.
 	 * <p>
 	 * Endpoint: {@code {+rd}{?ep,d,lt,base,extra-attrs*}}
@@ -95,7 +83,7 @@ abstract class ResourceManager {
 	 * @return resource identifier, for later reference (also called {@code location})
 	 * @throws ResourceAlreadyRegisteredException if a resource with the same identifier already exists
 	 */
-	String register(InputStream i, String cf, Map attrs) throws ResourceAlreadyRegisteredException {
+	String register(InputStream i, String cf, Map attrs = [:]) throws ResourceAlreadyRegisteredException {
 		ResourceSerializer rs = ResourceSerializerFactory.get(cf)
 		def res = rs.readContent(i, cf)
 		
@@ -117,18 +105,6 @@ abstract class ResourceManager {
 	}
 	
 	/**
-	 * Equivalent to {@code ResourceManager.get(id, o, cf, [:])} (empty attribute map).
-	 * 
-	 * @param id resource identifier (aka {@code location})
-	 * @param o stream to which resource content will be written (in the format specified by {@code cf})
-	 * @param cf resource content format, IANA-registered media type (e.g. {@code application/link-format})
-	 * @throws ResourceNotRegisteredException if the resource identifier is unknown
-	 */
-	void get(String, id, OutputStream o, String cf) throws ResourceNotRegisteredException {
-		get(id, o, cf, [:])
-	}
-	
-	/**
 	 * Read request interface.
 	 * <p>
 	 * Endpoint: {@code {+location}{?href,rel,rt,if,ct}}
@@ -144,7 +120,7 @@ abstract class ResourceManager {
 	 * @param attrs request attributes ({@code href}, {@code rel}, {@code rt}, {@code if}, {@code ct})
 	 * @throws ResourceNotRegisteredException if the resource identifier is unknown
 	 */
-	void get(String id, OutputStream o, String cf, Map attrs) throws ResourceNotRegisteredException {
+	void get(String id, OutputStream o, String cf, Map attrs = [:]) throws ResourceNotRegisteredException {
 		if (!exists(id)) throw new ResourceNotRegisteredException()
 		
 		def res = get(id)
@@ -153,18 +129,6 @@ abstract class ResourceManager {
 		
 		ResourceSerializer rs = ResourceSerializerFactory.get(cf)
 		rs.writeContent(res, o, cf)
-	}
-	
-	/**
-	 * Equivalent to {@code ResourceManager.replace(id, i, cf, [:])} (empty attribute map).
-	 *
-	 * @param id id resource identifier (aka {@code location})
-	 * @param i streamed resource content to substitute to current content
-	 * @param cf resource content format, IANA-registered media type (e.g. {@code application/link-format})
-	 * @throws ResourceNotRegisteredException if the resource identifier is unknown
-	 */
-	void replace(String id, InputStream i, String cf) throws ResourceNotRegisteredException {
-		replace(id, i, cf, [:])
 	}
 
 	/**
@@ -183,7 +147,7 @@ abstract class ResourceManager {
 	 * @param attrs request attributes (e.g. {@code lt}, {@code con})
 	 * @throws ResourceNotRegisteredException if the resource identifier is unknown
 	 */
-	void replace(String id, InputStream i, String cf, Map attrs) throws ResourceNotRegisteredException {
+	void replace(String id, InputStream i, String cf, Map attrs = [:]) throws ResourceNotRegisteredException {
 		if (!exists(id)) throw new ResourceNotRegisteredException()
 
 		ResourceSerializer rs = ResourceSerializerFactory.get(cf)
@@ -219,18 +183,6 @@ abstract class ResourceManager {
 	}
 	
 	/**
-	 * Equivalent to {@code ResourceManager.lookUp(type, o, cf, search, [:])} (empty attribute map).
-	 *
-	 * @param type type of lookup (e.g. {@code ep}, {@code res})
-	 * @param o stream to which resource content will be written (in the format specified by {@code cf})
-	 * @param cf resource content format, IANA-registered media type (e.g. {@code application/link-format})
-	 * @param search search query (depending on the type of lookup)
-	 */
-	void lookUp(String type, OutputStream o, String cf, search) {
-		
-	}
-	
-	/**
 	 * Lookup interface.
 	 * <p>
 	 * Endpoint: {@code {+type-lookup-location}{?page,count,search*}}
@@ -246,7 +198,7 @@ abstract class ResourceManager {
 	 * @param search search query (depending on the type of lookup)
 	 * @param attrs request attributes ({@code page}, {@code count})
 	 */
-	void lookUp(String type, OutputStream o, String cf, search, Map attrs) {
+	void lookUp(String type, OutputStream o, String cf, search, Map attrs = [:]) {
 		LookUpFilter f = LookUpFilterFactory.get(type, this)
 		def ids = f.filter(search).asList()
 		
