@@ -1,7 +1,9 @@
 package org.eclipse.thingweb.directory.rdf
 
 import groovy.transform.Immutable
+import groovy.transform.TupleConstructor
 import groovy.util.logging.Log
+
 import org.eclipse.rdf4j.repository.Repository
 import org.eclipse.rdf4j.repository.RepositoryException
 import org.eclipse.rdf4j.repository.sail.SailRepository
@@ -24,31 +26,31 @@ class RepositoryFactory {
 	 * If no proper configuration is found (either as factory parameters or as environment variables),
 	 * an exception is thrown.
 	 */
-	static final REMOTE_SPARQL_ENDPOINT_ONLY = 'THINGWEB_REMOTE_SPARQL_ENDPOINT_ONLY'
+	static final String REMOTE_SPARQL_ENDPOINT_ONLY = 'THINGWEB_REMOTE_SPARQL_ENDPOINT_ONLY'
 
 	/**
 	 * URL of a remote SPARQL endpoint to use for persistence. SPARQL Update must be allowed.
 	 * Note: if this parameter is not provided, the remote only parameter is ignored.
 	 */
-	static final SPARQL_QUERY_ENDPOINT_PROPERTY = 'THINGWEB_SPARQL_QUERY_ENDPOINT'
+	static final String SPARQL_QUERY_ENDPOINT_PROPERTY = 'THINGWEB_SPARQL_QUERY_ENDPOINT'
 
 	/**
 	 * URL of the update endpoint, if different from the SPARQL query endpoint.
 	 * Defaults to query endpoint, otherwise.
 	 */
-	static final SPARQL_UPDATE_ENDPOINT_PROPERTY = 'THINGWEB_SPARQL_UPDATE_ENDPOINT'
+	static final String SPARQL_UPDATE_ENDPOINT_PROPERTY = 'THINGWEB_SPARQL_UPDATE_ENDPOINT'
 
 	/**
 	 * Username to use to connect to the provided SPARQL endpoint (HTTP basic authentication).
 	 */
-	static final SPARQL_USERNAME_PROPERTY = 'THINGWEB_SPARQL_USERNAME'
+	static final String SPARQL_USERNAME_PROPERTY = 'THINGWEB_SPARQL_USERNAME'
 
 	/**
 	 * Password to use to connect to the provided SPARQL endpoint (HTTP basic authentication).
 	 */
-	static final SPARQL_PASSWORD_PROPERTY = 'THINGWEB_SPARQL_PASSWORD'
+	static final String SPARQL_PASSWORD_PROPERTY = 'THINGWEB_SPARQL_PASSWORD'
 	
-	//@Immutable
+	@TupleConstructor
 	private static class RepositoryInit {
 		Boolean remoteOnly
 		String queryEndpoint
@@ -79,9 +81,11 @@ class RepositoryFactory {
 
 		if (params[SPARQL_QUERY_ENDPOINT_PROPERTY]) {
 			init = fromParams(params)
+			
 			log.info('Connecting to SPARQL endpoint from factory parameters...')
 		} else if (System.getenv(SPARQL_QUERY_ENDPOINT_PROPERTY)) {
 			init = fromEnv()
+			
 			log.info('Connecting to SPARQL endpoint from environment variables...')
 		}
 		
@@ -96,7 +100,8 @@ class RepositoryFactory {
 			}
 
 			try {
-				// probe to test SPARQL endpoint availability
+				log.info('Sending probe request to SPARQL endpoint to test reachability...')
+				
 				// TODO request SPARQL service description and check for sd:UnionDefaultGraph
 				repo.getConnection().isEmpty()
 				return repo
@@ -112,7 +117,7 @@ class RepositoryFactory {
 		if (!sharedRepo) {
 			sharedRepo = new SailRepository(new MemoryStore())
 			sharedRepo.initialize()
-			log.fine('Initializing transient in-memory RDF store (unique per JVM)...')
+			log.info('Initializing transient in-memory RDF store (unique per JVM)...')
 		}
 		
 		return sharedRepo
@@ -125,7 +130,7 @@ class RepositoryFactory {
 	 * @return a SPARQL endpoint initialization object
 	 */
 	private static RepositoryInit fromParams(Map params) {
-		def remote = params[REMOTE_SPARQL_ENDPOINT_ONLY] as boolean ?: false
+		def remote = params[REMOTE_SPARQL_ENDPOINT_ONLY] as Boolean ?: false
 		def q = params[SPARQL_QUERY_ENDPOINT_PROPERTY]
 		def u = params[SPARQL_UPDATE_ENDPOINT_PROPERTY] ?: q
 		def user = params[SPARQL_USERNAME_PROPERTY]
@@ -140,7 +145,7 @@ class RepositoryFactory {
 	 * @return a SPARQL endpoint initialization object
 	 */
 	private static RepositoryInit fromEnv() {
-		def remote = System.getenv(REMOTE_SPARQL_ENDPOINT_ONLY) as boolean ?: false
+		def remote = System.getenv(REMOTE_SPARQL_ENDPOINT_ONLY) as Boolean ?: false
 		def q = System.getenv(SPARQL_QUERY_ENDPOINT_PROPERTY)
 		def u = System.getenv(SPARQL_UPDATE_ENDPOINT_PROPERTY) ?: q
 		def user = System.getenv(SPARQL_USERNAME_PROPERTY)
