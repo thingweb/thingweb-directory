@@ -17,7 +17,7 @@ class RepositoryFactoryTest {
 		shouldFailWithCause(RuntimeException.class, {
 			RepositoryFactory.get([
 				(REMOTE_SPARQL_ENDPOINT_ONLY): true,
-				(SPARQL_QUERY_ENDPOINT_PROPERTY): 'tag:nonexistingendpoint'
+				(SPARQL_QUERY_ENDPOINT): 'tag:nonexistingendpoint'
 			])
 		})
 	}

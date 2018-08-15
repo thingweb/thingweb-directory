@@ -15,14 +15,12 @@
 package org.eclipse.thingweb.directory.rdf
 
 import groovy.json.*
-
+import groovy.util.logging.Log
 import java.io.InputStream
 import java.io.OutputStream
-
 import org.eclipse.thingweb.directory.Resource
 import org.eclipse.thingweb.directory.ResourceSerializer
 import org.eclipse.thingweb.directory.utils.TDTransform
-
 import com.github.jsonldjava.core.JsonLdOptions
 import com.github.jsonldjava.core.JsonLdProcessor
 import com.github.jsonldjava.core.JsonLdUtils
@@ -41,6 +39,7 @@ import com.github.jsonldjava.utils.JsonUtils
  * @creation 06.08.2018
  *
  */
+@Log
 @Singleton
 class TDSerializer implements ResourceSerializer {
 	
@@ -68,16 +67,18 @@ class TDSerializer implements ResourceSerializer {
 		def buf = new ByteArrayOutputStream()
 		RDFSerializer.instance.writeContent(res, buf, JSON_LD_CONTENT_FORMAT)
 		
-		def opts = new JsonLdOptions()
-		// TODO use Groovy destructuring?
-		opts.compactArrays = true
-		opts.useNativeTypes = true
-		opts.pruneBlankNodeIdentifiers = true
+		def opts = new JsonLdOptions(
+			compactArrays: true,
+			useNativeTypes: true,
+			pruneBlankNodeIdentifiers: true
+		)
 		
 		def obj = new JsonSlurper().parse(buf.toByteArray())
 		def isGraphObject = { it.'@graph' && it.'@id' }
 		
-		if (obj.any(isGraphObject)) { // aggregated resource with named graphs (e.g. lookup result)
+		if (obj.any(isGraphObject)) {
+			log.info('Serializing resource as aggregation of TDs (e.g. lookup result)...')
+			
 			obj = obj.findAll(isGraphObject).collectEntries({ item ->
 				def id = item.'@id'
 				
@@ -86,7 +87,9 @@ class TDSerializer implements ResourceSerializer {
 
 				[(id): (td)]
 			})
-		} else { // single resource
+		} else {
+			log.info('Serializing single TD resource...')
+			
 			obj = JsonLdProcessor.frame(obj, TD_FRAME, opts)
 			obj = new TDTransform(obj).asJsonLd11()
 		}

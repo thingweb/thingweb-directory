@@ -32,23 +32,23 @@ class RepositoryFactory {
 	 * URL of a remote SPARQL endpoint to use for persistence. SPARQL Update must be allowed.
 	 * Note: if this parameter is not provided, the remote only parameter is ignored.
 	 */
-	static final String SPARQL_QUERY_ENDPOINT_PROPERTY = 'THINGWEB_SPARQL_QUERY_ENDPOINT'
+	static final String SPARQL_QUERY_ENDPOINT = 'THINGWEB_SPARQL_QUERY_ENDPOINT'
 
 	/**
 	 * URL of the update endpoint, if different from the SPARQL query endpoint.
 	 * Defaults to query endpoint, otherwise.
 	 */
-	static final String SPARQL_UPDATE_ENDPOINT_PROPERTY = 'THINGWEB_SPARQL_UPDATE_ENDPOINT'
+	static final String SPARQL_UPDATE_ENDPOINT = 'THINGWEB_SPARQL_UPDATE_ENDPOINT'
 
 	/**
 	 * Username to use to connect to the provided SPARQL endpoint (HTTP basic authentication).
 	 */
-	static final String SPARQL_USERNAME_PROPERTY = 'THINGWEB_SPARQL_USERNAME'
+	static final String SPARQL_USERNAME = 'THINGWEB_SPARQL_USERNAME'
 
 	/**
 	 * Password to use to connect to the provided SPARQL endpoint (HTTP basic authentication).
 	 */
-	static final String SPARQL_PASSWORD_PROPERTY = 'THINGWEB_SPARQL_PASSWORD'
+	static final String SPARQL_PASSWORD = 'THINGWEB_SPARQL_PASSWORD'
 	
 	@TupleConstructor
 	private static class RepositoryInit {
@@ -79,11 +79,11 @@ class RepositoryFactory {
 	static Repository get(Map params = [:]) {
 		RepositoryInit init
 
-		if (params[SPARQL_QUERY_ENDPOINT_PROPERTY]) {
+		if (params[SPARQL_QUERY_ENDPOINT]) {
 			init = fromParams(params)
 			
 			log.info('Connecting to SPARQL endpoint from factory parameters...')
-		} else if (System.getenv(SPARQL_QUERY_ENDPOINT_PROPERTY)) {
+		} else if (System.getenv(SPARQL_QUERY_ENDPOINT)) {
 			init = fromEnv()
 			
 			log.info('Connecting to SPARQL endpoint from environment variables...')
@@ -131,10 +131,10 @@ class RepositoryFactory {
 	 */
 	private static RepositoryInit fromParams(Map params) {
 		def remote = params[REMOTE_SPARQL_ENDPOINT_ONLY] as Boolean ?: false
-		def q = params[SPARQL_QUERY_ENDPOINT_PROPERTY]
-		def u = params[SPARQL_UPDATE_ENDPOINT_PROPERTY] ?: q
-		def user = params[SPARQL_USERNAME_PROPERTY]
-		def pw = params[SPARQL_PASSWORD_PROPERTY]
+		def q = params[SPARQL_QUERY_ENDPOINT]
+		def u = params[SPARQL_UPDATE_ENDPOINT] ?: q
+		def user = params[SPARQL_USERNAME]
+		def pw = params[SPARQL_PASSWORD]
 		
 		return new RepositoryInit(remote, q, u, user, pw)
 	}
@@ -146,10 +146,10 @@ class RepositoryFactory {
 	 */
 	private static RepositoryInit fromEnv() {
 		def remote = System.getenv(REMOTE_SPARQL_ENDPOINT_ONLY) as Boolean ?: false
-		def q = System.getenv(SPARQL_QUERY_ENDPOINT_PROPERTY)
-		def u = System.getenv(SPARQL_UPDATE_ENDPOINT_PROPERTY) ?: q
-		def user = System.getenv(SPARQL_USERNAME_PROPERTY)
-		def pw = System.getenv(SPARQL_PASSWORD_PROPERTY)
+		def q = System.getenv(SPARQL_QUERY_ENDPOINT)
+		def u = System.getenv(SPARQL_UPDATE_ENDPOINT) ?: q
+		def user = System.getenv(SPARQL_USERNAME)
+		def pw = System.getenv(SPARQL_PASSWORD)
 		
 		return new RepositoryInit(remote, q, u, user, pw)
 	}
