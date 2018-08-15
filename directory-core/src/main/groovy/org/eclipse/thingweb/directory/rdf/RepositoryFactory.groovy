@@ -24,29 +24,29 @@ class RepositoryFactory {
 	 * If no proper configuration is found (either as factory parameters or as environment variables),
 	 * an exception is thrown.
 	 */
-	static final REMOTE_SPARQL_ENDPOINT_ONLY = 'org.eclipse.rdf4j.repository.rdf.remoteSparqlEndpointOnly'
+	static final REMOTE_SPARQL_ENDPOINT_ONLY = 'THINGWEB_REMOTE_SPARQL_ENDPOINT_ONLY'
 
 	/**
 	 * URL of a remote SPARQL endpoint to use for persistence. SPARQL Update must be allowed.
 	 * Note: if this parameter is not provided, the remote only parameter is ignored.
 	 */
-	static final SPARQL_QUERY_ENDPOINT_PROPERTY = 'org.eclipse.rdf4j.repository.rdf.sparqlQueryEndpoint'
+	static final SPARQL_QUERY_ENDPOINT_PROPERTY = 'THINGWEB_SPARQL_QUERY_ENDPOINT'
 
 	/**
 	 * URL of the update endpoint, if different from the SPARQL query endpoint.
 	 * Defaults to query endpoint, otherwise.
 	 */
-	static final SPARQL_UPDATE_ENDPOINT_PROPERTY = 'org.eclipse.rdf4j.repository.rdf.sparqlUpdateEndpoint'
+	static final SPARQL_UPDATE_ENDPOINT_PROPERTY = 'THINGWEB_SPARQL_UPDATE_ENDPOINT'
 
 	/**
 	 * Username to use to connect to the provided SPARQL endpoint (HTTP basic authentication).
 	 */
-	static final SPARQL_USERNAME_PROPERTY = 'org.eclipse.rdf4j.repository.rdf.sparqlUsername'
+	static final SPARQL_USERNAME_PROPERTY = 'THINGWEB_SPARQL_USERNAME'
 
 	/**
 	 * Password to use to connect to the provided SPARQL endpoint (HTTP basic authentication).
 	 */
-	static final SPARQL_PASSWORD_PROPERTY = 'org.eclipse.rdf4j.repository.rdf.sparqlPassword'
+	static final SPARQL_PASSWORD_PROPERTY = 'THINGWEB_SPARQL_PASSWORD'
 	
 	//@Immutable
 	private static class RepositoryInit {

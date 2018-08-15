@@ -53,7 +53,7 @@ public class TDLookUpSemServlet extends HttpServlet {
 		if (query == null) query = DEFAULT_QUERY;
 		
 		resp.setContentType(contentType);
-		manager.lookUp(LOOKUP_SEM_TYPE, resp.getOutputStream(), contentType, parameters, query);
+		manager.lookUp(LOOKUP_SEM_TYPE, resp.getOutputStream(), contentType, query, parameters);
 	}
 
 }
