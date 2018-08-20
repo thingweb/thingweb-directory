@@ -14,6 +14,8 @@
  ********************************************************************************/
 package org.eclipse.thingweb.directory.app;
 
+import java.net.URL;
+
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.webapp.WebAppContext;
 
@@ -22,13 +24,18 @@ public class Main {
 	public static void main(String[] args) throws Exception {
 		Server server = new Server(8080);
 		
+		ClassLoader cl = Main.class.getClassLoader();
+		URL filename = cl.getResource("directory-servlet-0.10.0.war");
+		
 		WebAppContext ctx = new WebAppContext();
 		ctx.setContextPath("/");
-		ctx.setWar("directory-servlet-0.10.0.war");
+		ctx.setWar(filename.getPath());
 		
 		server.setHandler(ctx);
 		
 		server.start();
+		
+		server.dumpStdErr();
 		
 		// TODO signal to stop server
 		server.join();

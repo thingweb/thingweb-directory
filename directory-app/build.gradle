@@ -39,6 +39,18 @@ dependencies {
     compile 'org.eclipse.jetty:jetty-webapp:9.2.26.v20180806'
 }
 
+/**
+ * Copies .war file from directory-servlet build to directory-app.
+ * Requires directory-servlet to be in the sibling folder '../directory-servlet'.
+ */
+task processWar(type: Copy) {
+	from '../directory-servlet/build/libs'
+	include '*.war'
+	into 'src/main/resources'
+}
+
+processResources.dependsOn = [processWar]
+
 mainClassName = 'org.eclipse.thingweb.directory.app.Main'
 
 version = '0.10.0'
