@@ -90,7 +90,7 @@ class RepositoryFactory {
 		}
 		
 		if (init) {
-			SPARQLRepository repo = new SPARQLRepository(init.queryEndpoint, init.queryEndpoint)
+			SPARQLRepository repo = new SPARQLRepository(init.queryEndpoint, init.updateEndpoint)
 			repo.initialize()
 			
 			if (init.username && init.password) {
