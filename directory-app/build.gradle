@@ -40,16 +40,15 @@ dependencies {
 }
 
 /**
- * Copies .war file from directory-servlet build to directory-app.
+ * Copies Web app file from directory-servlet project to directory-app.
  * Requires directory-servlet to be in the sibling folder '../directory-servlet'.
  */
-task processWar(type: Copy) {
-	from '../directory-servlet/build/libs'
-	include '*.war'
-	into 'src/main/resources'
+task processWebApp(type: Copy) {
+	from '../directory-servlet/src/main/webapp'
+	into 'src/main/resources/webapp'
 }
 
-processResources.dependsOn = [processWar]
+processResources.dependsOn = [processWebApp]
 
 mainClassName = 'org.eclipse.thingweb.directory.app.Main'
 
