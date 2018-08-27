@@ -51,6 +51,12 @@ task processWebApp(type: Copy) {
 
 processResources.dependsOn = [processWebApp]
 
+distributions {
+    main {
+        baseName = 'thingweb-directory'
+    }
+}
+
 mainClassName = 'org.eclipse.thingweb.directory.app.Main'
 
 version = '0.10.0'
