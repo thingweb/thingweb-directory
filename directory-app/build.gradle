@@ -37,6 +37,7 @@ dependencies {
     
 	compile 'org.eclipse.jetty:jetty-server:9.2.26.v20180806'
     compile 'org.eclipse.jetty:jetty-webapp:9.2.26.v20180806'
+	compile 'commons-cli:commons-cli:1.4'
 }
 
 /**
