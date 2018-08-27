@@ -22,9 +22,42 @@
  * THE SOFTWARE.
  */
 
-rootProject.name = 'thingweb-directory'
+plugins {
+    id 'java'
+	id 'application'
+	id 'eclipse'
+}
 
-include 'directory-core'
-include 'directory-servlet'
-include 'directory-coap'
-include 'directory-app'
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+    compile project(':directory-servlet')
+    
+	compile 'org.eclipse.jetty:jetty-server:9.2.26.v20180806'
+    compile 'org.eclipse.jetty:jetty-webapp:9.2.26.v20180806'
+	compile 'commons-cli:commons-cli:1.4'
+}
+
+/**
+ * Copies Web app file from directory-servlet project to directory-app.
+ * Requires directory-servlet to be in the sibling folder '../directory-servlet'.
+ */
+task processWebApp(type: Copy) {
+	from '../directory-servlet/src/main/webapp'
+	into 'src/main/resources/webapp'
+}
+
+processResources.dependsOn = [processWebApp]
+
+distributions {
+    main {
+        baseName = 'thingweb-directory'
+    }
+}
+
+mainClassName = 'org.eclipse.thingweb.directory.app.Main'
+
+version = '0.10.0'
+group = 'org.eclipse.thingweb'

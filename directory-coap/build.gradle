@@ -22,9 +22,4 @@
  * THE SOFTWARE.
  */
 
-rootProject.name = 'thingweb-directory'
-
-include 'directory-core'
-include 'directory-servlet'
-include 'directory-coap'
-include 'directory-app'
+// TODO

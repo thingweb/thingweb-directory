@@ -22,9 +22,24 @@
  * THE SOFTWARE.
  */
 
-rootProject.name = 'thingweb-directory'
+plugins {
+	id 'java'
+	id 'war'
+	id 'org.akhikhl.gretty' version '2.0.0'
+	id 'eclipse'
+}
 
-include 'directory-core'
-include 'directory-servlet'
-include 'directory-coap'
-include 'directory-app'
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	compile project(':directory-core')
+	
+	compile 'javax.servlet:servlet-api:2.5'
+	
+	testCompile 'junit:junit:4.8'
+}
+
+version = '0.10.0'
+group = 'org.eclipse.thingweb'

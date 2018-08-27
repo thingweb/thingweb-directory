@@ -1,0 +1,129 @@
+<web-app>
+	<filter>
+		<filter-name>conneg-rdf</filter-name>
+		<description>Content negotiation filter for RDF media types</description>
+		<filter-class>org.eclipse.thingweb.directory.filter.ContentNegotiationFilter</filter-class>
+		<init-param>
+			<param-name>accepted</param-name>
+			<param-value>application/n-triples,text/turtle,application/rdf+xml,application/ld+json</param-value>
+		</init-param>
+	</filter>
+	
+	<filter>
+		<filter-name>conneg-td</filter-name>
+		<description>Content negotiation filter for TD media types</description>
+		<filter-class>org.eclipse.thingweb.directory.filter.ContentNegotiationFilter</filter-class>
+		<init-param>
+			<param-name>accepted</param-name>
+			<param-value>application/n-triples,text/turtle,application/rdf+xml,application/ld+json,application/td+json</param-value>
+		</init-param>
+	</filter>
+	
+	<servlet>
+		<servlet-name>vocab</servlet-name>
+		<description>Registration servlet for RDF vocabularies/ontologies</description>
+		<servlet-class>org.eclipse.thingweb.directory.servlet.RegistrationServlet</servlet-class>
+		<init-param>
+			<param-name>registration-type</param-name>
+			<param-value>vocab</param-value>
+		</init-param>
+	</servlet>
+	
+	<servlet>
+		<servlet-name>vocab-handle</servlet-name>
+		<description>Registration handle servlet for registered RDF vocabularies/ontologies</description>
+		<servlet-class>org.eclipse.thingweb.directory.servlet.RegistrationHandleServlet</servlet-class>
+		<init-param>
+			<param-name>registration-type</param-name>
+			<param-value>vocab</param-value>
+		</init-param>
+	</servlet>
+	
+	<servlet>
+		<servlet-name>td</servlet-name>
+		<description>Registration servlet for TD documents</description>
+		<servlet-class>org.eclipse.thingweb.directory.servlet.RegistrationServlet</servlet-class>
+		<init-param>
+			<param-name>registration-type</param-name>
+			<param-value>td</param-value>
+		</init-param>
+	</servlet>
+	
+	<servlet>
+		<servlet-name>td-handle</servlet-name>
+		<description>Registration servlet for registered TD documents</description>
+		<servlet-class>org.eclipse.thingweb.directory.servlet.RegistrationHandleServlet</servlet-class>
+		<init-param>
+			<param-name>registration-type</param-name>
+			<param-value>td</param-value>
+		</init-param>
+	</servlet>
+	
+	<servlet>
+		<servlet-name>td-lookup-sem</servlet-name>
+		<description>Lookup servlet for (semantic) SPARQL queries</description>
+		<servlet-class>org.eclipse.thingweb.directory.servlet.TDLookUpSemServlet</servlet-class>
+	</servlet>
+	
+	<servlet>
+		<servlet-name>td-lookup-ep</servlet-name>
+		<description>Lookup servlet by endpoint</description>
+		<servlet-class>org.eclipse.thingweb.directory.servlet.TDLookUpEpServlet</servlet-class>
+	</servlet>
+	
+	<servlet>
+		<servlet-name>td-lookup-res</servlet-name>
+		<description>Lookup servlet by resource attributes</description>
+		<servlet-class>org.eclipse.thingweb.directory.servlet.TDLookUpResServlet</servlet-class>
+	</servlet>
+	
+	<filter-mapping>
+		<filter-name>conneg-rdf</filter-name>
+		<servlet-name>vocab-handle</servlet-name>
+	</filter-mapping>
+	
+	<filter-mapping>
+		<filter-name>conneg-td</filter-name>
+		<servlet-name>td-handle</servlet-name>
+	</filter-mapping>
+	
+	<filter-mapping>
+		<filter-name>conneg-td</filter-name>
+		<servlet-name>td-lookup-sem</servlet-name>
+	</filter-mapping>
+	
+	<servlet-mapping>
+		<servlet-name>vocab</servlet-name>
+		<url-pattern>/vocab</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+		<servlet-name>vocab-handle</servlet-name>
+		<url-pattern>/vocab/*</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+		<servlet-name>td</servlet-name>
+		<url-pattern>/td</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+		<servlet-name>td-handle</servlet-name>
+		<url-pattern>/td/*</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+		<servlet-name>td-lookup-sem</servlet-name>
+		<url-pattern>/td-lookup/sem</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+		<servlet-name>td-lookup-ep</servlet-name>
+		<url-pattern>/td-lookup/ep</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+		<servlet-name>td-lookup-res</servlet-name>
+		<url-pattern>/td-lookup/res</url-pattern>
+	</servlet-mapping>
+</web-app>

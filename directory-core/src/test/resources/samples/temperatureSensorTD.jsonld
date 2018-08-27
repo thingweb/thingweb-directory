@@ -1,0 +1,62 @@
+{
+	"@context": [
+		"http://www.w3.org/ns/td",
+		{
+			"geo": "http://www.w3.org/2003/01/geo/wgs84_pos#",
+			"saref": "http://uri.etsi.org/m2m/saref#",
+			"Sensor": "saref:Sensor",
+			"Temperature": "saref:Temperature",
+			"Toggle": "saref:ToggleCommand",
+			"unit": "saref:isMeasuredIn",
+			"celsius": "http://www.wurvoc.org/vocabularies/om-1.8/degree_Celsius"
+		}
+	],
+	"id": "urn:Temp",
+	"@type": ["Thing", "Sensor"],
+	"name": "myTempSensor",
+	"base": "coap:///www.example.com:5687/temp",
+	"properties": {
+		"myTemp": {
+			"@type": "Temperature",
+			"unit": "celsius",
+			"reference": "threshold",
+			"name": "myTemp",
+			"type": "number",
+			"writable": false,
+			"forms": [{
+				"href": "val",
+				"mediaType": "application/json"
+			}]
+		},
+		"myThreshold": {
+			"@type": "Temperature",
+			"unit": "celsius",
+			"name": "myThreshold",
+			"type": "number",
+			"writable": true,
+			"forms": [{
+				"href": "threshold",
+				"mediaType": "application/json"
+			}]
+		}
+	},
+	"events": {
+		"myChange": {
+			"type": "number",
+			"name": "myChange",
+			"property": "temp",
+			"forms": [{
+				"href": "val/changed",
+				"mediaType": "application/json"
+			}]
+		},
+		"myWarning": {
+			"type": "number",
+			"name": "myWarning",
+			"forms": [{
+				"href": "val/high",
+				"mediaType": "application/json"
+			}]
+		}
+	}
+}

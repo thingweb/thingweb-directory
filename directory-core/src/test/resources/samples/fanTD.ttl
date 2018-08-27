@@ -1,0 +1,46 @@
+@prefix td: <http://www.w3.org/ns/td#> .
+@prefix jsonschema: <http://www.w3.org/ns/json-schema#> .
+@prefix saref: <http://uri.etsi.org/m2m/saref#> .
+@prefix om: <http://www.wurvoc.org/vocabularies/om-1.8/> .
+@prefix geo: <http://www.w3.org/2003/01/geo/wgs84_pos#> .
+
+<urn:Fan> a td:Thing, saref:Sensor ;
+          td:name "Fan" ;
+          td:base "coap:///www.example.com:5686/Fan" ;
+          td:properties <urn:Fan/myThreshold> ;
+          td:actions <urn:Fan/fanOnOff>, <urn:Fan/fanOnOffTempAction> .
+          
+<urn:Fan/myThreshold> a saref:Temperature ;
+                      jsonschema:type "number" ;
+                      saref:isMeasuredIn om:degree_Celsius ;
+                      td:writable "true"^^xsd:boolean ;
+                      td:observable "false"^^xsd:boolean ;
+                      geo:location "room_4" ;
+                      td:forms _:thresholdform .
+            
+_:thresholdform td:href "threshold" ;
+                td:mediaType "application/json" .
+                
+<urn:Fan/fanOnOff> a saref:ToggleCommand ;
+                   td:name "fanOnOff" ;
+                   td:input _:onoffinput ;
+                   td:forms _:onoffform .
+        
+_:onoffinput a saref:OnOffState ;
+             jsonschema:type "boolean" .
+             
+_:onoffform td:href "toggle" ;
+            td:mediaType "application/json" .
+            
+<urn:Fan/fanOnOffTempAction> a saref:ToggleCommand ;
+                             td:name "fanOnOffTempAction" ;
+                             td:input _:settempinput ;
+                             geo:location "room_4" ;
+                             td:forms _:settempform .
+          
+_:settempinput a saref:Temperature ;
+               jsonschema:type "number" ;
+               saref:isMeasuredIn om:degree_Celsius .
+               
+_:settempform td:href "fanOnOffTempAction" ;
+              td:mediaType "application/json" .
