@@ -131,10 +131,20 @@
       				}
       			}
       		}
+
+			var field = document.getElementById("query-type-field");
+			var type = field.options[field.selectedIndex].value;
+      		var q = 'td-lookup/' + type;
       		
-      		var q = document.getElementById("filter-field").value;
-			if (q === "") { q = "?s ?p ?o"; }
-      		xhr.open("GET", "td-lookup/sem?query=" + encodeURIComponent(q));
+      		var f = document.getElementById("filter-field").value;
+			if (f != "") {				
+				if (type === 'sem') {
+					q += '?query=' + encodeURIComponent(f);
+				} else if (type === 'frame') {
+					q += '?frame=' + encodeURIComponent(f);
+				}
+			}
+      		xhr.open("GET", q);
       		xhr.setRequestHeader("Accept", "application/td+json");
       		
       		xhr.send();
@@ -152,7 +162,7 @@
           <label for="td-format">Format: </label>
           <select id="td-format-field" name="td-format">
             <option value="application/td+json" selected="selected">TD (JSON)</option>
-            <option value="application/ld+json">JSON-LD</option>
+            <option value="application/ld+json">JSON-LD 1.0</option>
             <option value="application/n-triples">N-Triples</option>
             <option value="text/turtle">Turtle</option>
             <option value="application/rdf+xml">RDF/XML</option>
@@ -168,7 +178,14 @@
       </form>
       
       <form action="javascript:discover()">
-        <h2>Discover (<code>/td-lookup/sem</code>)</h2>
+        <h2>Discover (<code>/td-lookup/{sem,frame}</code>)</h2>
+        <p>
+          <label for="query-type">Type: </label>
+          <select id="query-type-field" name="query-type">
+            <option value="sem" selected="selected">SPARQL</option>
+            <option value="frame">JSON-LD 1.0 Frame</option>
+          </select>
+        </p>
         <p>
           <textarea id="filter-field" placeholder="SPARQL filter (empty: no filter)" name="filter" rows="2" cols="50"></textarea>
         </p>
