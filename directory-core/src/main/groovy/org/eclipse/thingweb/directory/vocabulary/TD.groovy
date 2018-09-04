@@ -27,11 +27,13 @@ import org.eclipse.rdf4j.model.impl.SimpleValueFactory
  */
 class TD {
 
-	static final String URI = 'http://www.w3.org/ns/td#'
+	public static final String PREFIX = 'td'
 	
-	public static final IRI THING = SimpleValueFactory.instance.createIRI(getURI() + "Thing")
+	public static final String NAMESPACE = 'http://www.w3.org/ns/td#'
 	
-	public static final IRI NAME = SimpleValueFactory.instance.createIRI(getURI() + "name")
+	public static final IRI THING = SimpleValueFactory.instance.createIRI(NAMESPACE + "Thing")
+	
+	public static final IRI NAME = SimpleValueFactory.instance.createIRI(NAMESPACE + "name")
 	
 	private TD() {}
 	

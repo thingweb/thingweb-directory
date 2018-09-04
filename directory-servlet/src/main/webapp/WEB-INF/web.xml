@@ -66,6 +66,12 @@
 	</servlet>
 	
 	<servlet>
+		<servlet-name>td-lookup-frame</servlet-name>
+		<description>Lookup servlet for JSON-LD frame matching queries</description>
+		<servlet-class>org.eclipse.thingweb.directory.servlet.TDLookUpFrameServlet</servlet-class>
+	</servlet>
+	
+	<servlet>
 		<servlet-name>td-lookup-ep</servlet-name>
 		<description>Lookup servlet by endpoint</description>
 		<servlet-class>org.eclipse.thingweb.directory.servlet.TDLookUpEpServlet</servlet-class>
@@ -115,6 +121,11 @@
 	<servlet-mapping>
 		<servlet-name>td-lookup-sem</servlet-name>
 		<url-pattern>/td-lookup/sem</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+		<servlet-name>td-lookup-frame</servlet-name>
+		<url-pattern>/td-lookup/frame</url-pattern>
 	</servlet-mapping>
 	
 	<servlet-mapping>

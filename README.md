@@ -21,7 +21,7 @@ The Thingweb Directory requires Java 1.8.
 
 Download the project and unzip it (see [releases](https://github.com/thingweb/thingweb-directory/releases)). Then, run:
 ```sh
-$ bin/thingweb-directory
+$ bin/directory-app
 ```
 After this step, the Directory server is running and can be accessed over HTTP at: http://localhost:8080.
 Run the command above with arg `-h` for more details.
@@ -34,7 +34,12 @@ On Windows, the execution will fail with a Batch error message. If [Mingw](http:
 
 ### Interacting with the Directory
 
-The HTTP endpoint provides an HTML client to register and discover Thing Descriptions. This client accesses a REST API to manage Thing Descriptions that complies to the [IETF Resource Directory specification](https://tools.ietf.org/html/draft-ietf-core-resource-directory-12). Registration is done by POSTing on [`/td`](http://localhost:8080/td) and discovery can be performed on [`td-lookup/ep`](http://localhost:8080/td-lookup/ep), [`td-lookup/res`](http://localhost:8080/td-lookup/res) and [`td-lookup/sem`](http://localhost:8080/td-lookup/sem) (which expects a SPARQL graph pattern as query parameter).
+The HTTP endpoint provides an HTML client to register and discover Thing Descriptions. This client accesses a REST API to manage Thing Descriptions that complies to the [IETF Resource Directory specification](https://tools.ietf.org/html/draft-ietf-core-resource-directory-12).
+Registration is done by POSTing on [`/td`](http://localhost:8080/td) and discovery can be performed on the following resources:
+ - [`td-lookup/ep`](http://localhost:8080/td-lookup/ep),
+ - [`td-lookup/res`](http://localhost:8080/td-lookup/res),
+ - [`td-lookup/sem`](http://localhost:8080/td-lookup/sem) (which expects a SPARQL graph pattern as query parameter) and
+ - [`td-lookup/frame`](http://localhost:8080/td-lookup/frame) (which expects a JSON-LD 1.0 frame object).
 
 See `directory-servlet/src/main/webapp/api.json` for a formal specification of the Thing Directory API. This file is exposed by the server at [`/api.json`](http://localhost:8080/api.json). It can e.g. be processed by the [Swagger UI](http://swagger.io/swagger-ui/) to render an online documentation. See the [Open API Initiative](https://www.openapis.org/) for more details.
 
