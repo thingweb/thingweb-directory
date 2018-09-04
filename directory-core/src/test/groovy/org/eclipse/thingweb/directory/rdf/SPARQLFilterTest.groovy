@@ -16,7 +16,7 @@ package org.eclipse.thingweb.directory.rdf
 
 import org.junit.Before
 import org.junit.Test
-
+import org.eclipse.thingweb.directory.Resource
 import org.eclipse.thingweb.directory.ResourceManagerFactory
 
 /**
@@ -28,17 +28,17 @@ import org.eclipse.thingweb.directory.ResourceManagerFactory
  */
 class SPARQLFilterTest {
 	
-	final RDFResourceManager m = ResourceManagerFactory.get('vocab')
+	final RDFResourceManager m = ResourceManagerFactory.get('td')
 
 	@Test
 	void testFilter() {
 		def cl = getClass().getClassLoader()
 		
 		def i = cl.getResourceAsStream('samples/fanTD.jsonld')
-		def fan = m.register(i, 'application/ld+json', [:])
+		def fan = m.register(i, 'application/td+json', [:])
 		
 		i = cl.getResourceAsStream('samples/temperatureSensorTD.jsonld')
-		def temp = m.register(i, 'application/ld+json', [:])
+		def temp = m.register(i, 'application/td+json', [:])
 		
 		def f = new SPARQLFilter()
 		
@@ -48,17 +48,14 @@ class SPARQLFilterTest {
 		assert filtered.contains(fan) : 'SPARQL filter did not keep fan resource'
 		assert filtered.contains(temp) : 'SPARQL filter did not keep temperature resource'
 		
-		// TODO fix JSON-LD context first
-//		filtered = f.filter('?thing a <http://uri.etsi.org/m2m/saref#Sensor> .\n'
-//			+ 'FILTER NOT EXISTS {\n'
-//			+ '  ?thing <http://www.w3.org/ns/td#actions> ?i .\n'
-//			+ '  ?i a <http://uri.etsi.org/m2m/saref#ToggleCommand> .\n'
-//			+ '}')
-		
-		filtered = f.filter('?thing <http://www.w3.org/ns/td#name> "myTempSensor"')
+		filtered = f.filter('?thing a <http://uri.etsi.org/m2m/saref#Sensor> .\n'
+			+ 'FILTER NOT EXISTS {\n'
+			+ '  ?thing <http://www.w3.org/ns/td#actions> ?i .\n'
+			+ '  ?i a <http://uri.etsi.org/m2m/saref#ToggleCommand> .\n'
+			+ '}')
 		
 		assert filtered.size() == 1 : 'SPARQL filter did not filter out fan resource'
 		assert filtered.contains(temp) : 'SPARQL filter did not keep temperature resource'
-	}
+	}	
 	
 }
