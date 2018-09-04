@@ -14,6 +14,8 @@
  ********************************************************************************/
 package org.eclipse.thingweb.directory.rdf
 
+import java.util.Set
+
 import org.eclipse.rdf4j.query.QueryResults
 import org.eclipse.rdf4j.repository.Repository
 import org.eclipse.rdf4j.repository.util.Repositories

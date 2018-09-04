@@ -15,6 +15,7 @@
 package org.eclipse.thingweb.directory
 
 import org.apache.commons.lang.NotImplementedException
+import org.eclipse.thingweb.directory.rdf.FrameFilter
 import org.eclipse.thingweb.directory.rdf.RDFResourceManager
 import org.eclipse.thingweb.directory.rdf.SPARQLFilter
 
@@ -31,6 +32,9 @@ class LookUpFilterFactory {
 		switch (type) {
 			case 'sem':
 				return new SPARQLFilter(params)
+				
+			case 'frame':
+				return new FrameFilter(params)
 				
 			case 'res':
 			case 'ep':
