@@ -20,6 +20,7 @@ import javax.xml.datatype.XMLGregorianCalendar
 import org.eclipse.rdf4j.model.IRI
 import org.eclipse.rdf4j.model.Literal
 import org.eclipse.rdf4j.model.Model
+import org.eclipse.rdf4j.model.Statement
 import org.eclipse.rdf4j.model.util.Models
 import org.eclipse.rdf4j.model.vocabulary.DCTERMS
 import org.eclipse.rdf4j.query.QueryResults
@@ -70,19 +71,17 @@ class RDFResourceManagerTest {
 	void testRegister() {
 		def cl = getClass().getClassLoader()
 		
-		InputStream i = cl.getResourceAsStream('samples/fanTD.jsonld')
-		Model g = Rio.parse(i, '', RDFFormat.JSONLD)
+		InputStream i = cl.getResourceAsStream('samples/fanTD.ttl')
+		Model g = Rio.parse(i, '', RDFFormat.TURTLE)
 
 		def res = new RDFResource(g)
 		m.register(res)
 		
 		def repo = m.repo
 		Repositories.consume(repo, { RepositoryConnection con ->
-			def r = con.getStatements(res.iri, DCTERMS.ISSUED, null)
-			assert r.hasNext() : 'RDF document was not properly inserted in the RDF store (no dct:issued statement)'
-			def l = r.next().object as Literal
-			assert !r.hasNext() : 'RDF document was not properly inserted in the RDF store (too many dct:issued statements)'
-			r.close()
+			List<Statement> results = QueryResults.asList(con.getStatements(res.iri, DCTERMS.ISSUED, null))
+			assert results.size() == 1 : 'RDF document was not properly inserted in the RDF store (dct:issued statement expected)'
+			def l = results[0].object as Literal
 		
 			def d = l.calendarValue()
 			def now = DatatypeFactory.newInstance().newXMLGregorianCalendar(new GregorianCalendar())
@@ -90,9 +89,8 @@ class RDFResourceManagerTest {
 		
 			assert c == DatatypeConstants.LESSER || c == DatatypeConstants.EQUAL : 'RDF document insertion time is erroneous'
 			
-			r = con.getStatements(null, null as IRI, null, res.iri)
-			assert r.hasNext() : 'RDF document was not persisted in the RDF store'
-			r.close()
+			results = QueryResults.asList(con.getStatements(null, null as IRI, null, res.iri))
+			assert results.size() > 0 : 'RDF document was not persisted in the RDF store'
 		})
 	}
 	
@@ -104,8 +102,8 @@ class RDFResourceManagerTest {
 		
 		assert !exists : 'Unregistered resource should not have been recognized by the RDF resource manager'
 		
-		InputStream i = cl.getResourceAsStream('samples/fanTD.jsonld')
-		Model g = Rio.parse(i, '', RDFFormat.JSONLD)
+		InputStream i = cl.getResourceAsStream('samples/fanTD.ttl')
+		Model g = Rio.parse(i, '', RDFFormat.TURTLE)
 
 		def res = new RDFResource(g)
 		m.register(res)
@@ -123,8 +121,8 @@ class RDFResourceManagerTest {
 		
 		assert res.content.empty : 'RDF resource manager returned an inconsistent resource object'
 		
-		InputStream i = cl.getResourceAsStream('samples/fanTD.jsonld')
-		Model g = Rio.parse(i, '', RDFFormat.JSONLD)
+		InputStream i = cl.getResourceAsStream('samples/fanTD.ttl')
+		Model g = Rio.parse(i, '', RDFFormat.TURTLE)
 		
 		m.repo.connection.add(g, res.iri)
 		res = m.get('tag:someresource') as RDFResource
@@ -136,44 +134,40 @@ class RDFResourceManagerTest {
 	void testReplace() {
 		def cl = getClass().getClassLoader()
 		
-		InputStream i = cl.getResourceAsStream('samples/fanTD.jsonld')
-		Model g = Rio.parse(i, '', RDFFormat.JSONLD)
+		InputStream i = cl.getResourceAsStream('samples/fanTD.ttl')
+		Model g = Rio.parse(i, '', RDFFormat.TURTLE)
 		
 		def res = new RDFResource(g)
 		m.register(res)
 		
-		i = cl.getResourceAsStream('samples/fanTD_update.jsonld')
-		g = Rio.parse(i, '', RDFFormat.JSONLD)
+		i = cl.getResourceAsStream('samples/fanTD_update.ttl')
+		g = Rio.parse(i, '', RDFFormat.TURTLE)
 		
 		def other = new RDFResource(g)
 		m.replace(res, other)
 		
 		def repo = m.repo
 		Repositories.consume(repo, { RepositoryConnection con ->
-			def r = con.getStatements(res.iri, DCTERMS.MODIFIED, null)
-			assert r.hasNext() : 'RDF document was not properly updated (no dct:modified statement)'
-			def l = r.next().object as Literal
-			assert !r.hasNext() : 'RDF document was not properly inserted in the RDF store (too many dct:modified statements)'
-			r.close()
+			List<Statement> results = QueryResults.asList(con.getStatements(res.iri, DCTERMS.MODIFIED, null))
+			assert results.size() == 1 : 'RDF document was not properly updated (dct:modified statement expected)'
+			def l = results[0].object as Literal
 		
 			def d = l.calendarValue()
 			def now = DatatypeFactory.newInstance().newXMLGregorianCalendar(new GregorianCalendar())
 			def cnow = d.compare(now)
 			
-			r = con.getStatements(res.iri, DCTERMS.ISSUED, null)
-			def issued = (r.next().object as Literal).calendarValue()
+			results = QueryResults.asList(con.getStatements(res.iri, DCTERMS.ISSUED, null))
+			def issued = (results[0].object as Literal).calendarValue()
 			def cissued = d.compare(issued)
-			r.close()
 
 			assert cnow == DatatypeConstants.LESSER || cnow == DatatypeConstants.EQUAL : 'RDF document update time is erroneous'
 			assert cissued == DatatypeConstants.GREATER || cissued == DatatypeConstants.EQUAL : 'RDF document update time is erroneous'
 			
-			// FIXME res.iri instead of null (change fixtures?)
-			r = con.getStatements(null, TD.NAME, null, res.iri)
-			assert r.hasNext() : 'RDF document was not properly updated (expected statement not found)'
-			l = r.next().object as Literal
+			def id = con.getValueFactory().createIRI('urn:Fan')
+			results = QueryResults.asList(con.getStatements(id, TD.NAME, null, res.iri))
+			assert results.size() == 1 : 'RDF document was not properly updated (td:name statement expected)'
+			l = results[0].object as Literal
 			assert l.stringValue() == 'Fan2' : 'RDF document was not updated'
-			r.close()
 		})
 	}
 	
@@ -181,8 +175,8 @@ class RDFResourceManagerTest {
 	void testDelete() {
 		def cl = getClass().getClassLoader()
 		
-		InputStream i = cl.getResourceAsStream('samples/fanTD.jsonld')
-		Model g = Rio.parse(i, '', RDFFormat.JSONLD)
+		InputStream i = cl.getResourceAsStream('samples/fanTD.ttl')
+		Model g = Rio.parse(i, '', RDFFormat.TURTLE)
 		
 		def res = new RDFResource(g)
 		m.register(res)

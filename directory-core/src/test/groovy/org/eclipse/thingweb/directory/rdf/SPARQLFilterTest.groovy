@@ -56,6 +56,6 @@ class SPARQLFilterTest {
 		
 		assert filtered.size() == 1 : 'SPARQL filter did not filter out fan resource'
 		assert filtered.contains(temp) : 'SPARQL filter did not keep temperature resource'
-	}	
+	}
 	
 }
