@@ -1,7 +1,7 @@
 {
   "@context" : {
     "td": "http://www.w3.org/ns/td#",
-    "jsonschema": "http://www.w3.org/ns/jsonschema#",
+    "jsonschema": "http://www.w3.org/ns/json-schema#",
     "wotsec": "http://www.w3.org/ns/wot-security#",
     "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
     "xsd": "http://www.w3.org/2001/XMLSchema#",

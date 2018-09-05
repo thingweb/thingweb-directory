@@ -14,6 +14,9 @@
  ********************************************************************************/
 package org.eclipse.thingweb.directory.utils
 
+import org.eclipse.thingweb.directory.vocabulary.JSONSCHEMA
+import org.eclipse.thingweb.directory.vocabulary.TD
+
 import groovy.json.*
 
 /**
@@ -26,7 +29,9 @@ import groovy.json.*
  */
 class TDTransform {
 	
-	public static final TD_CONTEXT_URI = 'http://www.w3.org/ns/td'
+	static final TD_CONTEXT_URI = TD.NAMESPACE
+	
+	static final JSONSCHEMA_PROPERTIES_IRI = JSONSCHEMA.PROPERTIES.stringValue()
 	
 	final Object object
 	
@@ -175,7 +180,7 @@ class TDTransform {
 					switch (k) {
 						case 'properties':
 							return [
-								'http://www.w3.org/ns/td/schema#properties': v.collect({ s ->
+								(JSONSCHEMA_PROPERTIES_IRI): v.collect({ s ->
 									asJsonLd10ForType(s, 'ObjectSchema')
 								})
 							]
@@ -243,7 +248,7 @@ class TDTransform {
 				if (obj instanceof String) obj = resolve(object, obj) // schema reference
 				return obj.collectEntries({ k, v ->
 					switch (k) {
-						case 'http://www.w3.org/ns/td/schema#properties':
+						case JSONSCHEMA_PROPERTIES_IRI:
 							return [
 								'properties': v.collectEntries({ s ->
 									asJsonLd11ForType(s, 'ObjectSchema')
