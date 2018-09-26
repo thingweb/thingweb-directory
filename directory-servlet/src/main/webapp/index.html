@@ -87,26 +87,49 @@
           resize: vertical;
           width: calc(100% - 2*3px);
         }
+
+        .btn {
+          background: rgb(51, 184, 164);
+          border: 1px solid transparent;
+          border-radius: 200px;
+          color: white;
+          padding: 12px 25px;
+          font-size: 16px;
+          cursor: pointer;
+        }
         
         .highlighted {
           text-align: center;
           font-style: italic;
         }
+
+        .framed {
+          padding: 12px 25px;
+          font-size: 16px;
+        }
+        
+        .framed a {
+          color: white;
+        }
         
         p.success {
-          background: #c6ff45;
+          background: rgb(51, 184, 164);
+          color: white;
         }
         
         p.failure {
-          background: #ff7f44;
+          background: rgb(161, 33, 33);
+          color: white;
         }
         
         table.success tr {
-          background: #eee;
+          background: rgb(87, 109, 132);
+          color: white;
         }
         
         table.failure tr {
-          background: #ff7f44;
+          background: rgb(161, 33, 33);
+          color: white;
         }
       </style>
       <script type="text/javascript">
@@ -131,11 +154,15 @@
       		if (!(result instanceof Array)) { result = [result]; }
       		
       		if (result.length === 0) {
-      			table.insertRow().insertCell().innerHTML = "<i>(no result)</i>";
+      			var cell = table.insertRow().insertCell();
+                cell.classList.add("framed");
+                cell.innerHTML = "<i>(no result)</i>";
       		}
       		
   			for (i in result) {
-				table.insertRow().insertCell().innerHTML = result[i];
+      			var cell = table.insertRow().insertCell();
+                cell.classList.add("framed");
+				cell.innerHTML = result[i];
 			}
       	}
 
@@ -234,9 +261,9 @@
            <textarea id="td-field" placeholder="Thing Description" name="td" rows="10" cols="50"></textarea>
           </p>
           <p class="form-control">
-            <input type="submit" value="OK"/>
+            <input class="btn" type="submit" value="OK"/>
           </p>
-          <p id="td-location" class="highlighted"></p>
+          <p id="td-location" class="highlighted framed"></p>
         </form>
         
         <form action="javascript:discover()">
@@ -252,7 +279,7 @@
             <textarea id="filter-field" placeholder="SPARQL filter (empty: no filter)" name="filter" rows="2" cols="50"></textarea>
           </p>
           <p class="form-control">
-            <input type="submit" value="OK"/>
+            <input class="btn" type="submit" value="OK"/>
           </p>
           <p>
             <table id="td-table"></table>
