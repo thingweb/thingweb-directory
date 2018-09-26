@@ -2,12 +2,67 @@
 <html>
     <head>
       <meta charset="UTF-8">
+      <link rel="shortcut icon" href="./img/favicon.png" type="image/png">
+      <link rel="icon" href="./img/favicon.png" type="image/png">
       <title>Thingweb Directory - Register and discover W3C Thing Descriptions</title>
       <style type="text/css">
         body {
+          margin: 0;
+          padding: 0;
+        }
+        
+        header {
+          border-top: 3px solid rgb(51, 184, 164);
+        }
+        
+        header img {
+          display: block;
+          margin: auto;
+        }
+        
+        .container {
+          padding: 10px 0;
+        }
+      
+        .wrapper {
           font-family: sans-serif;
           max-width: 680px;
           margin: auto;
+        }
+        
+        footer {
+          box-sizing: border-box;
+          background-color: rgb(20, 20, 20);
+          display: block;
+          text-align: center !important;
+          padding: 5px 0 45px;
+        }
+        
+        .footer-shape img {
+          height: auto;
+          vertical-align: middle;
+          border-style: none;
+        }
+        
+        footer ul {
+          list-style: none;
+          padding: 15px 0;
+        }
+        
+        footer li, footer a {
+          display: inline-block;
+          color: white;
+          font-family: 'Open Sans', sans-serif;
+          font-size: 17px;
+          padding: 0 5px;
+          text-decoration-line: none;
+        }
+        
+        footer p {
+          color: white;
+          font-family: 'Open Sans', sans-serif;
+          font-size: 14px;
+          padding-top: 12px;
         }
         
         form {
@@ -18,7 +73,7 @@
           padding-right: 10px;
         }
         
-        p {
+        .form-control {
           width: 100%;
           text-align: right;
         }
@@ -154,47 +209,87 @@
       </script>
     </head>
     <body>
-      <h1>Thingweb Directory</h1>
+      <header>
+        <div class="container">
+          <img alt="Thingweb logo" src="./img/logo.png">
+        </div>
+      </header>
+    
+      <div class="wrapper">
+        <h1>Thing Directory</h1>
+        
+        <form action="javascript:register()">
+          <h2>Register (<code>/td</code>)</h2>
+          <p class="form-control">
+            <label for="td-format">Format: </label>
+            <select id="td-format-field" name="td-format">
+              <option value="application/td+json" selected="selected">TD (JSON)</option>
+              <option value="application/ld+json">JSON-LD 1.0</option>
+              <option value="application/n-triples">N-Triples</option>
+              <option value="text/turtle">Turtle</option>
+              <option value="application/rdf+xml">RDF/XML</option>
+            </select>
+          </p>
+          <p class="form-control">
+           <textarea id="td-field" placeholder="Thing Description" name="td" rows="10" cols="50"></textarea>
+          </p>
+          <p class="form-control">
+            <input type="submit" value="OK"/>
+          </p>
+          <p id="td-location" class="highlighted"></p>
+        </form>
+        
+        <form action="javascript:discover()">
+          <h2>Discover (<code>/td-lookup/{sem,frame}</code>)</h2>
+          <p class="form-control">
+            <label for="query-type">Type: </label>
+            <select id="query-type-field" name="query-type">
+              <option value="sem" selected="selected">SPARQL</option>
+              <option value="frame">JSON-LD 1.0 Frame</option>
+            </select>
+          </p>
+          <p>
+            <textarea id="filter-field" placeholder="SPARQL filter (empty: no filter)" name="filter" rows="2" cols="50"></textarea>
+          </p>
+          <p class="form-control">
+            <input type="submit" value="OK"/>
+          </p>
+          <p>
+            <table id="td-table"></table>
+          </p>
+        </form>
+      </div>
       
-      <form action="javascript:register()">
-        <h2>Register (<code>/td</code>)</h2>
-        <p>
-          <label for="td-format">Format: </label>
-          <select id="td-format-field" name="td-format">
-            <option value="application/td+json" selected="selected">TD (JSON)</option>
-            <option value="application/ld+json">JSON-LD 1.0</option>
-            <option value="application/n-triples">N-Triples</option>
-            <option value="text/turtle">Turtle</option>
-            <option value="application/rdf+xml">RDF/XML</option>
-          </select>
-        </p>
-        <p>
-      	 <textarea id="td-field" placeholder="Thing Description" name="td" rows="10" cols="50"></textarea>
-        </p>
-        <p>
-          <input type="submit" value="OK"/>
-        </p>
-        <p id="td-location" class="highlighted"></p>
-      </form>
-      
-      <form action="javascript:discover()">
-        <h2>Discover (<code>/td-lookup/{sem,frame}</code>)</h2>
-        <p>
-          <label for="query-type">Type: </label>
-          <select id="query-type-field" name="query-type">
-            <option value="sem" selected="selected">SPARQL</option>
-            <option value="frame">JSON-LD 1.0 Frame</option>
-          </select>
-        </p>
-        <p>
-          <textarea id="filter-field" placeholder="SPARQL filter (empty: no filter)" name="filter" rows="2" cols="50"></textarea>
-        </p>
-        <p>
-          <input type="submit" value="OK"/>
-        </p>
-        <p>
-          <table id="td-table"></table>
-        </p>
-      </form>
+      <div class="footer-shape">
+        <img src="./img/footer-shape.jpg" width="100%"/>
+      </div>
+      <footer>
+        <div class="links">
+          <ul>
+            <li>
+              <a href="http://www.eclipse.org">Eclipse Foundation</a>
+            </li>
+            <li>|</li>
+            <li>
+              <a href="http://www.eclipse.org/legal/privacy.php">Privacy policy</a>
+            </li>
+            <li>|</li>
+            <li>
+              <a href="http://www.eclipse.org/legal/termsofuse.php">Terms of use</a>
+            </li>
+            <li>|</li>
+            <li>
+              <a href="http://www.eclipse.org/legal/copyright.php">Copyright</a>
+            </li>
+            <li>|</li>
+            <li>
+              <a href="http://www.eclipse.org/legal">Legal</a>
+            </li>
+          </ul>
+        </div>
+        <div>
+          <p>Copyrights © 2018 Eclipse Thingweb. All Rights Reserved.</p>
+        </div>
+      </footer>
     </body>
 </html>
