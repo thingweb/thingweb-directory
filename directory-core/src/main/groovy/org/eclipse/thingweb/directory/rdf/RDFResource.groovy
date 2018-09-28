@@ -71,6 +71,7 @@ class RDFResource implements DirectoryResource {
 	
 	RDFResource(Model content, Model metadata = new LinkedHashModel()) {
 		if (content.contexts().size() > 1) log.warning('Named graphs in RDF resource content ignored')
+		// TODO check if content is empty (otherwise, the manager will always return 'not found')
 		this.content.addAll(content)
 
 		def opt = Models.subjectIRI(metadata.filter(null, RDF.TYPE, DCAT.DATASET))

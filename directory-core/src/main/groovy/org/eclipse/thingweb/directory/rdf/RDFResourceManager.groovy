@@ -106,7 +106,7 @@ class RDFResourceManager extends ResourceManager {
 		def iri = RDFResource.resolve(id)
 		
 		return Repositories.get(repo, { RepositoryConnection con ->
-			def q = "ASK WHERE { <${iri}> a <${DCAT.DATASET}> }"
+			def q = "ASK WHERE { <${iri}> a <${DCAT.DATASET}> . FILTER EXISTS { GRAPH <${iri}> { ?s ?p ?o }}}"
 			return con.prepareBooleanQuery(q).evaluate()
 		})
 	}
