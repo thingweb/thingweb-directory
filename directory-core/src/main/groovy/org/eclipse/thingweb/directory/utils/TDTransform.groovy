@@ -14,6 +14,7 @@
  ********************************************************************************/
 package org.eclipse.thingweb.directory.utils
 
+import org.eclipse.thingweb.directory.rdf.RDFSerializer
 import org.eclipse.thingweb.directory.rdf.TDMalformedException
 import org.eclipse.thingweb.directory.vocabulary.JSONSCHEMA
 import org.eclipse.thingweb.directory.vocabulary.TD
@@ -62,7 +63,7 @@ class TDTransform {
 		
 		if (object.'id') base = object.'id' + '/'
 		else if (object.'@id') base = object.'@id' + '/'
-		else base = '/'
+		else base = RDFSerializer.DEFAULT_BASE_IRI + '/'
 	}
 
 	def asJsonLd10() {
