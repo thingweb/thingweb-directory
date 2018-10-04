@@ -41,7 +41,8 @@ class RDFSerializer implements ResourceSerializer {
 
 	final static RDFFormat DEFAULT_RDF_FORMAT = RDFFormat.JSONLD
 	
-	final static String DEFAULT_BASE_IRI = 'tag:toremove'
+	// FIXME use tag: or urn: instead (see https://github.com/jsonld-java/jsonld-java/issues/232)
+	final static String DEFAULT_BASE_IRI = 'http://eclipse.org/thingweb/'
 	
 	@Override
 	Resource readContent(InputStream i, String cf) {
