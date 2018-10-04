@@ -8,5 +8,25 @@
     "Content-Location": "https://www.w3.org/ns/td",
     "X-Classpath": "w3c-wot-td-context.jsonld",
     "Content-Type": "application/ld+json"
+  },
+  {
+  	"Content-Location": "http://w3c.github.io/wot-thing-description/context/td-context.jsonld",
+  	"X-Classpath": "w3c-wot-td-context.jsonld",
+    "Content-Type": "application/ld+json"
+  },
+  {
+  	"Content-Location": "https://w3c.github.io/wot-thing-description/context/td-context.jsonld",
+  	"X-Classpath": "w3c-wot-td-context.jsonld",
+    "Content-Type": "application/ld+json"
+  },
+  {
+    "Content-Location": "http://w3c.github.io/wot/w3c-wot-td-context.jsonld",
+  	"X-Classpath": "w3c-wot-td-context.jsonld",
+    "Content-Type": "application/ld+json"
+  },
+  {
+    "Content-Location": "https://w3c.github.io/wot/w3c-wot-td-context.jsonld",
+  	"X-Classpath": "w3c-wot-td-context.jsonld",
+    "Content-Type": "application/ld+json"
   }
 ]

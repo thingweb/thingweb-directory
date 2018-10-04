@@ -14,10 +14,14 @@
  ********************************************************************************/
 package org.eclipse.thingweb.directory.utils
 
+import org.eclipse.thingweb.directory.rdf.TDMalformedException
 import org.eclipse.thingweb.directory.vocabulary.JSONSCHEMA
 import org.eclipse.thingweb.directory.vocabulary.TD
 
+import com.github.jsonldjava.core.JsonLdError
+
 import groovy.json.*
+import groovy.util.logging.Log
 
 /**
  * 
@@ -27,6 +31,7 @@ import groovy.json.*
  * @creation 20.06.2018
  *
  */
+@Log
 class TDTransform {
 	
 	static final TD_CONTEXT_URI = TD.NAMESPACE
@@ -38,9 +43,17 @@ class TDTransform {
 	final String base
 	
 	TDTransform(input) {
-		assert Map.isInstance(input) : 'Object passed to TDTransform is not a JSON object'
-		
-		object = input
+		switch (input) {
+			case Collection:
+				input = input.find({ m -> Map.isInstance(m) })
+				log.warning('Object passed to TDTransform is a JSON array. Taking first object element in array...')
+
+			case Map:
+				object = input
+
+			default:
+				if (!object) throw new TDMalformedException('Object passed to TDTransform is not a proper TD object.')
+		}
 				
 		if (object.'@graph') {
 			object = object.'@graph'.find()

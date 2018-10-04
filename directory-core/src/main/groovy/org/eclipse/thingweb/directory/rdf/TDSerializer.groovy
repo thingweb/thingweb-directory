@@ -16,16 +16,20 @@ package org.eclipse.thingweb.directory.rdf
 
 import groovy.json.*
 import groovy.util.logging.Log
+
 import java.io.InputStream
 import java.io.OutputStream
+
 import org.eclipse.rdf4j.model.IRI
 import org.eclipse.rdf4j.model.util.Models
 import org.eclipse.rdf4j.model.vocabulary.RDF
 import org.eclipse.rdf4j.rio.RDFFormat
 import org.eclipse.thingweb.directory.Resource
+import org.eclipse.thingweb.directory.ResourceMalformedException
 import org.eclipse.thingweb.directory.ResourceSerializer
 import org.eclipse.thingweb.directory.utils.TDTransform
 import org.eclipse.thingweb.directory.vocabulary.TD
+
 import com.github.jsonldjava.core.JsonLdOptions
 import com.github.jsonldjava.core.JsonLdProcessor
 import com.github.jsonldjava.core.JsonLdUtils
@@ -67,9 +71,12 @@ class TDSerializer implements ResourceSerializer {
 
 		RDFResource res = RDFSerializer.instance.readContent(i, cf)
 		
-		def iri = Models.subjectIRI(res.content.filter(null, RDF.TYPE, TD.THING))
-		assert iri.isPresent() : 'No instance of td:Thing found in TD content'
-		res.id = iri.get().stringValue()
+		def opt = Models.subject(res.content.filter(null, RDF.TYPE, TD.THING))
+		
+		if (!opt.isPresent()) throw new TDMalformedException('No instance of td:Thing found in TD content')
+		
+		def t = opt.get()
+		if (IRI.isInstance(t)) res.id = t.stringValue()
 		
 		return res
 	}
