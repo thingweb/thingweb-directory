@@ -1,322 +1,347 @@
 <!DOCTYPE html>
 <html>
-    <head>
-      <meta charset="UTF-8">
-      <link rel="shortcut icon" href="./img/favicon.png" type="image/png">
-      <link rel="icon" href="./img/favicon.png" type="image/png">
-      <title>Thingweb Directory - Register and discover W3C Thing Descriptions</title>
-      <style type="text/css">
-        body {
-          margin: 0;
-          padding: 0;
-        }
-        
-        header {
-          border-top: 3px solid rgb(51, 184, 164);
-        }
-        
-        header img {
-          display: block;
-          margin: auto;
-        }
-        
-        .container {
-          padding: 10px 0;
-        }
-      
-        .wrapper {
-          font-family: sans-serif;
-          max-width: 680px;
-          margin: auto;
-        }
-        
-        footer {
-          box-sizing: border-box;
-          background-color: rgb(20, 20, 20);
-          display: block;
-          text-align: center !important;
-          padding: 5px 0 45px;
-        }
-        
-        .footer-shape img {
-          height: auto;
-          vertical-align: middle;
-          border-style: none;
-        }
-        
-        footer ul {
-          list-style: none;
-          padding: 15px 0;
-        }
-        
-        footer li, footer a {
-          display: inline-block;
-          color: white;
-          font-family: 'Open Sans', sans-serif;
-          font-size: 17px;
-          padding: 0 5px;
-          text-decoration-line: none;
-        }
-        
-        footer p {
-          color: white;
-          font-family: 'Open Sans', sans-serif;
-          font-size: 14px;
-          padding-top: 12px;
-        }
-        
-        form {
-          border: solid 1px black;
-          margin-top: 5px;
-          margin-bottom: 5px;
-          padding-left: 10px;
-          padding-right: 10px;
-        }
-        
-        .form-control {
-          width: 100%;
-          text-align: right;
-        }
-        
-        table {
-          width: 100%;
-          text-align: center;
-        }
-        
-        textarea {
-          resize: vertical;
-          width: calc(100% - 2*3px);
-        }
+<head>
+  <meta charset="UTF-8">
+  <link rel="shortcut icon" href="./img/favicon.png" type="image/png">
+  <link rel="icon" href="./img/favicon.png" type="image/png">
+  <title>Thingweb Directory - Register and discover W3C Thing Descriptions</title>
+  <style type="text/css">
+    body {
+      margin: 0;
+      padding: 0;
+    }
 
-        .btn {
-          background: rgb(51, 184, 164);
-          border: 1px solid transparent;
-          border-radius: 200px;
-          color: white;
-          padding: 12px 25px;
-          font-size: 16px;
-          cursor: pointer;
-        }
-        
-        .highlighted {
-          text-align: center;
-          font-style: italic;
-        }
+    header {
+      border-top: 3px solid rgb(51, 184, 164);
+    }
 
-        .framed {
-          padding: 12px 25px;
-          font-size: 16px;
-        }
-        
-        .framed a {
-          color: white;
-        }
-        
-        p.success {
-          background: rgb(51, 184, 164);
-          color: white;
-        }
-        
-        p.failure {
-          background: rgb(161, 33, 33);
-          color: white;
-        }
-        
-        table.success tr {
-          background: rgb(87, 109, 132);
-          color: white;
-        }
-        
-        table.failure tr {
-          background: rgb(161, 33, 33);
-          color: white;
-        }
-      </style>
-      <script type="text/javascript">
-      	function setRegistrationMessage(message, success) {
-      		var p = document.getElementById("td-location");
-      		p.classList.remove("success", "failure");
-      		
-      		if (success === true) { p.classList.add("success"); }
-      		else if (success === false) { p.classList.add("failure"); }
-      		
-      		p.innerHTML = message;
-      	}
-      	
-      	function setDiscoveryResult(result, success) {
-      		var table = document.getElementById("td-table");
-      		table.classList.remove("success", "failure");
-      		table.innerHTML = "";
-      		
-      		if (success === true) { table.classList.add("success"); }
-      		else if (success === false) { table.classList.add("failure"); }
-      		
-      		if (!(result instanceof Array)) { result = [result]; }
-      		
-      		if (result.length === 0) {
-      			var cell = table.insertRow().insertCell();
-                cell.classList.add("framed");
-                cell.innerHTML = "<i>(no result)</i>";
-      		}
-      		
-  			for (i in result) {
-      			var cell = table.insertRow().insertCell();
-                cell.classList.add("framed");
-				cell.innerHTML = result[i];
-			}
-      	}
+    header img {
+      display: block;
+      margin: auto;
+    }
 
-      	function register() {
-			var xhr = new XMLHttpRequest();
+    .container {
+      padding: 10px 0;
+    }
 
-			xhr.onreadystatechange = function() {
-				if (xhr.readyState === 4) { // XMLHttpRequest.DONE
-					if (xhr.getResponseHeader("Location")) {
-						var id = xhr.getResponseHeader("Location");
-      					var anchor = "<a href= \"td/" + id + "\">" + id + "</a>";
-      					setRegistrationMessage("Created: " + anchor, true);
-					} else {
-						console.error(xhr.response);
-						setRegistrationMessage("Error (see console)", false);
-					}
-				}
-			}
-			
-			var field = document.getElementById("td-format-field");
-			var format = field.options[field.selectedIndex].value;
-      		xhr.open("POST", "td");
-      		xhr.setRequestHeader("Content-Type", format);
+    .wrapper {
+      font-family: sans-serif;
+      max-width: 680px;
+      margin: auto;
+    }
 
-      		var td = document.getElementById("td-field").value;
-      		xhr.send(td);
-      		
-      		setRegistrationMessage("Request sent...");
-      	}
-      	
-      	function discover() {
-      		var xhr = new XMLHttpRequest();
+    footer {
+      box-sizing: border-box;
+      background-color: rgb(20, 20, 20);
+      display: block;
+      text-align: center !important;
+      padding: 5px 0 45px;
+    }
 
-      		xhr.responseType = "json";
-      		xhr.onreadystatechange = function() {
-      			if (xhr.readyState === 4) { // XMLHttpRequest.DONE
-      				if (xhr.status === 200) {
-          				var ids = xhr.response;
-          			
-          				let anchors = [];
-          				for (id in ids) {
-          					anchors.push("<a href= \"td/" + id + "\">" + id + "</a>");
-          				}
-          				setDiscoveryResult(anchors, true);
-      				} else {
-      					console.error(xhr.response);
-      					setDiscoveryResult("Error (see console)", false);
-      				}
-      			}
-      		}
+    .footer-shape img {
+      height: auto;
+      vertical-align: middle;
+      border-style: none;
+    }
 
-			var field = document.getElementById("query-type-field");
-			var type = field.options[field.selectedIndex].value;
-      		var q = 'td-lookup/' + type;
-      		
-      		var f = document.getElementById("filter-field").value;
-			if (f != "") {				
-				if (type === 'sem') {
-					q += '?query=' + encodeURIComponent(f);
-				} else if (type === 'frame') {
-					q += '?frame=' + encodeURIComponent(f);
-				}
-			}
-      		xhr.open("GET", q);
-      		xhr.setRequestHeader("Accept", "application/td+json");
-      		
-      		xhr.send();
-      		
-			setDiscoveryResult("Request sent...");
-      	}
-      </script>
-    </head>
-    <body>
-      <header>
-        <div class="container">
-          <img alt="Thingweb logo" src="./img/logo.png">
-        </div>
-      </header>
-    
-      <div class="wrapper">
-        <h1>Thing Directory</h1>
-        
-        <form action="javascript:register()">
-          <h2>Register (<code>/td</code>)</h2>
-          <p class="form-control">
-            <label for="td-format">Format: </label>
-            <select id="td-format-field" name="td-format">
-              <option value="application/td+json" selected="selected">TD (JSON)</option>
-              <option value="application/ld+json">JSON-LD 1.0</option>
-              <option value="application/n-triples">N-Triples</option>
-              <option value="text/turtle">Turtle</option>
-              <option value="application/rdf+xml">RDF/XML</option>
-            </select>
-          </p>
-          <p class="form-control">
-           <textarea id="td-field" placeholder="Thing Description" name="td" rows="10" cols="50"></textarea>
-          </p>
-          <p class="form-control">
-            <input class="btn" type="submit" value="OK"/>
-          </p>
-          <p id="td-location" class="highlighted framed"></p>
-        </form>
-        
-        <form action="javascript:discover()">
-          <h2>Discover (<code>/td-lookup/{sem,frame}</code>)</h2>
-          <p class="form-control">
-            <label for="query-type">Type: </label>
-            <select id="query-type-field" name="query-type">
-              <option value="sem" selected="selected">SPARQL</option>
-              <option value="frame">JSON-LD 1.0 Frame</option>
-            </select>
-          </p>
-          <p>
-            <textarea id="filter-field" placeholder="SPARQL filter (empty: no filter)" name="filter" rows="2" cols="50"></textarea>
-          </p>
-          <p class="form-control">
-            <input class="btn" type="submit" value="OK"/>
-          </p>
-          <p>
-            <table id="td-table"></table>
-          </p>
-        </form>
-      </div>
-      
-      <div class="footer-shape">
-        <img src="./img/footer-shape.jpg" width="100%"/>
-      </div>
-      <footer>
-        <div class="links">
-          <ul>
-            <li>
-              <a href="http://www.eclipse.org">Eclipse Foundation</a>
-            </li>
-            <li>|</li>
-            <li>
-              <a href="http://www.eclipse.org/legal/privacy.php">Privacy policy</a>
-            </li>
-            <li>|</li>
-            <li>
-              <a href="http://www.eclipse.org/legal/termsofuse.php">Terms of use</a>
-            </li>
-            <li>|</li>
-            <li>
-              <a href="http://www.eclipse.org/legal/copyright.php">Copyright</a>
-            </li>
-            <li>|</li>
-            <li>
-              <a href="http://www.eclipse.org/legal">Legal</a>
-            </li>
-          </ul>
-        </div>
-        <div>
-          <p>Copyrights © 2018 Eclipse Thingweb. All Rights Reserved.</p>
-        </div>
-      </footer>
-    </body>
+    footer ul {
+      list-style: none;
+      padding: 15px 0;
+    }
+
+    footer li, footer a {
+      display: inline-block;
+      color: white;
+      font-family: 'Open Sans', sans-serif;
+      font-size: 17px;
+      padding: 0 5px;
+      text-decoration-line: none;
+    }
+
+    footer p {
+      color: white;
+      font-family: 'Open Sans', sans-serif;
+      font-size: 14px;
+      padding-top: 12px;
+    }
+
+    form {
+      border: solid 1px black;
+      margin-top: 5px;
+      margin-bottom: 5px;
+      padding-left: 10px;
+      padding-right: 10px;
+    }
+
+    .form-control {
+      width: 100%;
+      text-align: right;
+    }
+
+    table {
+      width: 100%;
+      text-align: center;
+    }
+
+    textarea {
+      resize: vertical;
+      width: calc(100% - 2*3px);
+    }
+
+    .btn {
+      background: rgb(51, 184, 164);
+      border: 1px solid transparent;
+      border-radius: 200px;
+      color: white;
+      padding: 12px 25px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    .highlighted {
+      text-align: center;
+      font-style: italic;
+    }
+
+    .framed {
+      padding: 12px 25px;
+      font-size: 16px;
+    }
+
+    .framed a {
+      color: white;
+    }
+
+    p.success {
+      background: rgb(51, 184, 164);
+      color: white;
+    }
+
+    p.failure {
+      background: rgb(161, 33, 33);
+      color: white;
+    }
+
+    table.success tr {
+      background: rgb(87, 109, 132);
+      color: white;
+    }
+
+    table.failure tr {
+      background: rgb(161, 33, 33);
+      color: white;
+    }
+  </style>
+  <script type="text/javascript">
+    function setRegistrationMessage(message, success, type) {
+      if (type === "td") {
+        var p = document.getElementById("td-location");
+      } else {
+        var p = document.getElementById("vocab-location");
+      }
+
+      p.classList.remove("success", "failure");
+
+      if (success === true) { p.classList.add("success"); }
+      else if (success === false) { p.classList.add("failure"); }
+
+      p.innerHTML = message;
+    }
+
+    function setDiscoveryResult(result, success) {
+      var table = document.getElementById("td-table");
+      table.classList.remove("success", "failure");
+      table.innerHTML = "";
+
+      if (success === true) { table.classList.add("success"); }
+      else if (success === false) { table.classList.add("failure"); }
+
+      if (!(result instanceof Array)) { result = [result]; }
+
+      if (result.length === 0) {
+        var cell = table.insertRow().insertCell();
+        cell.classList.add("framed");
+        cell.innerHTML = "<i>(no result)</i>";
+      }
+
+      for (i in result) {
+        var cell = table.insertRow().insertCell();
+        cell.classList.add("framed");
+        cell.innerHTML = result[i];
+      }
+    }
+
+    function register() {
+      var xhr = new XMLHttpRequest();
+
+      xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4) { // XMLHttpRequest.DONE
+          if (xhr.getResponseHeader("Location")) {
+            var id = xhr.getResponseHeader("Location");
+            var anchor = "<a href= \"td/" + id + "\">" + id + "</a>";
+            setRegistrationMessage("Created: " + anchor, true, "td");
+          } else {
+            console.error(xhr.response);
+            setRegistrationMessage("Error (see console)", false, "td");
+          }
+        }
+      }
+
+      var field = document.getElementById("td-format-field");
+      var format = field.options[field.selectedIndex].value;
+      xhr.open("POST", "td");
+      xhr.setRequestHeader("Content-Type", format);
+
+      var td = document.getElementById("td-field").value;
+      xhr.send(td);
+
+      setRegistrationMessage("Request sent...");
+    }
+
+    function registerVocab() {
+      var xhr = new XMLHttpRequest();
+
+      xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4) { // XMLHttpRequest.DONE
+          if (xhr.getResponseHeader("Location")) {
+            var id = xhr.getResponseHeader("Location");
+            var anchor = "<a href= \"vocab/" + id + "\">" + id + "</a>";
+            setRegistrationMessage("Created: " + anchor, true, "vocab");
+          } else {
+            console.error(xhr.response);
+            setRegistrationMessage("Error (see console)", false, "vocab");
+          }
+        }
+      }
+
+      var field = document.getElementById("vocab-format-field");
+      var format = "application/ld+json";
+      xhr.open("POST", "vocab");
+      xhr.setRequestHeader("Content-Type", format);
+
+      var vocab = document.getElementById("vocab-field").value;
+      xhr.send(vocab);
+
+      setRegistrationMessage("Request sent...");
+    }
+
+    function discover() {
+      var xhr = new XMLHttpRequest();
+
+      xhr.responseType = "json";
+      xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4) { // XMLHttpRequest.DONE
+          if (xhr.status === 200) {
+            var ids = xhr.response;
+
+            let anchors = [];
+            for (id in ids) {
+              if(id.includes("uuid")){
+                anchors.push("<a href= \"vocab/" + id + "\">" + id + "</a>");
+              }else {
+                anchors.push("<a href= \"td/" + id + "\">" + id + "</a>");
+              }
+            }
+            setDiscoveryResult(anchors, true);
+          } else {
+            console.error(xhr.response);
+            setDiscoveryResult("Error (see console)", false);
+          }
+        }
+      }
+
+      var field = document.getElementById("query-type-field");
+      var type = field.options[field.selectedIndex].value;
+      var q = 'td-lookup/' + type;
+
+      var f = document.getElementById("filter-field").value;
+      if (f != "") {
+        if (type === 'sem') {
+          q += '?query=' + encodeURIComponent(f);
+        } else if (type === 'frame') {
+          q += '?frame=' + encodeURIComponent(f);
+        }
+      }
+      xhr.open("GET", q);
+      xhr.setRequestHeader("Accept", "application/td+json");
+
+      xhr.send();
+
+      setDiscoveryResult("Request sent...");
+    }
+  </script>
+</head>
+<body>
+<header>
+  <div class="container">
+    <img alt="Thingweb logo" src="./img/logo.png">
+  </div>
+</header>
+
+<div class="wrapper">
+  <h1>Thing Directory</h1>
+
+  <form action="javascript:register()">
+    <h2>Register (<code>/td</code>)</h2>
+    <p class="form-control">
+      <label for="td-format">Format: </label>
+      <select id="td-format-field" name="td-format">
+        <option value="application/td+json" selected="selected">TD (JSON)</option>
+        <option value="application/ld+json">JSON-LD 1.0</option>
+        <option value="application/n-triples">N-Triples</option>
+        <option value="text/turtle">Turtle</option>
+        <option value="application/rdf+xml">RDF/XML</option>
+      </select>
+    </p>
+    <p class="form-control">
+      <textarea id="td-field" placeholder="Thing Description" name="td" rows="10" cols="50"></textarea>
+    </p>
+    <p class="form-control">
+      <input class="btn" type="submit" value="OK"/>
+    </p>
+    <p id="td-location" class="highlighted framed"></p>
+  </form>
+
+  <form action="javascript:discover()">
+    <h2>Discover (<code>/td-lookup/{sem,frame}</code>)</h2>
+    <p class="form-control">
+      <label for="query-type">Type: </label>
+      <select id="query-type-field" name="query-type">
+        <option value="sem" selected="selected">SPARQL</option>
+        <option value="frame">JSON-LD 1.0 Frame</option>
+      </select>
+    </p>
+    <p>
+      <textarea id="filter-field" placeholder="SPARQL filter (empty: no filter)" name="filter" rows="2" cols="50"></textarea>
+    </p>
+    <p class="form-control">
+      <input class="btn" type="submit" value="OK"/>
+    </p>
+    <p>
+    <table id="td-table"></table>
+    </p>
+  </form>
+
+  <form action="javascript:registerVocab()">
+    <h2>Register (<code>/vocab</code>)</h2>
+    <p class="form-control">
+      <textarea id="vocab-field" placeholder="Thing Description" name="vocab" rows="10" cols="50"></textarea>
+    </p>
+    <p class="form-control">
+      <input class="btn" type="submit" value="OK"/>
+    </p>
+    <p id="vocab-location" class="highlighted framed"></p>
+  </form>
+
+</div>
+
+<div class="footer-shape">
+  <img src="./img/footer-shape.jpg" width="100%"/>
+</div>
+<footer>
+  <div>
+    <p>Copyrights © 2019 Siemens Thingweb. All Rights Reserved.</p>
+  </div>
+</footer>
+</body>
 </html>
