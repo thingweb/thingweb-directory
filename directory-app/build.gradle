@@ -25,7 +25,6 @@ repositories {
 
 dependencies {
 	compile project(':directory-servlet')
-
 	compile 'org.eclipse.jetty:jetty-server:9.4.12.v20180830'
 	compile 'org.eclipse.jetty:jetty-webapp:9.4.12.v20180830'
 	compile 'commons-cli:commons-cli:1.4'
