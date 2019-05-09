@@ -47,7 +47,7 @@ task deleteDir(type: Delete) {
 task unzip(type: Copy) {
 
 	//dependsOn ':deleteDir'
-	def zipPath = 'build/distributions/thingweb-directory-0.10.0.zip'
+	def zipPath = 'build/distributions/thingweb-directory-0.11.0.zip'
 	println zipPath
 	def zipFile = file(zipPath)
 	def outputDir = file("build/distributions")
@@ -58,7 +58,7 @@ task unzip(type: Copy) {
 }
 
 task runApp(type: JavaExec) {
-	classpath = fileTree("build/distributions/thingweb-directory-0.10.0/lib")
+	classpath = fileTree("build/distributions/thingweb-directory-0.11.0/lib")
 	main = "org.eclipse.thingweb.directory.app.Main"
 }
 
@@ -72,5 +72,5 @@ distributions {
 
 mainClassName = 'org.eclipse.thingweb.directory.app.Main'
 
-version = '0.10.0'
+version = '0.11.0'
 group = 'org.eclipse.thingweb'
