@@ -18,6 +18,16 @@
 			<param-value>application/n-triples,text/turtle,application/rdf+xml,application/ld+json,application/td+json</param-value>
 		</init-param>
 	</filter>
+
+	<filter>
+		<filter-name>CorsFilter</filter-name>
+		<filter-class>org.eclipse.thingweb.directory.filter.CORSFilter</filter-class>
+	</filter>
+
+	<filter-mapping>
+		<filter-name>CorsFilter</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
 	
 	<servlet>
 		<servlet-name>vocab</servlet-name>

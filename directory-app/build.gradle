@@ -1,20 +1,20 @@
 /********************************************************************************
  * Copyright (c) 2018 Contributors to the Eclipse Foundation
- * 
+ *
  * See the NOTICE file(s) distributed with this work for additional
  * information regarding copyright ownership.
- * 
+ *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0, or the W3C Software Notice and
  * Document License (2015-05-13) which is available at
  * https://www.w3.org/Consortium/Legal/2015/copyright-software-and-document.
- * 
+ *
  * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
  ********************************************************************************/
 
 plugins {
-    id 'java'
+	id 'java'
 	id 'application'
 	id 'eclipse'
 }
@@ -24,10 +24,9 @@ repositories {
 }
 
 dependencies {
-    compile project(':directory-servlet')
-    
+	compile project(':directory-servlet')
 	compile 'org.eclipse.jetty:jetty-server:9.4.12.v20180830'
-    compile 'org.eclipse.jetty:jetty-webapp:9.4.12.v20180830'
+	compile 'org.eclipse.jetty:jetty-webapp:9.4.12.v20180830'
 	compile 'commons-cli:commons-cli:1.4'
 }
 
@@ -40,15 +39,38 @@ task processWebApp(type: Copy) {
 	into 'src/main/resources/webapp'
 }
 
+task deleteDir(type: Delete) {
+	delete 'build/'
+}
+
+
+task unzip(type: Copy) {
+
+	//dependsOn ':deleteDir'
+	def zipPath = 'build/distributions/thingweb-directory-0.11.0.zip'
+	println zipPath
+	def zipFile = file(zipPath)
+	def outputDir = file("build/distributions")
+
+	from zipTree(zipFile)
+	into outputDir
+
+}
+
+task runApp(type: JavaExec) {
+	classpath = fileTree("build/distributions/thingweb-directory-0.11.0/lib")
+	main = "org.eclipse.thingweb.directory.app.Main"
+}
+
 processResources.dependsOn = [processWebApp]
 
 distributions {
-    main {
-        baseName = 'thingweb-directory'
-    }
+	main {
+		baseName = 'thingweb-directory'
+	}
 }
 
 mainClassName = 'org.eclipse.thingweb.directory.app.Main'
 
-version = '0.10.0'
+version = '0.11.0'
 group = 'org.eclipse.thingweb'
