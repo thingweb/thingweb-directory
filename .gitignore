@@ -5,5 +5,6 @@ bin/
 .classpath
 .project
 build/
+directory-app/src/main/resources/
 db/
 Lucene/
