@@ -18,6 +18,7 @@ import groovy.util.logging.Log
 
 import java.io.InputStream
 import java.io.OutputStream
+import java.nio.charset.Charset
 import java.util.List
 import java.util.Map
 
@@ -230,14 +231,19 @@ abstract class ResourceManager {
 		
 		// TODO paging on links not on resources
 		ids = ids.subList(page * count, (page + 1) * count)
-		
+
+		System.out.println("ids:  "+ ids)
+
 		if (!ids.isEmpty()) {
-			LookUpResult res = new LookUpResult(ids.collect({ id -> get(id) }))
-			
-			ResourceSerializer rs = ResourceSerializerFactory.get(registrationType)
-			rs.writeContent(res, o, cf)
+			if (type.equalsIgnoreCase("sparql")) {
+				def str = ids.inspect()
+				o.write(str.getBytes(Charset.forName("UTF-8")));
+			} else {
+				LookUpResult res = new LookUpResult(ids.collect({ id -> get(id) }))
+				ResourceSerializer rs = ResourceSerializerFactory.get(registrationType)
+				rs.writeContent(res, o, cf)
+			}
 		}
-		
 		log.fine("Performed lookup on \"${registrationType}\" resources. Search query: ${search}. Result: ${ids} (${cf})")
 	}
 	

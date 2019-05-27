@@ -92,7 +92,13 @@
 		<description>Lookup servlet by resource attributes</description>
 		<servlet-class>org.eclipse.thingweb.directory.servlet.TDLookUpResServlet</servlet-class>
 	</servlet>
-	
+
+	<servlet>
+		<servlet-name>td-lookup-sparql</servlet-name>
+		<description>Lookup servlet for (semantic) SPARQL queries</description>
+		<servlet-class>org.eclipse.thingweb.directory.servlet.TDLookUpSparqlServlet</servlet-class>
+	</servlet>
+
 	<filter-mapping>
 		<filter-name>conneg-rdf</filter-name>
 		<servlet-name>vocab-handle</servlet-name>
@@ -106,6 +112,11 @@
 	<filter-mapping>
 		<filter-name>conneg-td</filter-name>
 		<servlet-name>td-lookup-sem</servlet-name>
+	</filter-mapping>
+
+	<filter-mapping>
+		<filter-name>conneg-td</filter-name>
+		<servlet-name>td-lookup-sparql</servlet-name>
 	</filter-mapping>
 	
 	<servlet-mapping>
@@ -146,5 +157,10 @@
 	<servlet-mapping>
 		<servlet-name>td-lookup-res</servlet-name>
 		<url-pattern>/td-lookup/res</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>td-lookup-sparql</servlet-name>
+		<url-pattern>/td-lookup/sparql</url-pattern>
 	</servlet-mapping>
 </web-app>

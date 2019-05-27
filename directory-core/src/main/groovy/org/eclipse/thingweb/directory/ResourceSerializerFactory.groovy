@@ -15,6 +15,7 @@
 package org.eclipse.thingweb.directory
 
 import org.eclipse.thingweb.directory.rdf.RDFSerializer
+
 import org.eclipse.thingweb.directory.rdf.TDSerializer
 
 /**
@@ -40,7 +41,7 @@ class ResourceSerializerFactory {
 				
 			case 'vocab':
 				return RDFSerializer.instance
-				
+
 			default:
 				throw new RuntimeException('No suitable resource serializer found')
 		}

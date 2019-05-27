@@ -40,7 +40,8 @@ class LookUpFilterFactory {
 			case 'ep':
 				// TODO
 				throw new NotImplementedException()
-				
+			case 'sparql':
+				return new SPARQLFilter(params)
 			default:
 				throw new RuntimeException('No suitable look up filter was found')
 		}
