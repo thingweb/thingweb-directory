@@ -29,11 +29,17 @@ class TD {
 
 	public static final String PREFIX = 'td'
 	
-	public static final String NAMESPACE = 'http://www.w3.org/ns/td#'
+	public static final String NAMESPACE = 'https://www.w3.org/2019/wot/td#'
 	
-	public static final IRI THING = SimpleValueFactory.instance.createIRI(NAMESPACE + "Thing")
+	public static final IRI THING = SimpleValueFactory.instance.createIRI(NAMESPACE, 'Thing')
 	
-	public static final IRI NAME = SimpleValueFactory.instance.createIRI(NAMESPACE + "name")
+	public static final IRI TITLE = SimpleValueFactory.instance.createIRI(NAMESPACE, 'title')
+
+	public static final IRI HAS_PROPERTY_AFFORDANCE = SimpleValueFactory.instance.createIRI(NAMESPACE, 'hasPropertyAffordance')
+
+	public static final IRI HAS_ACTION_AFFORDANCE = SimpleValueFactory.instance.createIRI(NAMESPACE, 'hasActionAffordance')
+
+	public static final IRI HAS_EVENT_AFFORDANCE = SimpleValueFactory.instance.createIRI(NAMESPACE, 'hasEventAffordance')
 	
 	private TD() {}
 	

@@ -16,12 +16,11 @@ package org.eclipse.thingweb.directory.rdf
 
 import javax.xml.datatype.DatatypeConstants
 import javax.xml.datatype.DatatypeFactory
-import javax.xml.datatype.XMLGregorianCalendar
+
 import org.eclipse.rdf4j.model.IRI
 import org.eclipse.rdf4j.model.Literal
 import org.eclipse.rdf4j.model.Model
 import org.eclipse.rdf4j.model.Statement
-import org.eclipse.rdf4j.model.util.Models
 import org.eclipse.rdf4j.model.vocabulary.DCTERMS
 import org.eclipse.rdf4j.query.QueryResults
 import org.eclipse.rdf4j.repository.RepositoryConnection
@@ -29,7 +28,6 @@ import org.eclipse.rdf4j.repository.RepositoryResult
 import org.eclipse.rdf4j.repository.util.Repositories
 import org.eclipse.rdf4j.rio.RDFFormat
 import org.eclipse.rdf4j.rio.Rio
-import org.eclipse.thingweb.directory.Resource
 import org.eclipse.thingweb.directory.ResourceManagerFactory
 import org.eclipse.thingweb.directory.vocabulary.TD
 import org.junit.After
@@ -164,7 +162,7 @@ class RDFResourceManagerTest {
 			assert cissued == DatatypeConstants.GREATER || cissued == DatatypeConstants.EQUAL : 'RDF document update time is erroneous'
 			
 			def id = con.getValueFactory().createIRI('urn:Fan')
-			results = QueryResults.asList(con.getStatements(id, TD.NAME, null, res.iri))
+			results = QueryResults.asList(con.getStatements(id, TD.TITLE, null, res.iri))
 			assert results.size() == 1 : 'RDF document was not properly updated (td:name statement expected)'
 			l = results[0].object as Literal
 			assert l.stringValue() == 'Fan2' : 'RDF document was not updated'

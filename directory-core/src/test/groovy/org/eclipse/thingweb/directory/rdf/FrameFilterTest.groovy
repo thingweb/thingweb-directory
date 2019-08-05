@@ -1,8 +1,10 @@
 package org.eclipse.thingweb.directory.rdf
 
 import org.eclipse.thingweb.directory.ResourceManagerFactory
+import org.junit.Ignore
 import org.junit.Test
 
+@Ignore
 class FrameFilterTest {
 	
 	final RDFResourceManager m = ResourceManagerFactory.get('vocab')

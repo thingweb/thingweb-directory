@@ -1,185 +1,712 @@
 {
-  "@context" : {
-    "td": "http://www.w3.org/ns/td#",
-    "jsonschema": "http://www.w3.org/ns/json-schema#",
-    "wotsec": "http://www.w3.org/ns/wot-security#",
-    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
-    "xsd": "http://www.w3.org/2001/XMLSchema#",
-    "license" : {
-      "@id" : "http://purl.org/dc/terms/license"
-    },
-    "Link" : {
-      "@id" : "http://www.w3.org/ns/td#Link"
-    },
-    "properties" : {
-      "@id" : "http://www.w3.org/ns/td#properties",
-      "@type" : "@id",
-      "@container": "@set"
-    },
-    "http://www.w3.org/ns/json-schema#properties" : {
-      "@type" : "@id",
-      "@container": "@set"
-    },
-    "actions" : {
-      "@id" : "http://www.w3.org/ns/td#actions",
-      "@type" : "@id",
-      "@container": "@set"
-    },
-    "events" : {
-      "@id" : "http://www.w3.org/ns/td#events",
-      "@type" : "@id",
-      "@container": "@set"
-    },
-    "security" : {
-      "@id" : "http://www.w3.org/ns/td#security",
-      "@type" : "@id"
-    },
-    "Thing" : {
-      "@id" : "http://www.w3.org/ns/td#Thing"
-    },
-    "label" : {
-      "@id" : "http://www.w3.org/ns/td#label"
-    },
-    "Event" : {
-      "@id" : "http://www.w3.org/ns/td#Event"
-    },
-    "base" : {
-      "@id" : "http://www.w3.org/ns/td#base"
-    },
-    "anchor" : {
-      "@id" : "http://www.w3.org/ns/td#anchor"
-    },
-    "href" : {
-      "@id" : "http://www.w3.org/ns/td#href"
-    },
-    "name" : {
-      "@id" : "http://www.w3.org/ns/td#name"
-    },
-    "observable" : {
-      "@id" : "http://www.w3.org/ns/td#observable",
-      "@type" : "http://www.w3.org/2001/XMLSchema#boolean"
-    },
-    "Form" : {
-      "@id" : "http://www.w3.org/ns/td#Form"
-    },
-    "writable" : {
-      "@id" : "http://www.w3.org/ns/td#writable",
-      "@type" : "http://www.w3.org/2001/XMLSchema#boolean"
-    },
-    "Property" : {
-      "@id" : "http://www.w3.org/ns/td#Property"
-    },
-    "forms" : {
-      "@id" : "http://www.w3.org/ns/td#forms",
-      "@type" : "@id",
-      "@container": "@set"
-    },
-    "links" : {
-      "@id" : "http://www.w3.org/ns/td#links",
-      "@type" : "@id",
-      "@container": "@set"
-    },
-    "rel" : {
-      "@id" : "http://www.w3.org/ns/td#rel"
-    },
-    "mediaType" : {
-      "@id" : "http://www.w3.org/ns/td#mediaType"
-    },
-    "InteractionPattern" : {
-      "@id" : "http://www.w3.org/ns/td#InteractionPattern"
-    },
-    "Action" : {
-      "@id" : "http://www.w3.org/ns/td#Action"
-    },
-    "input" : {
-      "@id" : "http://www.w3.org/ns/td#input",
-      "@type" : "@id"
-    },
-    "output" : {
-      "@id" : "http://www.w3.org/ns/td#output",
-      "@type" : "@id"
-    },
-    "DataSchema" : {
-      "@id" : "http://www.w3.org/ns/json-schema#DataSchema"
-    },
-    "maximum" : {
-      "@id" : "http://www.w3.org/ns/json-schema#maximum"
-    },
-    "minimum" : {
-      "@id" : "http://www.w3.org/ns/json-schema#minimum"
-    },
-    "maxItems" : {
-      "@id" : "http://www.w3.org/ns/json-schema#maxItems",
-      "@type" : "http://www.w3.org/2001/XMLSchema#decimal"
-    },
-    "minItems" : {
-      "@id" : "http://www.w3.org/ns/json-schema#minItems",
-      "@type" : "http://www.w3.org/2001/XMLSchema#decimal"
-    },
-    "items" : {
-      "@id" : "http://www.w3.org/ns/json-schema#items",
-      "@type" : "@id"
-    },
-    "required" : {
-      "@id" : "http://www.w3.org/ns/json-schema#required",
-      "@type" : "http://www.w3.org/2001/XMLSchema#string",
-      "@container": "@set"
-    },
-    "description" : {
-      "@id" : "http://www.w3.org/ns/td#description"
-    },
-    "enum" : {
-      "@id" : "http://www.w3.org/ns/json-schema#enum",
-      "@type" : "@id",
-      "@container": "@set"
-    },
-    "const" : {
-      "@id" : "http://www.w3.org/ns/json-schema#const"
-    },
-    "type": {
-      "@id" : "http://www.w3.org/ns/json-schema#type"
-    },
-    "support": {
-      "@id" : "http://www.w3.org/ns/td#support"
-    },
-    "SecurityScheme" : {
-      "@id" : "http://www.w3.org/ns/td#SecurityScheme"
-    },
-    "scheme": {
-      "@id" : "http://www.w3.org/ns/wot-security#scheme"
-    },
-    "in": {
-      "@id" : "http://www.w3.org/ns/wot-security#in"
-    },
-    "authorizationUrl": {
-      "@id" : "http://www.w3.org/ns/wot-security#authorizationUrl"
-    },
-    "tokenUrl": {
-      "@id" : "http://www.w3.org/ns/wot-security#tokenUrl"
-    },
-    "refreshUrl": {
-      "@id" : "http://www.w3.org/ns/wot-security#refreshUrl"
-    },
-    "proxyUrl": {
-      "@id" : "http://www.w3.org/ns/wot-security#proxyUrl"
-    },
-    "scopes": {
-      "@id" : "http://www.w3.org/ns/wot-security#scopes"
-    },
-    "flow": {
-      "@id" : "http://www.w3.org/ns/wot-security#flow"
-    },
-    "pname": {
-      "@id" : "http://www.w3.org/ns/wot-security#pname"
-    },
-    "qop": {
-      "@id" : "http://www.w3.org/ns/wot-security#qop"
-    },
-    "alg": {
-      "@id" : "http://www.w3.org/ns/wot-security#alg"
-    },
-    "format": {
-      "@id" : "http://www.w3.org/ns/wot-security#format"
+    "@context": {
+        "td": "https://www.w3.org/2019/wot/td#",
+        "jsonschema": "https://www.w3.org/2019/wot/json-schema#",
+        "wotsec": "https://www.w3.org/2019/wot/security#",
+        "hyperm": "https://www.w3.org/2019/wot/hypermedia#",
+        "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+        "xsd": "http://www.w3.org/2001/XMLSchema#",
+        "license": {
+            "@id": "http://purl.org/dc/terms/license"
+        },
+        "id": "@id",
+        "properties": {
+            "@id": "td:hasPropertyAffordance",
+            "@type": "@id",
+            "@container": "@index",
+            "@context": {
+                "td": "https://www.w3.org/2019/wot/td#",
+                "jsonschema": "https://www.w3.org/2019/wot/json-schema#",
+                "wotsec": "https://www.w3.org/2019/wot/security#",
+                "hyperm": "https://www.w3.org/2019/wot/hypermedia#",
+                "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+                "DataSchema": {
+                    "@id": "jsonschema:DataSchema"
+                },
+                "readOnly": {
+                    "@id": "jsonschema:readOnly",
+                    "@type": "http://www.w3.org/2001/XMLSchema#boolean"
+                },
+                "writeOnly": {
+                    "@id": "jsonschema:writeOnly",
+                    "@type": "http://www.w3.org/2001/XMLSchema#boolean"
+                },
+                "maximum": {
+                    "@id": "jsonschema:maximum"
+                },
+                "minimum": {
+                    "@id": "jsonschema:minimum"
+                },
+                "maxItems": {
+                    "@id": "jsonschema:maxItems",
+                    "@type": "http://www.w3.org/2001/XMLSchema#decimal"
+                },
+                "minItems": {
+                    "@id": "jsonschema:minItems",
+                    "@type": "http://www.w3.org/2001/XMLSchema#decimal"
+                },
+                "items": {
+                    "@id": "jsonschema:items",
+                    "@type": "@id"
+                },
+                "required": {
+                    "@id": "jsonschema:required",
+                    "@type": "http://www.w3.org/2001/XMLSchema#string",
+                    "@container": "@set"
+                },
+                "enum": {
+                    "@id": "jsonschema:enum",
+                    "@type": "@id",
+                    "@container": "@set"
+                },
+                "const": {
+                    "@id": "jsonschema:const"
+                },
+                "unit": {
+                    "@id": "jsonschema:unit"
+                },
+                "oneOf": {
+                    "@id": "jsonschema:oneOf",
+                    "@container": "@set"
+                },
+                "type": {
+                    "@id": "rdf:type",
+                    "@type": "@vocab"
+                },
+                "object": "jsonschema:ObjectSchema",
+                "array": "jsonschema:ArraySchema",
+                "boolean": "jsonschema:BooleanSchema",
+                "string": "jsonschema:StringSchema",
+                "number": "jsonschema:NumberSchema",
+                "integer": "jsonschema:IntegerSchema",
+                "null": "jsonschema:NullSchema",
+                "properties": {
+                    "@id": "jsonschema:properties",
+                    "@type": "@id",
+                    "@container": "@index"
+                }
+            }
+        },
+        "actions": {
+            "@id": "td:hasActionAffordance",
+            "@type": "@id",
+            "@container": "@index"
+        },
+        "events": {
+            "@id": "td:hasEventAffordance",
+            "@type": "@id",
+            "@container": "@index"
+        },
+        "security": {
+            "@id": "td:hasSecurityConfiguration",
+            "@type": "@id",
+            "@container": "@set",
+            "@context": {
+                "td": "https://www.w3.org/2019/wot/td#",
+                "jsonschema": "https://www.w3.org/2019/wot/json-schema#",
+                "wotsec": "https://www.w3.org/2019/wot/security#",
+                "hyperm": "https://www.w3.org/2019/wot/hypermedia#",
+                "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+                "in": {
+                    "@id": "wotsec:in"
+                },
+                "authorization": {
+                    "@id": "wotsec:authorization"
+                },
+                "token": {
+                    "@id": "wotsec:token"
+                },
+                "refresh": {
+                    "@id": "wotsec:refresh"
+                },
+                "proxy": {
+                    "@id": "wotsec:proxy"
+                },
+                "scopes": {
+                    "@id": "wotsec:scopes",
+                    "@container": "@set"
+                },
+                "flow": {
+                    "@id": "wotsec:flow"
+                },
+                "qop": {
+                    "@id": "wotsec:qop"
+                },
+                "alg": {
+                    "@id": "wotsec:alg"
+                },
+                "format": {
+                    "@id": "wotsec:format"
+                },
+                "identity": {
+                    "@id": "wotsec:identity"
+                },
+                "scheme": {
+                    "@id": "rdf:type",
+                    "@type": "@vocab"
+                },
+                "nosec": "wotsec:NoSecurityScheme",
+                "basic": "wotsec:BasicSecurityScheme",
+                "digest": "wotsec:DigestSecurityScheme",
+                "apikey": "wotsec:APIKeySecurityScheme",
+                "bearer": "wotsec:BearerSecurityScheme",
+                "cert": "wotsec:CertSecurityScheme",
+                "psk": "wotsec:PSKSecurityScheme",
+                "public": "wotsec:PublicSecurityScheme",
+                "pop": "wotsec:PoPSecurityScheme",
+                "oauth2": "wotsec:OAuth2SecurityScheme"
+            }
+        },
+        "securityDefinitions": {
+            "@id": "td:securityDefinitions",
+            "@type": "@id",
+            "@container": "@index"
+        },
+        "Thing": {
+            "@id": "td:Thing"
+        },
+        "EventAffordance": {
+            "@id": "td:EventAffordance"
+        },
+        "base": {
+            "@id": "td:baseUri",
+            "@type": "xsd:anyURI"
+        },
+        "name": {
+            "@id": "td:name"
+        },
+        "created": {
+            "@id": "td:created"
+        },
+        "modified": {
+            "@id": "td:modified"
+        },
+        "observable": {
+            "@id": "td:isObservable",
+            "@type": "http://www.w3.org/2001/XMLSchema#boolean"
+        },
+        "VersionInfo": {
+            "@id": "td:VersionInfo"
+        },
+        "PropertyAffordance": {
+            "@id": "td:PropertyAffordance"
+        },
+        "forms": {
+            "@id": "td:hasForm",
+            "@type": "@id",
+            "@container": "@set",
+            "@context": {
+                "td": "https://www.w3.org/2019/wot/td#",
+                "jsonschema": "https://www.w3.org/2019/wot/json-schema#",
+                "wotsec": "https://www.w3.org/2019/wot/security#",
+                "hyperm": "https://www.w3.org/2019/wot/hypermedia#",
+                "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+                "xsd": "http://www.w3.org/2001/XMLSchema#",
+                "Link": {
+                    "@id": "hyperm:Link"
+                },
+                "Form": {
+                    "@id": "hyperm:Form"
+                },
+                "op": {
+                    "@id": "hyperm:forOperationType",
+                    "@container": "@set"
+                },
+                "subprotocol": {
+                    "@id": "hyperm:forSubProtocol"
+                },
+                "contentType": {
+                    "@id": "hyperm:forContentType",
+                    "@type": "xsd:string"
+                },
+                "contentCoding": {
+                    "@id": "hyperm:forContentCoding",
+                    "@type": "xsd:string"
+                },
+                "anchor": {
+                    "@id": "hyperm:hasAnchor"
+                },
+                "href": {
+                    "@id": "hyperm:hasTarget"
+                },
+                "rel": {
+                    "@id": "hyperm:hasRelationType"
+                },
+                "type": {
+                    "@id": "hyperm:hintsAtMediaType"
+                },
+                "response": {
+                    "@id": "hyperm:returns"
+                }
+            }
+        },
+        "version": {
+            "@id": "td:versionInfo",
+            "@type": "@id"
+        },
+        "links": {
+            "@id": "td:hasLink",
+            "@type": "@id",
+            "@container": "@set",
+            "@context": {
+                "td": "https://www.w3.org/2019/wot/td#",
+                "jsonschema": "https://www.w3.org/2019/wot/json-schema#",
+                "wotsec": "https://www.w3.org/2019/wot/security#",
+                "hyperm": "https://www.w3.org/2019/wot/hypermedia#",
+                "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+                "xsd": "http://www.w3.org/2001/XMLSchema#",
+                "Link": {
+                    "@id": "hyperm:Link"
+                },
+                "Form": {
+                    "@id": "hyperm:Form"
+                },
+                "op": {
+                    "@id": "hyperm:forOperationType",
+                    "@container": "@set"
+                },
+                "subprotocol": {
+                    "@id": "hyperm:forSubProtocol"
+                },
+                "contentType": {
+                    "@id": "hyperm:forContentType",
+                    "@type": "xsd:string"
+                },
+                "contentCoding": {
+                    "@id": "hyperm:forContentCoding",
+                    "@type": "xsd:string"
+                },
+                "anchor": {
+                    "@id": "hyperm:hasAnchor"
+                },
+                "href": {
+                    "@id": "hyperm:hasTarget"
+                },
+                "rel": {
+                    "@id": "hyperm:hasRelationType"
+                },
+                "type": {
+                    "@id": "hyperm:hintsAtMediaType"
+                },
+                "response": {
+                    "@id": "hyperm:returns"
+                }
+            }
+        },
+        "uriVariables": {
+            "@id": "td:hasUriTemplateVariable",
+            "@container": "@index"
+        },
+        "safe": {
+            "@id": "td:isSafe"
+        },
+        "idempotent": {
+            "@id": "td:isIdempotent"
+        },
+        "instance": {
+            "@id": "td:instance"
+        },
+        "InteractionAffordance": {
+            "@id": "td:InteractionAffordance"
+        },
+        "ActionAffordance": {
+            "@id": "td:ActionAffordance"
+        },
+        "input": {
+            "@id": "td:hasInputSchema",
+            "@type": "@id",
+            "@context": {
+                "td": "https://www.w3.org/2019/wot/td#",
+                "jsonschema": "https://www.w3.org/2019/wot/json-schema#",
+                "wotsec": "https://www.w3.org/2019/wot/security#",
+                "hyperm": "https://www.w3.org/2019/wot/hypermedia#",
+                "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+                "DataSchema": {
+                    "@id": "jsonschema:DataSchema"
+                },
+                "readOnly": {
+                    "@id": "jsonschema:readOnly",
+                    "@type": "http://www.w3.org/2001/XMLSchema#boolean"
+                },
+                "writeOnly": {
+                    "@id": "jsonschema:writeOnly",
+                    "@type": "http://www.w3.org/2001/XMLSchema#boolean"
+                },
+                "maximum": {
+                    "@id": "jsonschema:maximum"
+                },
+                "minimum": {
+                    "@id": "jsonschema:minimum"
+                },
+                "maxItems": {
+                    "@id": "jsonschema:maxItems",
+                    "@type": "http://www.w3.org/2001/XMLSchema#decimal"
+                },
+                "minItems": {
+                    "@id": "jsonschema:minItems",
+                    "@type": "http://www.w3.org/2001/XMLSchema#decimal"
+                },
+                "items": {
+                    "@id": "jsonschema:items",
+                    "@type": "@id"
+                },
+                "required": {
+                    "@id": "jsonschema:required",
+                    "@type": "http://www.w3.org/2001/XMLSchema#string",
+                    "@container": "@set"
+                },
+                "enum": {
+                    "@id": "jsonschema:enum",
+                    "@type": "@id",
+                    "@container": "@set"
+                },
+                "const": {
+                    "@id": "jsonschema:const"
+                },
+                "unit": {
+                    "@id": "jsonschema:unit"
+                },
+                "oneOf": {
+                    "@id": "jsonschema:oneOf",
+                    "@container": "@set"
+                },
+                "type": {
+                    "@id": "rdf:type",
+                    "@type": "@vocab"
+                },
+                "object": "jsonschema:ObjectSchema",
+                "array": "jsonschema:ArraySchema",
+                "boolean": "jsonschema:BooleanSchema",
+                "string": "jsonschema:StringSchema",
+                "number": "jsonschema:NumberSchema",
+                "integer": "jsonschema:IntegerSchema",
+                "null": "jsonschema:NullSchema",
+                "properties": {
+                    "@id": "jsonschema:properties",
+                    "@type": "@id",
+                    "@container": "@index"
+                }
+            }
+        },
+        "output": {
+            "@id": "td:hasOutputSchema",
+            "@type": "@id",
+            "@context": {
+                "td": "https://www.w3.org/2019/wot/td#",
+                "jsonschema": "https://www.w3.org/2019/wot/json-schema#",
+                "wotsec": "https://www.w3.org/2019/wot/security#",
+                "hyperm": "https://www.w3.org/2019/wot/hypermedia#",
+                "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+                "DataSchema": {
+                    "@id": "jsonschema:DataSchema"
+                },
+                "readOnly": {
+                    "@id": "jsonschema:readOnly",
+                    "@type": "http://www.w3.org/2001/XMLSchema#boolean"
+                },
+                "writeOnly": {
+                    "@id": "jsonschema:writeOnly",
+                    "@type": "http://www.w3.org/2001/XMLSchema#boolean"
+                },
+                "maximum": {
+                    "@id": "jsonschema:maximum"
+                },
+                "minimum": {
+                    "@id": "jsonschema:minimum"
+                },
+                "maxItems": {
+                    "@id": "jsonschema:maxItems",
+                    "@type": "http://www.w3.org/2001/XMLSchema#decimal"
+                },
+                "minItems": {
+                    "@id": "jsonschema:minItems",
+                    "@type": "http://www.w3.org/2001/XMLSchema#decimal"
+                },
+                "items": {
+                    "@id": "jsonschema:items",
+                    "@type": "@id"
+                },
+                "required": {
+                    "@id": "jsonschema:required",
+                    "@type": "http://www.w3.org/2001/XMLSchema#string",
+                    "@container": "@set"
+                },
+                "enum": {
+                    "@id": "jsonschema:enum",
+                    "@type": "@id",
+                    "@container": "@set"
+                },
+                "const": {
+                    "@id": "jsonschema:const"
+                },
+                "unit": {
+                    "@id": "jsonschema:unit"
+                },
+                "oneOf": {
+                    "@id": "jsonschema:oneOf",
+                    "@container": "@set"
+                },
+                "type": {
+                    "@id": "rdf:type",
+                    "@type": "@vocab"
+                },
+                "object": "jsonschema:ObjectSchema",
+                "array": "jsonschema:ArraySchema",
+                "boolean": "jsonschema:BooleanSchema",
+                "string": "jsonschema:StringSchema",
+                "number": "jsonschema:NumberSchema",
+                "integer": "jsonschema:IntegerSchema",
+                "null": "jsonschema:NullSchema",
+                "properties": {
+                    "@id": "jsonschema:properties",
+                    "@type": "@id",
+                    "@container": "@index"
+                }
+            }
+        },
+        "subscription": {
+            "@id": "td:hasSubscriptionSchema",
+            "@type": "@id",
+            "@context": {
+                "td": "https://www.w3.org/2019/wot/td#",
+                "jsonschema": "https://www.w3.org/2019/wot/json-schema#",
+                "wotsec": "https://www.w3.org/2019/wot/security#",
+                "hyperm": "https://www.w3.org/2019/wot/hypermedia#",
+                "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+                "DataSchema": {
+                    "@id": "jsonschema:DataSchema"
+                },
+                "readOnly": {
+                    "@id": "jsonschema:readOnly",
+                    "@type": "http://www.w3.org/2001/XMLSchema#boolean"
+                },
+                "writeOnly": {
+                    "@id": "jsonschema:writeOnly",
+                    "@type": "http://www.w3.org/2001/XMLSchema#boolean"
+                },
+                "maximum": {
+                    "@id": "jsonschema:maximum"
+                },
+                "minimum": {
+                    "@id": "jsonschema:minimum"
+                },
+                "maxItems": {
+                    "@id": "jsonschema:maxItems",
+                    "@type": "http://www.w3.org/2001/XMLSchema#decimal"
+                },
+                "minItems": {
+                    "@id": "jsonschema:minItems",
+                    "@type": "http://www.w3.org/2001/XMLSchema#decimal"
+                },
+                "items": {
+                    "@id": "jsonschema:items",
+                    "@type": "@id"
+                },
+                "required": {
+                    "@id": "jsonschema:required",
+                    "@type": "http://www.w3.org/2001/XMLSchema#string",
+                    "@container": "@set"
+                },
+                "enum": {
+                    "@id": "jsonschema:enum",
+                    "@type": "@id",
+                    "@container": "@set"
+                },
+                "const": {
+                    "@id": "jsonschema:const"
+                },
+                "unit": {
+                    "@id": "jsonschema:unit"
+                },
+                "oneOf": {
+                    "@id": "jsonschema:oneOf",
+                    "@container": "@set"
+                },
+                "type": {
+                    "@id": "rdf:type",
+                    "@type": "@vocab"
+                },
+                "object": "jsonschema:ObjectSchema",
+                "array": "jsonschema:ArraySchema",
+                "boolean": "jsonschema:BooleanSchema",
+                "string": "jsonschema:StringSchema",
+                "number": "jsonschema:NumberSchema",
+                "integer": "jsonschema:IntegerSchema",
+                "null": "jsonschema:NullSchema",
+                "properties": {
+                    "@id": "jsonschema:properties",
+                    "@type": "@id",
+                    "@container": "@index"
+                }
+            }
+        },
+        "data": {
+            "@id": "td:hasNotificationSchema",
+            "@type": "@id",
+            "@context": {
+                "td": "https://www.w3.org/2019/wot/td#",
+                "jsonschema": "https://www.w3.org/2019/wot/json-schema#",
+                "wotsec": "https://www.w3.org/2019/wot/security#",
+                "hyperm": "https://www.w3.org/2019/wot/hypermedia#",
+                "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+                "DataSchema": {
+                    "@id": "jsonschema:DataSchema"
+                },
+                "readOnly": {
+                    "@id": "jsonschema:readOnly",
+                    "@type": "http://www.w3.org/2001/XMLSchema#boolean"
+                },
+                "writeOnly": {
+                    "@id": "jsonschema:writeOnly",
+                    "@type": "http://www.w3.org/2001/XMLSchema#boolean"
+                },
+                "maximum": {
+                    "@id": "jsonschema:maximum"
+                },
+                "minimum": {
+                    "@id": "jsonschema:minimum"
+                },
+                "maxItems": {
+                    "@id": "jsonschema:maxItems",
+                    "@type": "http://www.w3.org/2001/XMLSchema#decimal"
+                },
+                "minItems": {
+                    "@id": "jsonschema:minItems",
+                    "@type": "http://www.w3.org/2001/XMLSchema#decimal"
+                },
+                "items": {
+                    "@id": "jsonschema:items",
+                    "@type": "@id"
+                },
+                "required": {
+                    "@id": "jsonschema:required",
+                    "@type": "http://www.w3.org/2001/XMLSchema#string",
+                    "@container": "@set"
+                },
+                "enum": {
+                    "@id": "jsonschema:enum",
+                    "@type": "@id",
+                    "@container": "@set"
+                },
+                "const": {
+                    "@id": "jsonschema:const"
+                },
+                "unit": {
+                    "@id": "jsonschema:unit"
+                },
+                "oneOf": {
+                    "@id": "jsonschema:oneOf",
+                    "@container": "@set"
+                },
+                "type": {
+                    "@id": "rdf:type",
+                    "@type": "@vocab"
+                },
+                "object": "jsonschema:ObjectSchema",
+                "array": "jsonschema:ArraySchema",
+                "boolean": "jsonschema:BooleanSchema",
+                "string": "jsonschema:StringSchema",
+                "number": "jsonschema:NumberSchema",
+                "integer": "jsonschema:IntegerSchema",
+                "null": "jsonschema:NullSchema",
+                "properties": {
+                    "@id": "jsonschema:properties",
+                    "@type": "@id",
+                    "@container": "@index"
+                }
+            }
+        },
+        "cancellation": {
+            "@id": "td:hasCancellationSchema",
+            "@type": "@id",
+            "@context": {
+                "td": "https://www.w3.org/2019/wot/td#",
+                "jsonschema": "https://www.w3.org/2019/wot/json-schema#",
+                "wotsec": "https://www.w3.org/2019/wot/security#",
+                "hyperm": "https://www.w3.org/2019/wot/hypermedia#",
+                "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+                "DataSchema": {
+                    "@id": "jsonschema:DataSchema"
+                },
+                "readOnly": {
+                    "@id": "jsonschema:readOnly",
+                    "@type": "http://www.w3.org/2001/XMLSchema#boolean"
+                },
+                "writeOnly": {
+                    "@id": "jsonschema:writeOnly",
+                    "@type": "http://www.w3.org/2001/XMLSchema#boolean"
+                },
+                "maximum": {
+                    "@id": "jsonschema:maximum"
+                },
+                "minimum": {
+                    "@id": "jsonschema:minimum"
+                },
+                "maxItems": {
+                    "@id": "jsonschema:maxItems",
+                    "@type": "http://www.w3.org/2001/XMLSchema#decimal"
+                },
+                "minItems": {
+                    "@id": "jsonschema:minItems",
+                    "@type": "http://www.w3.org/2001/XMLSchema#decimal"
+                },
+                "items": {
+                    "@id": "jsonschema:items",
+                    "@type": "@id"
+                },
+                "required": {
+                    "@id": "jsonschema:required",
+                    "@type": "http://www.w3.org/2001/XMLSchema#string",
+                    "@container": "@set"
+                },
+                "enum": {
+                    "@id": "jsonschema:enum",
+                    "@type": "@id",
+                    "@container": "@set"
+                },
+                "const": {
+                    "@id": "jsonschema:const"
+                },
+                "unit": {
+                    "@id": "jsonschema:unit"
+                },
+                "oneOf": {
+                    "@id": "jsonschema:oneOf",
+                    "@container": "@set"
+                },
+                "type": {
+                    "@id": "rdf:type",
+                    "@type": "@vocab"
+                },
+                "object": "jsonschema:ObjectSchema",
+                "array": "jsonschema:ArraySchema",
+                "boolean": "jsonschema:BooleanSchema",
+                "string": "jsonschema:StringSchema",
+                "number": "jsonschema:NumberSchema",
+                "integer": "jsonschema:IntegerSchema",
+                "null": "jsonschema:NullSchema",
+                "properties": {
+                    "@id": "jsonschema:properties",
+                    "@type": "@id",
+                    "@container": "@index"
+                }
+            }
+        },
+        "description": {
+            "@id": "td:description"
+        },
+        "descriptions": {
+            "@id": "td:descriptions",
+            "@container": "@language"
+        },
+        "title": {
+            "@id": "td:title"
+        },
+        "support": {
+            "@id": "td:supportContact"
+        },
+        "unit": {
+            "@id": "td:defaultUnit"
+        }
     }
-  }
 }

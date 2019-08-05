@@ -60,22 +60,21 @@ class TDSerializer implements ResourceSerializer {
 	public static final TD_CONTENT_FORMAT = 'application/td+json'
 
 	@Override
-	public Resource readContent(InputStream i, String cf) {
+	Resource readContent(InputStream i, String cf) {
 		if (cf == TD_CONTENT_FORMAT) {
-			def obj = new JsonSlurper().parse(i)
-			obj = new TDTransform(obj).asJsonLd10()
-			
-			i = new ByteArrayInputStream(JsonOutput.toJson(obj).bytes)
-			cf = RDFFormat.JSONLD.defaultMIMEType
+			// TODO process TD as JSON-LD 1.1 (not supported by RDF4J yet)
 		}
 
 		RDFResource res = RDFSerializer.instance.readContent(i, cf)
+
+		def t = res.content.find({ st ->
+			st.predicate == TD.HAS_PROPERTY_AFFORDANCE ||
+			st.predicate == TD.HAS_ACTION_AFFORDANCE ||
+			st.predicate == TD.HAS_EVENT_AFFORDANCE
+		}).subject
 		
-		def opt = Models.subject(res.content.filter(null, RDF.TYPE, TD.THING))
-		
-		if (!opt.isPresent()) throw new TDMalformedException('No instance of td:Thing found in TD content')
-		
-		def t = opt.get()
+		if (!t) throw new TDMalformedException('No instance of td:Thing found in TD content')
+
 		if (IRI.isInstance(t)) res.id = t.stringValue()
 		
 		return res

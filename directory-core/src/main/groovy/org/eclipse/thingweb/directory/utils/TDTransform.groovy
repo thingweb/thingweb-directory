@@ -35,7 +35,7 @@ import groovy.util.logging.Log
 @Log
 class TDTransform {
 	
-	static final TD_CONTEXT_URI = TD.NAMESPACE
+	static final TD_CONTEXT_URI = TD.NAMESPACE.replace('#', '/v1')
 	
 	static final JSONSCHEMA_PROPERTIES_IRI = JSONSCHEMA.PROPERTIES.stringValue()
 	
