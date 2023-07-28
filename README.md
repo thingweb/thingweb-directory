@@ -1,5 +1,8 @@
 # thingweb-directory
 
+The repository is archived due to no interest in further development. If you are looking for a TD Directory, have a look at the list at <https://www.w3.org/WoT/developers/#tdds>. 
+[Eclipse Thingweb](https://github.com/eclipse-thingweb) is planning to have another one in the future.
+
 The Thingweb Directory is an open source directory for Thing Descriptions. The [Thing Description (TD) model](https://www.w3.org/TR/wot-thing-description/) is a recommendation of the W3C Web of Things working group to describe Things.
 The directory features an API to create, read, update and delete (CRUD) a TD. The directory can be used to *browse* and *discover* Things based on their TDs. This functionality includes but is not limited to following cases:
 
